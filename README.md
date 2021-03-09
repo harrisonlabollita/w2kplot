@@ -1,4 +1,4 @@
-![spaghetti logo](spaghett_logo.png)
+![spaghetti logo](spaghetti_logo.pdf)
 
 A plotting library written in python to plot band structures (including band character) and density of states from commercial DFT codes: VASP and Wien2k.
 
