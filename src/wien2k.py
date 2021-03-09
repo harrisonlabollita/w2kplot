@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib
 plt.style.use('band_publish')
 
-class fatBAND():
+class wien2k:
     def __init__(self, qtlfile, spaghetti, kpath, klabels, Fermi, atoms, orbitals, weight_factor, color):
         self.qtlfile = qtlfile
         self.spaghetti = spaghetti
