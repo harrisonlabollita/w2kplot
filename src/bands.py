@@ -1,8 +1,7 @@
-
 def bands(args)
     if args.code == "wien2k":
         plt.figure(figsize = (4, 6))
-        spaghetti = open(p["spaghetti"], 'r')
+        spaghetti = open(args.bands, 'r')
         k = []
         E = []
         for i, line in enumerate(spaghetti):
@@ -14,31 +13,32 @@ def bands(args)
                 kpts = k
                 k = []
                 E = []
-        if p["qtlfile"] != None:
-            for i in range(len(p["atoms"])):
-                for j in range(len(p["orbitals"][i])):
-                    qtl = open(p["qtlfile"], 'r')
+        if args.character != None:
+            for i in range(len(args.atoms))
+                for j in range(len(args.orbitals[i])):
+                    qtl = open(args.character, 'r')
                     E = []
                     orbital_weight = []
                     for q, line in enumerate(qtl):
                         if 'BAND' not in line:
-                            if line.split()[1] == str(p["atoms"][i]):
-                                E.append((float(line.split()[0]) - p["Fermi"])*13.6)
-                                orbital_weight.append(p["weight_factor"]*(float(line.split()[p["orbitals"][i][j] + 1])))
+                            if line.split()[1] == str(args.atoms][i]):
+                                E.append((float(line.split()[0]) - args.fermi])*13.6) # wien2k interal units are Ry switch to eV
+                                orbital_weight.append(args.weight_factor*(float(line.split()[args.orbitals][i][j] + 1])))
+
                             else:
-                                plt.scatter(kpts, E, orbital_weight, color = p["colors"][i][j], edgecolor = 'black', linewidth = 0.5, rasterized = True)
+                                plt.scatter(kpts, E, orbital_weight, color = args.colors[i][j], edgecolor = 'black', linewidth = 0.5, rasterized = True)
                                 E = []
                                 orbital_weight = []
 
-        for k in p["kpath"]:
-            plt.plot([k for i in range(100)], np.linspace(p["ymin"], p["ymax"], 100), 'k-', lw = 0.5)
-        plt.plot(np.linspace(np.min(p["kpath"]), np.max(p["kpath"]), 100), [0 for i in range(100)], 'k-', lw = 1)
-        plt.ylim(p["ymin"], p["ymax"])
-        plt.xlim(0, np.max(p["kpath"]))
-        plt.xticks(p["kpath"], p["klabels"])
+        for k in args.kpath:
+            plt.plot([k for i in range(100)], np.linspace(args.ymin, args.ymax, 100), 'k-', lw = 0.5)
+        plt.plot(np.linspace(np.min(args.kpath), np.max(args.kpath), 100), [0 for i in range(100)], 'k-', lw = 1)
+        plt.ylim(args.ymin, args.ymax)
+        plt.xlim(0, np.max(args.kpath))
+        plt.xticks(args.kpath, args.klabels)
         plt.ylabel(r'Energy (eV)', fontsize = 15)
-        if p["save"] != None:
-            plt.savefig(p["save"] + '.pdf', format = 'pdf', dpi = 150)
+        if args.save != None:
+            plt.savefig(args.save + '.pdf', format = 'pdf', dpi = 150)
         else:
             plt.show()
     elif args.code == "vasp":
