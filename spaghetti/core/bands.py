@@ -44,6 +44,11 @@ def bands(args):
                                 plt.scatter(kpts, E, orbital_weight, color = args.colors[i][j], edgecolor = 'black', linewidth = 0.5, rasterized = True)
                                 E = []
                                 orbital_weight = []
+        tick_labels = args.klabels
+        for t in range(len(tick_labels)):
+            if tick_labels[t] == "Gamma":
+                tick_labels[t] = "$\Gamma$"
+        plt.xticks(args.kpath, tick_labels)
         if len(args.kpath) != 0:
             for k in args.kpath:
                 plt.plot([k for i in range(100)], np.linspace(args.ymin, args.ymax, 100), 'k-', lw = 0.5)
@@ -82,13 +87,16 @@ def bands(args):
                     for _, line in enumerate(procar):
                         if len(line) > 10:
                             if line.split()[0] == str(args.atoms[i]):
-                                orbital_weight.append(float(line.split()[int(args.orbitals[i][j]) + 1])*float(args.weight_facttor[i][j]))
+                                orbital_weight.append(float(line.split()[int(args.orbitals[i][j]) + 1])*float(args.weight_factor[i][j]))
                     orbital_weight = np.array(orbital_weight).reshape(numKpoints, numBands)
                     for q in range(1, len(bands)-1):
                         plt.scatter(kpath, bands[q], s = [row[q -1] for row in orbital_weight], c = args.colors[i][j], rasterized = True)
+        tick_labels = args.klabels
+        for t in range(len(tick_labels)):
+            if tick_labels[t] == "Gamma":
+                tick_labels[t] = "$\Gamma$"
 
-
-        plt.xticks(args.kpath, args.klabels)
+        plt.xticks(args.kpath, tick_labels)
         for k in args.kpath:
             plt.plot([k for i in range(100)], np.linspace(np.min(bands), np.max(bands), 100), 'k-', lw = 0.5)
         plt.xlim(np.min(kpath), np.max(kpath))
