@@ -1,0 +1,11 @@
+#!/usr/bin/python3
+from spaghetti.core.bands import bands
+from spaghetti.core.parse import parse
+
+
+def main(args):
+    bands(args)
+
+if __name__ == "__main__":
+    args = parse()
+    main(args)

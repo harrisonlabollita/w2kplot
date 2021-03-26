@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: spaghetti
+Version: 0.0.1
+Summary: a small plotting program written in python for plotting band structures calculated from wien2k and VASP
+Home-page: UNKNOWN
+Author: Harrison LaBollita
+Author-email: hlabolli@asu.edu
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN
