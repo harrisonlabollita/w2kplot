@@ -1,6 +1,4 @@
-import sys
-sys.path.append("../spaghetti/")
-from parse import parse
+from spaghetti.core.parse import parse
 
 args = parse()
-print(args.colors)
+print(args)

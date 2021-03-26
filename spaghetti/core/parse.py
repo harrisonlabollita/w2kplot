@@ -35,6 +35,7 @@ def parse():
     parser.add_argument("--save", default = None, help = "option to save the image")
 
     args = parser.parse_args()
+    args.kpath = list(map(float, args.kpath))
     args.colors = adjustArray(args.colors)
     args.orbitals = adjustArray(args.orbitals)
     args.weight_factor  = adjustArray(args.weight_factor)
