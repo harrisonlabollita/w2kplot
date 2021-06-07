@@ -39,11 +39,10 @@ def bands(args):
                             if line.split()[1] == str(args.atoms[i]):
                                 E.append((float(line.split()[0]) - args.fermi)*13.6) # wien2k interal units are Ry switch to eV
                                 orbital_weight.append(float(args.weight_factor[i][j])*(float(line.split()[int(args.orbitals[i][j]) + 1])))
-
-                            else:
-                                plt.scatter(kpts, E, orbital_weight, color = args.colors[i][j], edgecolor = 'black', linewidth = 0.5, rasterized = True)
-                                E = []
-                                orbital_weight = []
+                        else:
+                            plt.scatter(kpts, E, orbital_weight, color = args.colors[i][j], edgecolor = 'black', linewidth = 0.5, rasterized = True)
+                            E = []
+                            orbital_weight = []
         tick_labels = args.klabels
         for t in range(len(tick_labels)):
             if tick_labels[t] == "Gamma":
