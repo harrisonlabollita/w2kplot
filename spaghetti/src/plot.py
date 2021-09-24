@@ -5,6 +5,34 @@ import sys
 import glob
 import os
 
+def band_data(filename):
+    data = np.loadtxt(filename, comments="bandindex")
+    kpts = np.unique(data[:, 3])
+    Ek = data[:,4].reshape(int(len(data)/len(kpts)), len(kpts))
+    return kpts, Ek
+
+def arg2latex(string):
+    if string == '\\xG':
+        return '$\Gamma$'
+    else:
+        return string
+
+def kpath(filename):
+    info = open(filename).readlines()
+    kpts = []
+    klabel = []
+    for (i, line) in enumerate(info):
+        if "xaxis" in line and "tick major" in line and "grid" not in line:
+            pt = info[i+1].split("\"")[1].strip()
+            if pt != "":
+                kpts.append(float(line.split(",")[1].strip()))
+                klabel.append(arg2latex(pt))
+    return kpts, klabel
+
+def fermi(filename):
+    scf = open(filename).readlines()
+    return float([line for line in scf if ":FER" in line][-1].split()[-1].strip())
+
 class spaghetti:
     def __init__(self):
         if not self.directory_checkup():
