@@ -5,33 +5,7 @@ import sys
 import glob
 import os
 
-def band_data(filename):
-    data = np.loadtxt(filename, comments="bandindex")
-    kpts = np.unique(data[:, 3])
-    Ek = data[:,4].reshape(int(len(data)/len(kpts)), len(kpts))
-    return kpts, Ek
 
-def arg2latex(string):
-    if string == '\\xG':
-        return '$\Gamma$'
-    else:
-        return string
-
-def kpath(filename):
-    info = open(filename).readlines()
-    kpts = []
-    klabel = []
-    for (i, line) in enumerate(info):
-        if "xaxis" in line and "tick major" in line and "grid" not in line:
-            pt = info[i+1].split("\"")[1].strip()
-            if pt != "":
-                kpts.append(float(line.split(",")[1].strip()))
-                klabel.append(arg2latex(pt))
-    return kpts, klabel
-
-def fermi(filename):
-    scf = open(filename).readlines()
-    return float([line for line in scf if ":FER" in line][-1].split()[-1].strip())
 
 class spaghetti:
     def __init__(self):
@@ -55,7 +29,7 @@ class spaghetti:
 
     def directory_checkup(self):
         """check if necessary files are in the current working directory"""
-        extensions = ["*.spaghetti_ene", "*.scf", "*.agr", "*.qtl"]
+        extensions = ["*.spaghetti_ene", "*.scf", "*.agr", "*.qtl", "*.struct"]
         for ext in extensions:
             if len(glob.glob(ext)) == 0:
                 print("User error: could not find file with extension: {}".format(ext))
@@ -83,124 +57,55 @@ class spaghetti:
 
     def get_files(self):
         self.bands = glob.glob("*.spaghetti_ene")[0]
+        self.struct = glob.glob("*.struct")[0]
         self.qtl   = glob.glob("*.qtl")[0]
         self.scf   = glob.glob("*.scf")[0]
         self.agr   = glob.glob("*.agr")[0]
 
 
-    def get_bands(self):
-        bands = open(self.bands)
-        k = []
-        Ek = []
-        for i, line in enumerate(bands):
-            if 'bandindex' not in line:
-                k.append(float(line.split()[3]))
-                E.append(float(line.split()[4]))
-            else:
-                numk = len(k)
-        self.kpts = np.array(k).reshape(numk, int(len(k)/numk))
-        self.Ek = np.array(Ek).reshape(numk, int(len(Ek)/numk))
+    def band_data(self):
+        data = np.loadtxt(self.bands, comments="bandindex")
+        self.kpts = np.unique(data[:, 3])
+        self.Ek = data[:,4].reshape(int(len(data)/len(kpts)), len(kpts))
 
 
+    def arg2latex(self, string):
+        if string == '\\xG':
+            return '$\Gamma$'
+        else:
+            return string
 
+    def kpath(self):
+        info = open(self.agr).readlines()
+        self.kpts = []
+        self.klabel = []
+        for (i, line) in enumerate(info):
+            if "xaxis" in line and "tick major" in line and "grid" not in line:
+                pt = info[i+1].split("\"")[1].strip()
+                if pt != "":
+                    self.kpts.append(float(line.split(",")[1].strip()))
+                    self.klabel.append(self.arg2latex(pt))
 
-try:
-    plt.style.use("band_publish")
-except:
-    print("Could not find band_publish style. This is available on Github.")
+    def fermi(self):
+        scf = open(self.scf).readlines()
+        self.eF = float([line for line in scf if ":FER" in line][-1].split()[-1].strip())
 
-
-def bands(args):
-    if args.code == "wien2k":
-        plt.figure(figsize = (4, 6))
-        spaghetti = open(args.bands, 'r')
-        k = []
-        E = []
-        for i, line in enumerate(spaghetti):
-            if 'bandindex' not in line:
-                k.append(float(line.split()[3]))
-                E.append(float(line.split()[4]))
-            else:
-                plt.plot(k, E, 'k-', lw = 0.75)
-                kpts = k
-                k = []
+    def fatband(self)
+        for i in range(len(args.atoms)):
+            for j in range(len(args.orbitals[i])):
+                qtl = open(args.character, 'r')
                 E = []
-        if args.character != None:
-            for i in range(len(args.atoms)):
-                for j in range(len(args.orbitals[i])):
-                    qtl = open(args.character, 'r')
-                    E = []
-                    orbital_weight = []
-                    for q, line in enumerate(qtl):
-                        if 'BAND' not in line:
-                            if line.split()[1] == str(args.atoms[i]):
-                                E.append((float(line.split()[0]) - args.fermi)*13.6) # wien2k interal units are Ry switch to eV
-                                orbital_weight.append(float(args.weight_factor[i][j])*(float(line.split()[int(args.orbitals[i][j]) + 1])))
-                        else:
-                            plt.scatter(kpts, E, orbital_weight, color = args.colors[i][j], edgecolor = 'black', linewidth = 0.5, rasterized = True)
-                            E = []
-                            orbital_weight = []
-        tick_labels = args.klabels
-        for t in range(len(tick_labels)):
-            if tick_labels[t] == "Gamma":
-                tick_labels[t] = "$\Gamma$"
-        plt.xticks(args.kpath, tick_labels)
-        if len(args.kpath) != 0:
-            for k in args.kpath:
-                plt.plot([k for i in range(100)], np.linspace(args.ymin, args.ymax, 100), 'k-', lw = 0.5)
-            plt.plot(np.linspace(np.min(args.kpath), np.max(args.kpath), 100), [0 for i in range(100)], 'k-', lw = 1)
-            plt.xlim(0, np.max(args.kpath))
-            plt.xticks(args.kpath, args.klabels)
-        plt.ylim(args.ymin, args.ymax)
-        plt.ylabel(r'Energy (eV)', fontsize = 15)
-        if args.save != None:
-            plt.savefig(args.save + '.pdf', format = 'pdf', dpi = 150)
-        else:
-            plt.show()
-    elif args.code == "vasp":
-        plt.figure(figsize=(6,6))
-        kpts = []
-        Ek   = []
-        bands = []
-        for _, line in enumerate(open(args.bands, 'r')):
-            try:
-                kpts.append(float(line.split()[0]))
-                Ek.append(float(line.split()[1]))
-            except:
-                plt.plot(kpts, Ek, 'k-', lw = 1)
-                bands.append(Ek)
-                if len(kpts) > 200:
-                    kpath = kpts
-                    kpts = []
-                    Ek = []
+                orbital_weight = []
+                for q, line in enumerate(qtl):
+                    if 'BAND' not in line:
+                        if line.split()[1] == str(args.atoms[i]):
+                            E.append((float(line.split()[0]) - args.fermi)*13.6) # wien2k interal units are Ry switch to eV
+                            orbital_weight.append(float(args.weight_factor[i][j])*(float(line.split()[int(args.orbitals[i][j]) + 1])))
+                    else:
+                        plt.scatter(kpts, E, orbital_weight, color = args.colors[i][j], edgecolor = 'black', linewidth = 0.5, rasterized = True)
+                        E = []
+                        orbital_weight = []
 
-        if args.character != None:
-            numKpoints, numBands = helpPROCAR(args.character)
-            for i in range(len(args.atoms)):
-                for j in range(len(args.orbitals[i])):
-                    procar = open(args.character, 'r')
-                    orbital_weight = []
-                    for _, line in enumerate(procar):
-                        if len(line) > 10:
-                            if line.split()[0] == str(args.atoms[i]):
-                                orbital_weight.append(float(line.split()[int(args.orbitals[i][j]) + 1])*float(args.weight_factor[i][j]))
-                    orbital_weight = np.array(orbital_weight).reshape(numKpoints, numBands)
-                    for q in range(1, len(bands)-1):
-                        plt.scatter(kpath, bands[q], s = [row[q -1] for row in orbital_weight], c = args.colors[i][j], rasterized = True)
-        tick_labels = args.klabels
-        for t in range(len(tick_labels)):
-            if tick_labels[t] == "Gamma":
-                tick_labels[t] = "$\Gamma$"
-
-        plt.xticks(args.kpath, tick_labels)
-        for k in args.kpath:
-            plt.plot([k for i in range(100)], np.linspace(np.min(bands), np.max(bands), 100), 'k-', lw = 0.5)
-        plt.xlim(np.min(kpath), np.max(kpath))
-        plt.plot(np.linspace(0, np.max(kpath), 100), [0 for i in range(100)], 'k-', lw = 0.5)
-        plt.ylabel('Energy (eV)', fontsize = 20)
-        plt.ylim(args.ymin,args.ymax)
-        if args.save != None:
-            plt.savefig(args.save + '.pdf', format = 'pdf', dpi = 150)
-        else:
-            plt.show()
+    def plot(self):
+        """create band structure plot."""
 
