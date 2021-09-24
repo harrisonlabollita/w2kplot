@@ -1,6 +1,8 @@
 Spaghetti
 =========
 
-A plotting library written in python to plot band structures with band character from commercial DFT codes (support for [wien2k](http://susi.theochem.tuwien.ac.at) and [VASP](https://vasp.at)).`
+A program for plotting bands from Wien2k calculations.
 
-**Under construction**: Planning to actually make this only compatible with wien2k.
+## TO-DO
+- input for fatbands
+- user interface
