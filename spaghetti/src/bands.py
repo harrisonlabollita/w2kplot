@@ -93,7 +93,11 @@ class spaghetti:
     def fatband(self)
         for i in range(len(args.atoms)):
             for j in range(len(args.orbitals[i])):
-                qtl = open(args.character, 'r')
+                # opens any qtl file now. No need to delete header
+                start=0
+                qtl=open(filename).readlines()
+                start=[line+1 for line in range(len(qtl)) if "BAND" in qtl[line]][0]
+                qtl=qtl[start:]
                 E = []
                 orbital_weight = []
                 for q, line in enumerate(qtl):
