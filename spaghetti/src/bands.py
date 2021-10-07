@@ -1,20 +1,40 @@
 #!/usr/bin/env python
-import matplotlib.pyplot as plt
 import numpy as np
-import sys
-import glob
-import os
+import sys, glob, os
+from numba import jit
+import matplotlib.pyplot as plt
 
+class args:
+    def __init__(self, atoms, orbitals, fermi, ymin, ymax, 
+                 xmin, xmax, kpath, klabels, colors, weight_factor, save):
+        self.atoms          = 
+        self.orbitals       = 
+        self.fermi          = 
+        self.ymin           = 
+        self.ymax           = 
+        self.xmin           =
+        self.ymax           = 
+        self.kpath          = 
+        self.klabels        =
+        self.colors         =
+        self.weight_factor  = 
+        self.save           =
+
+
+class struct:
+    def __init__(self):
+
+class bands:
 
 
 class spaghetti:
     def __init__(self):
-        if not self.directory_checkup():
+        if not self.dir_chk():  # check if the directory contains the files we need
             exit = """Can not find at least a case.spaghetti_ene file!
                       Make sure that you are in the correct directory
                       and that you have at least executed:
                       x lapw1 -band (-p)
-                      edited case.insp
+                      edit case.insp
                       x spaghetti (-p)
 
                       For band character plotting, you must run
@@ -22,13 +42,13 @@ class spaghetti:
                       after lapw1."""
             print(exit)
             sys.exit(1)
-        # TODO- check for style sheet
-        self.get_files()
-        self.get_command_line()
+
+        self.files()            # grab the necessary input files
+        self.command_line()     # get the command line arguments
 
 
-    def directory_checkup(self):
-        """check if necessary files are in the current working directory"""
+    def dir_chk(self):
+        """check if necessary files are in the current working directory!"""
         extensions = ["*.spaghetti_ene", "*.scf", "*.agr", "*.qtl", "*.struct"]
         for ext in extensions:
             if len(glob.glob(ext)) == 0:
@@ -36,7 +56,7 @@ class spaghetti:
                 return False
         return True
 
-    def get_command_line(self):
+    def command_line(self):
         parser.add_argument("--atoms", nargs="+", type = int, default=[], help = "if plotting band character indcies of atoms to plot the character for")
         parser.add_argument("--orbitals", nargs="+", default=[], help = "indices of orbitals to plot band character for")
         parser.add_argument("--fermi", type = float, default = None, help = "Fermi energy")
@@ -55,19 +75,21 @@ class spaghetti:
         args.orbitals = adjustArray(args.orbitals)
         args.weight_factor  = adjustArray(args.weight_factor)
 
-    def get_files(self):
+    def input_file(file):
+
+    def files(self):
+        """load all the necessary files into the spaghetti class."""
         self.bands = glob.glob("*.spaghetti_ene")[0]
         self.struct = glob.glob("*.struct")[0]
         self.qtl   = glob.glob("*.qtl")[0]
         self.scf   = glob.glob("*.scf")[0]
         self.agr   = glob.glob("*.agr")[0]
 
-
     def band_data(self):
+        """get the band data from the case.spaghetti_ene"""
         data = np.loadtxt(self.bands, comments="bandindex")
         self.kpts = np.unique(data[:, 3])
         self.Ek = data[:,4].reshape(int(len(data)/len(kpts)), len(kpts))
-
 
     def arg2latex(self, string):
         if string == '\\xG':
@@ -90,7 +112,8 @@ class spaghetti:
         scf = open(self.scf).readlines()
         self.eF = float([line for line in scf if ":FER" in line][-1].split()[-1].strip())
 
-    def fatband(self)
+    def fatband(self):
+        ry2eV = 13.6
         for i in range(len(args.atoms)):
             for j in range(len(args.orbitals[i])):
                 # opens any qtl file now. No need to delete header
@@ -103,7 +126,7 @@ class spaghetti:
                 for q, line in enumerate(qtl):
                     if 'BAND' not in line:
                         if line.split()[1] == str(args.atoms[i]):
-                            E.append((float(line.split()[0]) - args.fermi)*13.6) # wien2k interal units are Ry switch to eV
+                            E.append((float(line.split()[0]) - args.fermi)*ry2eV) # wien2k interal units are Ry switch to eV
                             orbital_weight.append(float(args.weight_factor[i][j])*(float(line.split()[int(args.orbitals[i][j]) + 1])))
                     else:
                         plt.scatter(kpts, E, orbital_weight, color = args.colors[i][j], edgecolor = 'black', linewidth = 0.5, rasterized = True)
@@ -111,5 +134,5 @@ class spaghetti:
                         orbital_weight = []
 
     def plot(self):
-        """create band structure plot."""
+        """main program to create band structure plot"""
 
