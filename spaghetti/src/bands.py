@@ -21,9 +21,6 @@ class args:
         self.save           =
 
 
-class struct:
-    def __init__(self):
-
 class bands:
 
 
