@@ -6,6 +6,6 @@ setup(name = "spaghetti",
       author_email = "hlabolli@asu.edu",
       description = "a small plotting program written in python for plotting band structures calculated from wien2k and VASP",
       packages = ["spaghetti", "spaghetti.core"],
-      install_requires =["numpy", "matplotlib"],
+      install_requires =["numpy", "matplotlib", "numba"],
       scripts = ["scripts/spaghetti"])
 
