@@ -8,7 +8,6 @@ Spaghetti
 TO-DO
 
 - [ ] complete band structure program
-	1. simple bands
         2. fatbands
         3. user-input interface
 - [ ] complete Fermi surface slices program
