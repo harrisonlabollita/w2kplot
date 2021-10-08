@@ -69,7 +69,6 @@ class bands:
         data = np.loadtxt(self.bands, comments="bandindex")
         self.kpts = np.unique(data[:, 3])
         self.Ek = data[:,4].reshape(int(len(data)/len(self.kpts)), len(self.kpts))
-        print(self.Ek.shape)
 
     def arg2latex(self, string):
         if string == '\\xG':
@@ -79,6 +78,8 @@ class bands:
     
     def kpath(self):
         # TODO: there is actually a better way to do this
+        # Another way to do this would be to get the info from klistband
+        # Sometimes this file is incorrect though
         info = open(self.agr).readlines()
         self.high_symm = []
         self.klabel = []
@@ -115,8 +116,9 @@ class bands:
                     else:
                         self.character.append(orbital_weight)
                         orbital_weight = []
+
     def plot_bands(self):
-        """main program to create band structure plot"""
+        """program to create band structure plot"""
         self.band_data()
         self.kpath()
         plt.figure()
@@ -130,7 +132,7 @@ class bands:
         plt.xlim(np.min(self.high_symm), np.max(self.high_symm));
 
         if self.args.save:
-            plt.savefig("spaghetti_bands.pdf", format="pdf")
+            plt.savefig(self.args.save+".pdf", format="pdf")
         else:
             plt.show()
 
