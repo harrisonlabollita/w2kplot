@@ -6,25 +6,8 @@ import matplotlib.pyplot as plt
 
 from struct import *
 
-class args:
-    def __init__(self, directions):
-        self.atoms          =  directions[]
-        self.orbitals       = directions[
-        self.fermi          = directions[
-        self.ymin           = directions[
-        self.ymax           = directions[
-        self.xmin           =directions[
-        self.ymax           = directions[
-        self.kpath          = directions[
-        self.klabels        =directions[
-        self.colors         =directions[
-        self.weight_factor  = directions[
-        self.save           =directions[
-
-
-
 class spaghetti:
-    def __init__(self, params):
+    def __init__(self, command_line):
         if not self.dir_chk():  # check if the directory contains the files we need
             exit = """Can not find at least a case.spaghetti_ene file!
                       Make sure that you are in the correct directory
@@ -57,7 +40,10 @@ class spaghetti:
                 return False
         return True
 
-    def command_line(self):
+    def command_file(self):
+        example="""Example contents of file:
+        """
+
         parser.add_argument("--atoms", nargs="+", type = int, default=[], help = "if plotting band character indcies of atoms to plot the character for")
         parser.add_argument("--orbitals", nargs="+", default=[], help = "indices of orbitals to plot band character for")
         parser.add_argument("--fermi", type = float, default = None, help = "Fermi energy")
@@ -70,11 +56,6 @@ class spaghetti:
         parser.add_argument("--colors", nargs = "+", default = [], help = "colors to plot")
         parser.add_argument("--weight_factor", nargs="+", default = [], help = "weights multiply character by")
         parser.add_argument("--save", default = None, help = "option to save the image")
-        args = parser.parse_args()
-        args.kpath = list(map(float, args.kpath))
-        args.colors = adjustArray(args.colors)
-        args.orbitals = adjustArray(args.orbitals)
-        args.weight_factor  = adjustArray(args.weight_factor)
 
     def files(self):
         """load all the necessary files into the spaghetti class."""

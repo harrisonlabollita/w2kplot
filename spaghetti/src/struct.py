@@ -8,9 +8,10 @@ class struct:
 
     def load(self):
         contents=open(glob.glob("*.struct")[0]).readlines()
+        self.filename=glob.glob("*.struct")[0]
         self.nat=int(contents[1].split()[1])
         self.spg=int(contents[1].split()[2])
-        iatom=list(range(1,nat+1))
+        iatom=list(range(1,self.nat+1))
         mults=[int(line.split()[1]) for line in contents if "MULT" in line]
         specs=[str(line.split()[0]) for line in contents if "NPT" in line]
         self.atoms={}
