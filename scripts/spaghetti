@@ -3,13 +3,13 @@
 #from spaghetti.core.parse import parse
 import glob, sys
 from spaghetti.src.struct import *
-
+from spaghetti.src.bands import *
 
 def command_line():
     import argparse
     parser=argparse.ArgumentParser()
     parser.add_argument("--init", dest="init", action="store_true", help="sets up the interactive initialization to create the plot")
-    parser.add_argument("--bands", dest="bands", action="store_true", help="only plots the bands (no fatbands!)")
+    parser.add_argument("--switch", default="bands", type=str)
     parser.add_argument("--ymin", type = float, default = -1.5)
     parser.add_argument("--ymax", type = float, default = 1.5)
     parser.add_argument("--weight", type=int, default=20, help = "weights multiply character by")
@@ -19,8 +19,10 @@ def command_line():
 
 def init():
     """interactive intialization of the input file."""
+    fout=open("spaghetti.init","w")
     structure=struct()
     klabels=input("Enter the klabels that you would like to use (Ex - Gamma X M Gamma): ")
+    fout.write("klabels=".join(klabels))
     fatband=input("Do you wish to plot fatbands? (y/n) ")
     if fatband == "y":
         if len(glob.glob("*.qtl")) == 0:
@@ -36,9 +38,13 @@ def init():
         atoms=list(map(int, input("Please enter a list of atoms: ").split()))
         print("""Now enter the index of the orbital that you would like to plot.""")
         orbitals=[list(map(int, input("orbital-character for atom {}: ".format(a)))) for a in atoms]
+        # ask about colors, weight, etc
 
 
 if __name__ == "__main__":
     args = command_line()
     if args.init:
         init()
+    bands(args)
+
+

@@ -3,11 +3,15 @@ import numpy as np
 import sys, glob, os
 from numba import jit
 import matplotlib.pyplot as plt
-
 from struct import *
+try:
+    plt.style.use("band_publish")
+except:
+    print("Spaghetti matplotlib style sheet not found")
 
-class spaghetti:
-    def __init__(self, command_line):
+
+class bands:
+    def __init__(self, args):
         if not self.dir_chk():  # check if the directory contains the files we need
             exit = """Can not find at least a case.spaghetti_ene file!
                       Make sure that you are in the correct directory
@@ -21,73 +25,71 @@ class spaghetti:
                       after lapw1."""
             print(exit)
             sys.exit(1)
-
+        self.args=args
         self.files()            # grab the necessary input files
-        self.command_line()     # get the command line arguments
-        self.band_data()        # get bands
-        self.kpath()            # get path
-        self.fermi()            # get fermi energy
-        self.fatband()          # get fatband
-        self.plot()             # plot
+        if self.args.switch=="bands":
+            self.plot_bands()             # plot
+        elif self.args.switch=="fatbands":
+            self.plot_fatbands()
+        else:
+            print("Did not recognize that switch ({})".format(args.switch))
+            sys.exit(1)
 
 
     def dir_chk(self):
         """check if necessary files are in the current working directory!"""
-        extensions = ["*.spaghetti_ene", "*.scf", "*.agr", "*.qtl", "*.struct"]
+        extensions = ["*.spaghetti_ene","*.agr"]
         for ext in extensions:
             if len(glob.glob(ext)) == 0:
                 print("User error: could not find file with extension: {}".format(ext))
+                print("Program will not be able to run with this file")
                 return False
         return True
 
-    def command_file(self):
-        example="""Example contents of file:
-        """
-
-        parser.add_argument("--atoms", nargs="+", type = int, default=[], help = "if plotting band character indcies of atoms to plot the character for")
-        parser.add_argument("--orbitals", nargs="+", default=[], help = "indices of orbitals to plot band character for")
-        parser.add_argument("--fermi", type = float, default = None, help = "Fermi energy")
-        parser.add_argument("--ymin", type = float, default = -1.5)
-        parser.add_argument("--xmin", type = float, default = None)
-        parser.add_argument("--xmax", type = float, default = None)
-        parser.add_argument("--ymax", type = float, default = 1.5)
-        parser.add_argument("--kpath", nargs="+", default = [], help = "points along the highsymmetry points")
-        parser.add_argument("--klabels", nargs="+", default = [], help = "High symmetry points labels")
-        parser.add_argument("--colors", nargs = "+", default = [], help = "colors to plot")
-        parser.add_argument("--weight_factor", nargs="+", default = [], help = "weights multiply character by")
-        parser.add_argument("--save", default = None, help = "option to save the image")
 
     def files(self):
         """load all the necessary files into the spaghetti class."""
         self.bands = glob.glob("*.spaghetti_ene")[0]
-        self.struct = struct(glob.glob("*.struct")[0])
-        self.qtl   = glob.glob("*.qtl")[0]
-        self.scf   = glob.glob("*.scf")[0]
         self.agr   = glob.glob("*.agr")[0]
+        try:
+            self.struct = struct(glob.glob("*.struct")[0])
+        except:
+            self.struct = None
+        try:
+            self.qtl   = glob.glob("*.qtl")[0]
+        except:
+            self.qtl=None
+        try:
+            self.scf   = glob.glob("*.scf")[0]
+        except:
+            self.scf = None
 
     def band_data(self):
         """get the band data from the case.spaghetti_ene"""
         data = np.loadtxt(self.bands, comments="bandindex")
         self.kpts = np.unique(data[:, 3])
-        self.Ek = data[:,4].reshape(int(len(data)/len(kpts)), len(kpts))
+        self.Ek = data[:,4].reshape(int(len(data)/len(self.kpts)), len(self.kpts))
+        print(self.Ek.shape)
 
     def arg2latex(self, string):
         if string == '\\xG':
             return '$\Gamma$'
         else:
             return string
-
+    
     def kpath(self):
+        # TODO: there is actually a better way to do this
         info = open(self.agr).readlines()
-        self.kpts = []
+        self.high_symm = []
         self.klabel = []
         for (i, line) in enumerate(info):
             if "xaxis" in line and "tick major" in line and "grid" not in line:
                 pt = info[i+1].split("\"")[1].strip()
                 if pt != "":
-                    self.kpts.append(float(line.split(",")[1].strip()))
+                    self.high_symm.append(float(line.split(",")[1].strip()))
                     self.klabel.append(self.arg2latex(pt))
 
+    @jit
     def fermi(self):
         scf = open(self.scf).readlines()
         self.eF = float([line for line in scf if ":FER" in line][-1].split()[-1].strip())
@@ -113,9 +115,26 @@ class spaghetti:
                     else:
                         self.character.append(orbital_weight)
                         orbital_weight = []
-
-    def plot(self):
+    def plot_bands(self):
         """main program to create band structure plot"""
+        self.band_data()
+        self.kpath()
         plt.figure()
-        
+        for b in range(len(self.Ek)):
+            plt.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
+        plt.xticks(self.high_symm, self.klabel)
+        for k in self.high_symm: plt.axvline(k, color="k", lw=0.5)
+        plt.axhline(0.0, color="k", lw=0.5)
+        plt.ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+        plt.ylim(self.args.ymin, self.args.ymax);
+        plt.xlim(np.min(self.high_symm), np.max(self.high_symm));
+
+        if self.args.save:
+            plt.savefig("spaghetti_bands.pdf", format="pdf")
+        else:
+            plt.show()
+
+    def plot_fatbands(self):
+        print("Not implemented yet!")
+        sys.exit(1)
 
