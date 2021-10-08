@@ -21,7 +21,7 @@ def init():
     """interactive intialization of the input file."""
     structure=struct()
     klabels=input("Enter the klabels that you would like to use (Ex - Gamma X M Gamma): ")
-    fatband=input("Do you wish to plot fatbands? (y/n)")
+    fatband=input("Do you wish to plot fatbands? (y/n) ")
     if fatband == "y":
         if len(glob.glob("*.qtl")) == 0:
             print("you will need a qtl file for this!")
@@ -29,16 +29,13 @@ def init():
         if len(glob.glob("*.struct")) == 0:
             print("you will need a struct file for this!")
             sys.exit(1)
-        msg="""From the available struct file:  {}
-               We found the following atoms.""".format(structure.filename)
+        msg="""From the available struct file:  {} We found the following:.""".format(structure.filename)
         print(msg)
         for ia, a in enumerate(structure.atoms):
-            print("{}       {}".format(structure.atoms[a][0],structure.atoms[a][1]))
+            print("{:^5s} {:^5s} {:^5s}".format(str(ia+1), str(structure.atoms[a][0]), str(structure.atoms[a][1])))
         atoms=list(map(int, input("Please enter a list of atoms: ").split()))
-        msg="""Now enter the index of the orbital that you would like to plot."""
-        print("""Now enter the index of the orbital that you would like to plot.
-                """)
-        orbitals=[list(map(int, input("orbital-character for {}".format(a)))) for a in atoms]
+        print("""Now enter the index of the orbital that you would like to plot.""")
+        orbitals=[list(map(int, input("orbital-character for atom {}: ".format(a)))) for a in atoms]
 
 
 if __name__ == "__main__":
