@@ -10,4 +10,4 @@ spaghetti/src/__init__.py
 spaghetti/src/bands.py
 spaghetti/src/fs.py
 spaghetti/src/spaghetti
-spaghetti/src/struct.py
+spaghetti/src/w2kstruct.py
