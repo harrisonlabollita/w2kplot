@@ -52,7 +52,7 @@ class bands:
         self.bands = glob.glob("*.spaghetti_ene")[0]
         self.agr   = glob.glob("*.agr")[0]
         try:
-            self.struct = struct(glob.glob("*.struct")[0])
+            self.struct = glob.glob("*.struct")[0]
         except:
             self.struct = None
         try:
@@ -140,6 +140,12 @@ class bands:
             plt.show()
 
     def plot_fatbands(self):
-        print("Not implemented yet!")
-        sys.exit(1)
+        # TODO: is this obsolete?
+        if self.qtl is None or self.struct is None or self.scf is None:    # checks for necessary files
+            print("Spaghetti needs: case.qtl, case.struct, and case.scf to run fatbands!")
+            sys.exit(1)
+        if len(glob.glob("spaghetti.init")) == 0:        # checks for init file
+            msg="""To run fatbands, we need a spaghetti.init file.\nTry running spaghetti --init --switch fatbands."""
+            print(msg)
+            sys.exit(1)
 
