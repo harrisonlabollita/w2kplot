@@ -1,7 +1,7 @@
 Spaghetti
 =========
 
-*Spaghetti* is a Python program to create publication quality band structure plots from [Wien2k](http://susi.theochem.tuwien.ac.at) density-functional theory (DFT) calculations. The user simply runs the program inside the directory with the required files from Wien2k and it takes care of the rest! 
+**Spaghetti** is a Python program to create publication quality band structure plots from [Wien2k](http://susi.theochem.tuwien.ac.at) density-functional theory (DFT) calculations. The user simply runs the program inside the directory with the required files from Wien2k and it takes care of the rest! 
 
 
 
@@ -22,10 +22,12 @@ The init flag creates the ``spaghetti.init`` file which tells the progam which a
 
 
 **TO-DO**
+- [x] basic band structure program basically done
+- [ ] new features
+	- make nice legend
+	- speed up qtl loops
 - [ ] complete Fermi surface slices program
-	1. generate klistband file
-        2. create a job.sh file to run wien2k
+	- generate klistband file
+        - create a job.sh file to run wien2k
 	3. program to plot the resulting Fermi surface slice
-
-
-*PRs and feedback are welcome!*
+**PRs and feedback are welcome!**
