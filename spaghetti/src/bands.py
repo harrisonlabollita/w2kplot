@@ -85,10 +85,13 @@ class bands:
         self.klabel = []
         for (i, line) in enumerate(info):
             if "xaxis" in line and "tick major" in line and "grid" not in line:
-                pt = info[i+1].split("\"")[1].strip()
-                if pt != "":
-                    self.high_symm.append(float(line.split(",")[1].strip()))
-                    self.klabel.append(self.arg2latex(pt))
+                try:
+                    pt = info[i+1].split("\"")[1].strip()
+                    if pt != "":
+                        self.high_symm.append(float(line.split(",")[1].strip()))
+                        self.klabel.append(self.arg2latex(pt))
+                except:
+                    continue
 
     @jit
     def fermi(self):
