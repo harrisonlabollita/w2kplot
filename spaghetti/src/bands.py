@@ -10,7 +10,6 @@ try:
 except:
     print("Spaghetti matplotlib style sheet not found")
 
-
 class bands:
     def __init__(self, args):
         if not self.dir_chk():  # check if the directory contains the files we need
@@ -131,19 +130,19 @@ class bands:
         for key in self.keywords.keys():
             if key in control.keys():
                 self.keywords[key] = control[key]
-                
 
     def plot_fatbands(self):
         ry2eV = 13.6
-        default_cols = [[ "dodgerblue" ]]
-        # "lightcoral", "dodgerblue", "gold", "forestgreen", "magenta", "mediumslateblue", "cyan", "slategray"
+        default_cols = [["dodgerblue", "lightcoral", "gold", "forestgreen", "magenta"],
+                        ["b", "r", "g", "y", "c"],
+                        ["royalblue", "salmon", "lawngreen", "orange", "deeppink"]]
         
         self.band_data()
         self.fermi()
         self.kpath()
         plt.figure()
         for b in range(len(self.Ek)): plt.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
-        # TODO: is this obsolete?
+        
         if self.qtl is None or self.struct is None or self.scf is None:    # checks for necessary files
             print("Spaghetti needs: case.qtl, case.struct, and case.scf to run fatbands!")
             sys.exit(1)
@@ -155,22 +154,31 @@ class bands:
         structure=struct()
         self.load_init()
         self.weight = self.args.weight if self.keywords["weights"] is None else self.keywords["weights"]
+
+        if self.keywords["colors"] is None:
+            self.colors = [[default_cols[ia%len(default_cols)][o%len(default_cols[0])]  \
+                           for o in self.keywords["orbitals"][ia]]  \
+                           for (ia, a) in enumerate(self.keywords["atoms"])]
+        else:
+            self.colors = self.keywords["colors"]
+
+
         self.colors = default_cols if self.keywords["colors"] is None else self.keywords["colors"]
         for (a, at) in enumerate(self.keywords["atoms"]):
             for o in range(len(self.keywords["orbitals"][a])):
-                # opens any qtl file now. No need to delete header
-                start=0
-                qtl=open(self.qtl).readlines()
-                start=[line+1 for line in range(len(qtl)) if "BAND" in qtl[line]][0]
-                qtl=qtl[start:]
-                E = []
+                start         = 0
+                qtl           = open(self.qtl).readlines()
+                start         = [line+1 for line in range(len(qtl)) if "BAND" in qtl[line]][0]
+                qtl           = qtl[start:]
+                E         = []
                 character = []
+                #TODO: speed this up somehow
                 for q, line in enumerate(qtl):
                     if 'BAND' not in line:
                         if line.split()[1] == str(at):
-                            E.append((float(line.split()[0]) - self.eF)*ry2eV) # wien2k interal units are Ry switch to eV
-                            enh=float(self.weight*structure.atoms[at][1])               # weight factor
-                            ovlap=(float(line.split()[int(self.keywords["orbitals"][a][o]) + 1]))       # qtl overlap
+                            E.append((float(line.split()[0]) - self.eF)*ry2eV)                      # wien2k interal units are Ry switch to eV
+                            enh   = float(self.weight*structure.atoms[at][1])                       # weight factor
+                            ovlap = (float(line.split()[int(self.keywords["orbitals"][a][o]) + 1])) # qtl overlap
                             character.append(enh*ovlap)
                     else:
                         assert len(self.kpts) == len(E), "lenghts of arrays do not match!"

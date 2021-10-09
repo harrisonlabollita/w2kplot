@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-#from spaghetti.core.bands import bands
-#from spaghetti.core.parse import parse
 import glob, sys
 from spaghetti.src.w2kstruct import *
 from spaghetti.src.bands import *
@@ -9,7 +7,7 @@ def command_line():
     import argparse
     parser=argparse.ArgumentParser()
     parser.add_argument("--init", dest="init", action="store_true", help="sets up the interactive initialization to create the plot")
-    parser.add_argument("--switch", default="bands", type=str)
+    parser.add_argument("--switch", default="bands", type=str, help="control the program")
     parser.add_argument("--ymin", type = float, default = -1.5)
     parser.add_argument("--ymax", type = float, default = 1.5)
     parser.add_argument("--weight", type=int, default=20, help = "weights multiply character by")
@@ -44,13 +42,16 @@ def init():
         print("""Now enter the index of the orbital that you would like to plot.""")
         qtl_msg=[line for line in open(glob.glob("*.qtl")[0]).readlines() if "JATOM" in line] 
         print("".join(qtl_msg))
-        orbitals=[list(map(int, input("orbital-character for atom {}: ".format(a)))) for a in atoms]
+        orbitals=[list(map(int, input("orbital(s) for atom {}: ".format(a)).split())) for a in atoms]
         fout.write("orbitals= {}\n".format(str(orbitals)))
         # ask about colors, weight, etc
-        colors=input("Enter a list of colors (leave blank for default): ")
-        if len(colors) > 0: fout.write("colors= {}\n".format(colors))
+        colors=input("Enter a list of colors (y/n): ")
+        if colors == "y": 
+            orb_colors= [[input("color for atom {} orb {}: ".format(str(a), str(o))) for o in orbitals[ia]] for (ia, a) in enumerate(atoms)]
+            fout.write("colors= {}\n".format(orb_colors))
+
         weight=input("Enter a weight (default=20): ")
-        if len(colors) > 0: fout.write("weight= {}\n".format(weight))
+        if len(weight) > 0: fout.write("weight= {}\n".format(weight))
         fout.close()
 
 
@@ -58,6 +59,8 @@ if __name__ == "__main__":
     args = command_line()
     if args.init:
         init()
-    bands(args)
-
-
+    if args.switch in ["bands", "fatbands"]:
+        bands(args)
+    elif args.switch in ["fs"]:
+        print("Not implemented!")
+        sys.exit(1)
