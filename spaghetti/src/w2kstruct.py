@@ -1,5 +1,6 @@
 import glob, sys
-class struct:
+
+class w2kstruct:
     """this is a wien2k structure class that contains the information 
        we need about about the crystal structure to plot the bands.
     """
@@ -13,13 +14,18 @@ class struct:
     def load(self):
         contents=open(glob.glob("*.struct")[0]).readlines()
         self.filename=glob.glob("*.struct")[0]
-        self.nat=int(contents[1].split()[2])
-        self.spg=int(contents[1].split()[3])
+
+        try: # does this try/except handle all cases
+            self.nat=int(contents[1].split()[2])
+            self.spg=int(contents[1].split()[3])
+        except:
+            self.nat=int(contents[1].split()[1])
+            self.spg=int(contents[1].split()[2])
+
         iatom=list(range(1,self.nat+1))
         mults=[int(line.split()[1]) for line in contents if "MULT" in line]
         specs=[str(line.split()[0]) for line in contents if "NPT" in line]
         self.atoms={}
         assert len(mults)==len(specs), "Did not parse the struct file correctly!"
         assert len(iatom)==len(specs), "Did not parse the struct file correctly!"
-        for a in range(self.nat):
-            self.atoms[a]=[specs[a], mults[a]]
+        for a in range(self.nat): self.atoms[a]=[specs[a], mults[a]]

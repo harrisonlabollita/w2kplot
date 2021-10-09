@@ -3,7 +3,8 @@ import numpy as np
 import sys, glob, os
 from numba import jit
 import matplotlib.pyplot as plt
-from struct import *
+from spaghetti.src.w2kstruct import w2kstruct as struct
+
 try:
     plt.style.use("band_publish")
 except:
@@ -93,32 +94,10 @@ class bands:
                 except:
                     continue
 
-    @jit
     def fermi(self):
         scf = open(self.scf).readlines()
         self.eF = float([line for line in scf if ":FER" in line][-1].split()[-1].strip())
 
-    @jit
-    def fatband(self):
-        ry2eV = 13.6
-        self.character=[]
-        for i in range(len(args.atoms)):
-            for j in range(len(args.orbitals[i])):
-                # opens any qtl file now. No need to delete header
-                start=0
-                qtl=open(filename).readlines()
-                start=[line+1 for line in range(len(qtl)) if "BAND" in qtl[line]][0]
-                qtl=qtl[start:]
-                E = []
-                orbital_weight = []
-                for q, line in enumerate(qtl):
-                    if 'BAND' not in line:
-                        if line.split()[1] == str(args.atoms[i]):
-                            E.append((float(line.split()[0]) - args.fermi)*ry2eV) # wien2k interal units are Ry switch to eV
-                            orbital_weight.append(float(args.weight_factor[i][j])*(float(line.split()[int(args.orbitals[i][j]) + 1])))
-                    else:
-                        self.character.append(orbital_weight)
-                        orbital_weight = []
 
     def plot_bands(self):
         """program to create band structure plot"""
@@ -139,13 +118,77 @@ class bands:
         else:
             plt.show()
 
+    def load_init(self): 
+        exec(open("spaghetti.init").read())
+        load=locals()
+        control={}
+        control.update(load)
+        self.keywords={"klabels": None, 
+                   "colors": None, 
+                   "atoms" : None, 
+                   "orbitals": None,
+                   "weights": None}
+        for key in self.keywords.keys():
+            if key in control.keys():
+                self.keywords[key] = control[key]
+                
+
     def plot_fatbands(self):
+        ry2eV = 13.6
+        default_cols = [[ "dodgerblue" ]]
+        # "lightcoral", "dodgerblue", "gold", "forestgreen", "magenta", "mediumslateblue", "cyan", "slategray"
+        
+        self.band_data()
+        self.fermi()
+        self.kpath()
+        plt.figure()
+        for b in range(len(self.Ek)): plt.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
         # TODO: is this obsolete?
         if self.qtl is None or self.struct is None or self.scf is None:    # checks for necessary files
             print("Spaghetti needs: case.qtl, case.struct, and case.scf to run fatbands!")
             sys.exit(1)
-        if len(glob.glob("spaghetti.init")) == 0:        # checks for init file
+        if len(glob.glob("spaghetti.init")) == 0:                          # checks for init file
             msg="""To run fatbands, we need a spaghetti.init file.\nTry running spaghetti --init --switch fatbands."""
             print(msg)
             sys.exit(1)
 
+        structure=struct()
+        self.load_init()
+        self.weight = self.args.weight if self.keywords["weights"] is None else self.keywords["weights"]
+        self.colors = default_cols if self.keywords["colors"] is None else self.keywords["colors"]
+        for (a, at) in enumerate(self.keywords["atoms"]):
+            for o in range(len(self.keywords["orbitals"][a])):
+                # opens any qtl file now. No need to delete header
+                start=0
+                qtl=open(self.qtl).readlines()
+                start=[line+1 for line in range(len(qtl)) if "BAND" in qtl[line]][0]
+                qtl=qtl[start:]
+                E = []
+                character = []
+                for q, line in enumerate(qtl):
+                    if 'BAND' not in line:
+                        if line.split()[1] == str(at):
+                            E.append((float(line.split()[0]) - self.eF)*ry2eV) # wien2k interal units are Ry switch to eV
+                            enh=float(self.weight*structure.atoms[at][1])               # weight factor
+                            ovlap=(float(line.split()[int(self.keywords["orbitals"][a][o]) + 1]))       # qtl overlap
+                            character.append(enh*ovlap)
+                    else:
+                        assert len(self.kpts) == len(E), "lenghts of arrays do not match!"
+                        assert len(E) == len(character), "lengths of arrays do not match!"
+                        plt.scatter(self.kpts, E, character, color=self.colors[a][o], rasterized=True)
+                        E = []
+                        character = []
+        # decorate
+        for k in self.high_symm: plt.axvline(k, color="k", lw=0.5)
+        plt.axhline(0.0, color="k", lw=0.5)
+        plt.ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+        plt.ylim(self.args.ymin, self.args.ymax);
+        plt.xlim(np.min(self.high_symm), np.max(self.high_symm));
+        if self.keywords["klabels"] is None: 
+            plt.xticks(self.high_symm, self.klabel)
+        else:
+            plt.xticks(self.high_symm, self.keywords["klabels"])
+        if self.args.save:
+            plt.savefig(self.args.save+".pdf", format="pdf")
+        else:
+            plt.show()

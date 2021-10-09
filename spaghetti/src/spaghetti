@@ -2,7 +2,7 @@
 #from spaghetti.core.bands import bands
 #from spaghetti.core.parse import parse
 import glob, sys
-from spaghetti.src.struct import *
+from spaghetti.src.w2kstruct import *
 from spaghetti.src.bands import *
 
 def command_line():
@@ -22,11 +22,11 @@ def init():
     if os.path.isfile("spaghetti.init"): #check if previous file
         prev=input("Previous spaghetti.init file detected. Continue? (y/n): ")
         if prev=="n":
-            sys.exit(1)
+            return 
     fout=open("spaghetti.init","w")
     structure=struct()
     klabels=input("Enter the klabels that you would like to use (Ex - Gamma X M Gamma): ")
-    fout.write("klabels= {}\n".format(klabels))
+    if len(klabels) > 0: fout.write("klabels= {}\n".format(klabels))
     fatband=input("Do you wish to plot fatbands? (y/n) ")
     if fatband == "y":
         if len(glob.glob("*.qtl")) == 0:
@@ -45,12 +45,12 @@ def init():
         qtl_msg=[line for line in open(glob.glob("*.qtl")[0]).readlines() if "JATOM" in line] 
         print("".join(qtl_msg))
         orbitals=[list(map(int, input("orbital-character for atom {}: ".format(a)))) for a in atoms]
-        fout.write("orbtials= {}\n".format(str(orbitals)))
+        fout.write("orbitals= {}\n".format(str(orbitals)))
         # ask about colors, weight, etc
         colors=input("Enter a list of colors (leave blank for default): ")
-        fout.write("colors= {}\n".format(colors))
+        if len(colors) > 0: fout.write("colors= {}\n".format(colors))
         weight=input("Enter a weight (default=20): ")
-        fout.write("weight= {}\n".format(weight))
+        if len(colors) > 0: fout.write("weight= {}\n".format(weight))
         fout.close()
 
 
