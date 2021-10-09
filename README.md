@@ -29,5 +29,6 @@ The init flag creates the ``spaghetti.init`` file which tells the progam which a
 - [ ] complete Fermi surface slices program
 	- generate klistband file
         - create a job.sh file to run wien2k
-	3. program to plot the resulting Fermi surface slice
+	- program to plot the resulting Fermi surface slice
+
 **PRs and feedback are welcome!**
