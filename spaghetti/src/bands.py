@@ -2,6 +2,7 @@
 import numpy as np
 import sys, glob, os
 from numba import jit
+from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 from spaghetti.src.w2kstruct import w2kstruct as struct
 
@@ -133,6 +134,7 @@ class bands:
                 self.keywords[key] = control[key]
     
     def get_orb_labels(self, atom, orbs):
+        """grabs the labels of the fatbands plotted from the qtl file and returns an array labels."""
         qtl2orb = {    "PZ"        : r"$p_{z}$",
                        "PX"        : r"$p_{x}$",
                        "PY"        : r"$p_{y}$",
@@ -150,11 +152,24 @@ class bands:
                        "3"         : "f",
                        "tot"       : "Total",
                   }
-
         orbitals=[line for line in open(self.qtl).readlines() if "JATOM" in line] 
-        orbs_for_atom = orbitals[atom-1].split()[-1].split()
-        labels = [ qtl2orb(orbs_for_atom[int(orbs[o]-1)]) for o in range(len(orbs))] 
+        orbs_for_atom = orbitals[atom-1].split()[-1].split(",")
+        labels = [ qtl2orb[orbs_for_atom[int(orbs[o])-1]] for o in range(len(orbs))] 
         return labels
+    
+    def create_legend(self, structure):
+        legend_elements = []
+        for (ia, a) in enumerate(self.keywords["atoms"]):
+            labels=self.get_orb_labels(a, self.keywords["orbitals"][ia])
+            for o in range(len(self.keywords["orbitals"][ia])):
+                legend_elements.append(Line2D([0], [0], 
+                                       linestyle= '-', 
+                                       color=self.colors[ia][o], 
+                                       lw=3, 
+                                       label=structure.atoms[a-1][0]+"-"+labels[o]))
+        return legend_elements
+
+
 
     def plot_fatbands(self):
         ry2eV = 13.6
@@ -164,8 +179,8 @@ class bands:
         self.band_data()
         self.fermi()
         self.kpath()
-        plt.figure()
-        for b in range(len(self.Ek)): plt.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
+        fig, ax = plt.subplots()
+        for b in range(len(self.Ek)): ax.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
         
         if self.qtl is None or self.struct is None or self.scf is None:    # checks for necessary files
             print("Spaghetti needs: case.qtl, case.struct, and case.scf to run fatbands!")
@@ -190,8 +205,7 @@ class bands:
         self.colors = default_cols if self.keywords["colors"] is None else self.keywords["colors"]
         for (a, at) in enumerate(self.keywords["atoms"]):
             for o in range(len(self.keywords["orbitals"][a])):
-                start         = 0
-                qtl           = open(self.qtl).readlines()
+                qtl           = open(self.qtl).readlines() 
                 start         = [line+1 for line in range(len(qtl)) if "BAND" in qtl[line]][0]
                 qtl           = qtl[start:]
                 E         = []
@@ -207,19 +221,25 @@ class bands:
                     else:
                         assert len(self.kpts) == len(E), "lenghts of arrays do not match!"
                         assert len(E) == len(character), "lengths of arrays do not match!"
-                        plt.scatter(self.kpts, E, character, color=self.colors[a][o], rasterized=True)
+                        ax.scatter(self.kpts, E, character, color=self.colors[a][o], rasterized=True)
                         E = []
                         character = []
         # decorate
-        for k in self.high_symm: plt.axvline(k, color="k", lw=0.5)
-        plt.axhline(0.0, color="k", lw=0.5)
-        plt.ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
-        plt.ylim(self.args.ymin, self.args.ymax);
-        plt.xlim(np.min(self.high_symm), np.max(self.high_symm));
+        for k in self.high_symm: ax.axvline(k, color="k", lw=0.5)
+        ax.axhline(0.0, color="k", lw=0.5)
+        ax.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+        ax.set_ylim(self.args.ymin, self.args.ymax);
+        ax.set_xlim(np.min(self.high_symm), np.max(self.high_symm));
+
+        # create the legend
+        fig.legend(handles=self.create_legend(structure), loc="upper right", fontsize = 10)
+
         if self.keywords["klabels"] is None: 
-            plt.xticks(self.high_symm, self.klabel)
+            ax.set_xticks(self.high_symm)
+            ax.set_xticklabels(self.klabel)
         else:
-            plt.xticks(self.high_symm, self.keywords["klabels"])
+            ax.set_xticks(self.high_symm)
+            ax.set_xticklabels(self.keywords["klabels"])
         if self.args.save:
             plt.savefig(self.args.save+".pdf", format="pdf")
         else:
