@@ -128,7 +128,7 @@ class bands:
                    "colors": None, 
                    "atoms" : None, 
                    "orbitals": None,
-                   "weights": None}
+                   "weight": None}
         for key in self.keywords.keys():
             if key in control.keys():
                 self.keywords[key] = control[key]
@@ -146,10 +146,10 @@ class bands:
                        "DXY"       : r"$d_{xy}$",
                        "DX2Y2+DXY" : r"$d_{x^{2}+y^{2}}+d_{xy}$",
                        "DXZ+DYZ"   : r"$d_{xz}+d_{yz}$",
-                       "0"         : "s",
-                       "1"         : "p",
-                       "2"         : "d",
-                       "3"         : "f",
+                       "0"         : "$s$",
+                       "1"         : "$p$",
+                       "2"         : "$d$",
+                       "3"         : "$f$",
                        "tot"       : "Total",
                   }
         orbitals=[line for line in open(self.qtl).readlines() if "JATOM" in line] 
@@ -192,8 +192,9 @@ class bands:
 
         structure=struct()
         self.load_init()
-        self.weight = self.args.weight if self.keywords["weights"] is None else self.keywords["weights"]
 
+        self.weight = self.args.weight if self.keywords["weight"] is None else self.keywords["weight"]
+        
         if self.keywords["colors"] is None:
             self.colors = [[default_cols[ia%len(default_cols)][o%len(default_cols[0])]  \
                            for o in self.keywords["orbitals"][ia]]  \
@@ -215,7 +216,7 @@ class bands:
                     if 'BAND' not in line:
                         if line.split()[1] == str(at):
                             E.append((float(line.split()[0]) - self.eF)*ry2eV)                      # wien2k interal units are Ry switch to eV
-                            enh   = float(self.weight*structure.atoms[at][1])                       # weight factor
+                            enh   = float(self.weight*structure.atoms[at-1][1])                       # weight factor
                             ovlap = (float(line.split()[int(self.keywords["orbitals"][a][o]) + 1])) # qtl overlap
                             character.append(enh*ovlap)
                     else:
@@ -232,7 +233,16 @@ class bands:
         ax.set_xlim(np.min(self.high_symm), np.max(self.high_symm));
 
         # create the legend
-        fig.legend(handles=self.create_legend(structure), loc="upper right", fontsize = 10)
+        if self.args.legend == "center":
+            legend_handles=self.create_legend(structure)
+            fig.legend(handles=legend_handles, loc="upper center", ncol=len(legend_handles), fontsize = 10)
+        elif self.args.legend == "right":
+            legend_handles=self.create_legend(structure)
+            fig.legend(handles=legend_handles, loc="upper right", fontsize = 10)
+        elif self.args.legend == "left":
+            legend_handles=self.create_legend(structure)
+            fig.legend(handles=legend_handles, loc="upper left", fontsize = 10)
+
 
         if self.keywords["klabels"] is None: 
             ax.set_xticks(self.high_symm)
@@ -240,6 +250,7 @@ class bands:
         else:
             ax.set_xticks(self.high_symm)
             ax.set_xticklabels(self.keywords["klabels"])
+
         if self.args.save:
             plt.savefig(self.args.save+".pdf", format="pdf")
         else:
