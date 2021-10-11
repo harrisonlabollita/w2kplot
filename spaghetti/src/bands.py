@@ -77,9 +77,10 @@ class bands:
             return string
     
     def kpath(self):
-        # TODO: there is actually a better way to do this
-        # Another way to do this would be to get the info from klistband
-        # Sometimes this file is incorrect though
+        """get the high-symmetry points and labels"""
+        # TODO Is there a better way to do this?
+        # we can parse the case.klist_band file to get the highsymm points
+        # and labels
         info = open(self.agr).readlines()
         self.high_symm = []
         self.klabel = []
@@ -94,8 +95,8 @@ class bands:
                     continue
 
     def fermi(self):
-        scf = open(self.scf).readlines()
-        self.eF = float([line for line in scf if ":FER" in line][-1].split()[-1].strip())
+        """get the Fermi energy (eF) from the case.scf file."""
+        self.eF = float([line for line in open(self.scf).readlines() if ":FER" in line][-1].split()[-1].strip())
 
 
     def plot_bands(self):
@@ -130,13 +131,36 @@ class bands:
         for key in self.keywords.keys():
             if key in control.keys():
                 self.keywords[key] = control[key]
+    
+    def get_orb_labels(self, atom, orbs):
+        qtl2orb = {    "PZ"        : r"$p_{z}$",
+                       "PX"        : r"$p_{x}$",
+                       "PY"        : r"$p_{y}$",
+                       "PX+PY"     : r"$p_{x}+p_{y}$",
+                       "DZ2"       : r"$d_{z^{2}}$",
+                       "DX2Y2"     : r"$d_{x^{2}+y^{2}}$",
+                       "DXZ"       : r"$d_{xz}$",
+                       "DYZ"       : r"$d_{yz}$",
+                       "DXY"       : r"$d_{xy}$",
+                       "DX2Y2+DXY" : r"$d_{x^{2}+y^{2}}+d_{xy}$",
+                       "DXZ+DYZ"   : r"$d_{xz}+d_{yz}$",
+                       "0",        : "s",
+                       "1",        : "p",
+                       "2",        : "d",
+                       "3",        : "f",
+                       "tot"       : "Total",
+                  }
+
+        orbitals=[line for line in open(self.qtl).readlines() if "JATOM" in line] 
+        orbs_for_atom = orbitals[atom-1].split()[-1].split()
+        labels = [ qtl2orb(orbs_for_atom[int(orbs[o]-1)]) for o in range(len(orbs))] 
+        return labels
 
     def plot_fatbands(self):
         ry2eV = 13.6
         default_cols = [["dodgerblue", "lightcoral", "gold", "forestgreen", "magenta"],
                         ["b", "r", "g", "y", "c"],
                         ["royalblue", "salmon", "lawngreen", "orange", "deeppink"]]
-        
         self.band_data()
         self.fermi()
         self.kpath()
