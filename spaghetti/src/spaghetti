@@ -8,6 +8,7 @@ def command_line():
     parser=argparse.ArgumentParser()
     parser.add_argument("--init", dest="init", action="store_true", help="sets up the interactive initialization to create the plot")
     parser.add_argument("--switch", default="bands", type=str, help="control the program")
+    parser.add_argument("--spin", dest="spin", action="store_true", help="flag to activate spin polarized band structures")
     parser.add_argument("--ymin", type = float, default = -1.5)
     parser.add_argument("--ymax", type = float, default = 1.5)
     parser.add_argument("--weight", type=int, default=20, help = "weights multiply character by")

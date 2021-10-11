@@ -26,7 +26,9 @@ class bands:
             print(exit)
             sys.exit(1)
         self.args=args
+
         self.files()            # grab the necessary input files
+
         if self.args.switch=="bands":
             self.plot_bands()             # plot
         elif self.args.switch=="fatbands":
@@ -46,23 +48,26 @@ class bands:
                 return False
         return True
 
-
     def files(self):
         """load all the necessary files into the spaghetti class."""
-        self.bands = glob.glob("*.spaghetti_ene")[0]
-        self.agr   = glob.glob("*.agr")[0]
-        try:
-            self.struct = glob.glob("*.struct")[0]
-        except:
-            self.struct = None
-        try:
-            self.qtl   = glob.glob("*.qtl")[0]
-        except:
-            self.qtl=None
-        try:
-            self.scf   = glob.glob("*.scf")[0]
-        except:
-            self.scf = None
+        if self.args.spin:
+            print("Not implemented yet!")
+            sys.exit(1)
+        else:
+            self.bands = glob.glob("*.spaghetti_ene")[0]
+            self.agr   = glob.glob("*.agr")[0]
+            try:
+                self.struct = glob.glob("*.struct")[0]
+            except:
+                self.struct = None
+            try:
+                self.qtl   = glob.glob("*.qtl")[0]
+            except:
+                self.qtl=None
+            try:
+                self.scf   = glob.glob("*.scf")[0]
+            except:
+                self.scf = None
 
     def band_data(self):
         """get the band data from the case.spaghetti_ene"""
@@ -144,10 +149,10 @@ class bands:
                        "DXY"       : r"$d_{xy}$",
                        "DX2Y2+DXY" : r"$d_{x^{2}+y^{2}}+d_{xy}$",
                        "DXZ+DYZ"   : r"$d_{xz}+d_{yz}$",
-                       "0",        : "s",
-                       "1",        : "p",
-                       "2",        : "d",
-                       "3",        : "f",
+                       "0"         : "s",
+                       "1"         : "p",
+                       "2"         : "d",
+                       "3"         : "f",
                        "tot"       : "Total",
                   }
 
@@ -155,7 +160,6 @@ class bands:
         orbs_for_atom = orbitals[atom-1].split()[-1].split()
         labels = [ qtl2orb(orbs_for_atom[int(orbs[o]-1)]) for o in range(len(orbs))] 
         return labels
-
     def plot_fatbands(self):
         ry2eV = 13.6
         default_cols = [["dodgerblue", "lightcoral", "gold", "forestgreen", "magenta"],
