@@ -24,7 +24,7 @@ The init flag creates the ``spaghetti.init`` file which tells the progam which a
 **TO-DO**
 - [x] basic band structure program basically done
 - [ ] new features
-	- [ ] make nice legend for fatbands
+	- [x] make nice legend for fatbands
 	- [ ] speed up qtl loops
 	- [ ] add spin-polarized feature
 - [ ] complete Fermi surface slices program
