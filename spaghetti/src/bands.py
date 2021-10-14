@@ -201,7 +201,7 @@ class bands:
                            for (ia, a) in enumerate(self.keywords["atoms"])]
         else:
             self.colors = self.keywords["colors"]
-
+       
 
         self.colors = default_cols if self.keywords["colors"] is None else self.keywords["colors"]
         for (a, at) in enumerate(self.keywords["atoms"]):
