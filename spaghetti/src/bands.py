@@ -39,7 +39,7 @@ class bands:
 
     def dir_chk(self):
         """check if necessary files are in the current working directory!"""
-        extensions = ["*.spaghetti_ene","*.agr"]
+        extensions = ["*.spaghetti_ene","*.klist_band"]
         for ext in extensions:
             if len(glob.glob(ext)) == 0:
                 print("User error: could not find file with extension: {}".format(ext))
@@ -51,7 +51,7 @@ class bands:
     def files(self):
         """load all the necessary files into the spaghetti class."""
         self.bands = glob.glob("*.spaghetti_ene")[0]
-        self.agr   = glob.glob("*.agr")[0]
+        self.klist   = glob.glob("*.klist_band")[0]
         try:
             self.struct = glob.glob("*.struct")[0]
         except:
@@ -59,7 +59,7 @@ class bands:
         try:
             self.qtl   = glob.glob("*.qtl")[0]
         except:
-            self.qtl=None
+            self.qtl =None
         try:
             self.scf   = glob.glob("*.scf")[0]
         except:
@@ -74,26 +74,38 @@ class bands:
     def arg2latex(self, string):
         if string == '\\xG':
             return '$\Gamma$'
+        elif string == "GAMMA":
+            return '$\Gamma$'
         else:
             return string
     
     def kpath(self):
-        """get the high-symmetry points and labels"""
-        # TODO Is there a better way to do this?
-        # we can parse the case.klist_band file to get the highsymm points
-        # and labels
-        info = open(self.agr).readlines()
+        klist = open(self.klist).readlines()
         self.high_symm = []
         self.klabel = []
-        for (i, line) in enumerate(info):
-            if "xaxis" in line and "tick major" in line and "grid" not in line:
-                try:
-                    pt = info[i+1].split("\"")[1].strip()
-                    if pt != "":
-                        self.high_symm.append(float(line.split(",")[1].strip()))
-                        self.klabel.append(self.arg2latex(pt))
-                except:
-                    continue
+        for il, line in enumerate(klist):
+            if line[:3] == "END": break
+            if line[:10].split():
+                self.klabel.append(self.arg2latex(line.strip().split()[0]))
+                self.high_symm.append(il)
+        self.high_symm = [self.kpts[ind] for ind in self.high_symm]
+    #def kpath(self):
+    #    """get the high-symmetry points and labels"""
+    #    # TODO Is there a better way to do this?
+    #    # we can parse the case.klist_band file to get the highsymm points
+    #    # and labels
+    #    info = open(self.agr).readlines()
+    #    self.high_symm = []
+    #    self.klabel = []
+    #    for (i, line) in enumerate(info):
+    #        if "xaxis" in line and "tick major" in line and "grid" not in line:
+    #            try:
+    #                pt = info[i+1].split("\"")[1].strip()
+    #                if pt != "":
+    #                    self.high_symm.append(float(line.split(",")[1].strip()))
+    #                    self.klabel.append(self.arg2latex(pt))
+    #            except:
+    #                continue
 
     def fermi(self):
         """get the Fermi energy (eF) from the case.scf file."""
