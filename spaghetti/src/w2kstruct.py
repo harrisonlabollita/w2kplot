@@ -23,7 +23,7 @@ class w2kstruct:
             self.spg=int(contents[1].split()[2])
 
         iatom=list(range(1,self.nat+1))
-        mults=[int(line.split()[1]) for line in contents if "MULT" in line]
+        mults=[int(line.split("=")[1].split()[0]) for line in contents if "MULT" in line]
         specs=[str(line.split()[0]) for line in contents if "NPT" in line]
         self.atoms={}
         assert len(mults)==len(specs), "Did not parse the struct file correctly!"
