@@ -28,8 +28,8 @@ class bands:
             sys.exit(1)
         
         self.args=args
+
         self.files()            # grab the necessary input files
-        
         if self.args.switch=="bands":
             self.plot_bands()             # plot
         elif self.args.switch=="fatbands":
@@ -52,11 +52,11 @@ class bands:
                 return False
         return True
 
-
     def files(self):
         #TODO: rewrite this to find all of the files that match the extension
         # in the directory
         """load all the necessary files into the spaghetti class."""
+        
         if self.args.spin is not None:
             self.bands = [glob.glob("*.spaghettiup_ene")[0], glob.glob(".spaghettidn_ene")[0]]
         else:
@@ -78,6 +78,7 @@ class bands:
             self.scf   = glob.glob("*.scf")[0]
         except:
             self.scf = None
+        
 
     def band_data(self):
         """get the band data from the case.spaghetti_ene"""
@@ -222,8 +223,6 @@ class bands:
                                        lw=3, 
                                        label=structure.atoms[a-1][0]+"-"+labels[o]))
         return legend_elements
-
-
 
     def plot_fatbands(self):
         ry2eV = 13.6
