@@ -8,6 +8,8 @@ def command_line():
     parser=argparse.ArgumentParser()
     parser.add_argument("--init", dest="init", action="store_true", help="sets up the interactive initialization to create the plot")
     parser.add_argument("--switch", default="bands", type=str, help="control the program")
+    parser.add_argument("--spin", default=None, choices=["join", "sep", None], 
+            help="plots spin polarized calculations for two cases: (1) up and down channels on top of each other or (2) up and down channels separately.")
     parser.add_argument("--legend", default="center", type=str, choices=["center", "right", "left", "none"], 
                         help="location of the legend")
     parser.add_argument("--ymin", type = float, default = -1.5)

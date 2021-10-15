@@ -26,12 +26,16 @@ class bands:
                       after lapw1."""
             print(exit)
             sys.exit(1)
+        
         self.args=args
         self.files()            # grab the necessary input files
         
         if self.args.switch=="bands":
             self.plot_bands()             # plot
         elif self.args.switch=="fatbands":
+            if self.args.spin is not None:
+                print("Plotting fatbands for spin-polarized calculations is not supported yet!")
+                sys.exit(1)
             self.plot_fatbands()
         else:
             print("Did not recognize that switch ({})".format(args.switch))
@@ -53,14 +57,21 @@ class bands:
         #TODO: rewrite this to find all of the files that match the extension
         # in the directory
         """load all the necessary files into the spaghetti class."""
-        self.bands = glob.glob("*.spaghetti_ene")[0]
+        if self.args.spin is not None:
+            self.bands = [glob.glob("*.spaghettiup_ene")[0], glob.glob(".spaghettidn_ene")[0]]
+        else:
+            self.bands = glob.glob("*.spaghettiup_ene")[0]
+        
         self.klist   = glob.glob("*.klist_band")[0]
         try:
             self.struct = glob.glob("*.struct")[0]
         except:
             self.struct = None
         try:
-            self.qtl   = glob.glob("*.qtl")[0]
+            if self.args.spin is not None:
+                self.qtl   = [glob.glob("*.qtlup")[0], glob.glob("*.qtldn")[0]]
+            else:
+                self.qtl = glob.glob("*qtl")[0]
         except:
             self.qtl =None
         try:
@@ -70,9 +81,17 @@ class bands:
 
     def band_data(self):
         """get the band data from the case.spaghetti_ene"""
-        data = np.loadtxt(self.bands, comments="bandindex")
-        self.kpts = np.unique(data[:, 3])
-        self.Ek = data[:,4].reshape(int(len(data)/len(self.kpts)), len(self.kpts))
+        if self.args.spin is not None:
+            print("This feature has not been tested")
+            data_up = np.loadtxt(self.bands[0], comments="bandindex")
+            self.kpts = np.unique(data_up[:, 3])
+            data_dn = np.loadtxt(self.bands[1], comments="bandindex")
+            self.Ek = [data_up[:,4].reshape(int(len(data)/len(self.kpts)), len(self.kpts)),
+                       data_dn[:,4].reshape(int(len(data)/len(self.kpts)), len(self.kpts))]
+        else:
+            data = np.loadtxt(self.bands, comments="bandindex")
+            self.kpts = np.unique(data[:, 3])
+            self.Ek = data[:,4].reshape(int(len(data)/len(self.kpts)), len(self.kpts))
 
     def arg2latex(self, string):
         if string == '\\xG':
@@ -119,14 +138,35 @@ class bands:
         """program to create band structure plot"""
         self.band_data()
         self.kpath()
-        plt.figure()
-        for b in range(len(self.Ek)): plt.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
-        plt.xticks(self.high_symm, self.klabel)
-        for k in self.high_symm: plt.axvline(k, color="k", lw=0.5)
-        plt.axhline(0.0, color="k", lw=0.5)
-        plt.ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
-        plt.ylim(self.args.ymin, self.args.ymax); 
-        plt.xlim(np.min(self.high_symm), np.max(self.high_symm));
+        if self.args.spin  == "join":
+            fig, ax = plt.subplots()
+            for b in range(len(self.Ek))  ax.plot(self.kpts, self.Ek[0][b,:], "k-", lw=1.5, label="up")
+            for b in range(len(self.Ek)): ax.plot(self.kpts, self.Ek[1][b,:], "b-", lw=1.5, label="down")
+        elif self.args.spin == "sep":
+            fig, ax = plt.subplots(1, 2)
+            for b in range(len(self.Ek))  ax[0].plot(self.kpts, self.Ek[0][b,:], "k-", lw=1.5, label="up")
+            for b in range(len(self.Ek)): ax[1].plot(self.kpts, self.Ek[1][b,:], "b-", lw=1.5, label="down")
+        else:
+            fig, ax = plt.subplots()
+            for b in range(len(self.Ek)): plt.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
+
+        if self.args.spin == "sep":
+            for p in range(2): 
+                ax[p].xticks(self.high_symm, self.klabel)
+                for k in self.high_symm: ax[p].axvline(k, color="k", lw=0.5)
+                ax[p].axhline(0.0, color="k", lw=0.5)
+                ax[0].ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+                ax[0].ylim(self.args.ymin, self.args.ymax); 
+                ax[p].xlim(np.min(self.high_symm), np.max(self.high_symm));
+        else:
+            ax.xticks(self.high_symm, self.klabel)
+            for k in self.high_symm: ax.axvline(k, color="k", lw=0.5)
+            ax.axhline(0.0, color="k", lw=0.5)
+            ax.ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+            ax.ylim(self.args.ymin, self.args.ymax); 
+            ax.xlim(np.min(self.high_symm), np.max(self.high_symm));
+
+        if self.args.spin is not None: fig.legend(loc="best")
 
         if self.args.save:
             plt.savefig(self.args.save+".pdf", format="pdf", dpi=300)
