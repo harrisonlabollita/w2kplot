@@ -26,12 +26,16 @@ class bands:
                       after lapw1."""
             print(exit)
             sys.exit(1)
-        self.args=args
-        self.files()            # grab the necessary input files
         
+        self.args=args
+
+        self.files()            # grab the necessary input files
         if self.args.switch=="bands":
             self.plot_bands()             # plot
         elif self.args.switch=="fatbands":
+            if self.args.spin is not None:
+                print("Plotting fatbands for spin-polarized calculations is not supported yet!")
+                sys.exit(1)
             self.plot_fatbands()
         else:
             print("Did not recognize that switch ({})".format(args.switch))
@@ -40,7 +44,7 @@ class bands:
 
     def dir_chk(self):
         """check if necessary files are in the current working directory!"""
-        extensions = ["*.spaghetti_ene","*.klist_band"]
+        extensions = ["*.spaghetti*","*.klist_band"]
         for ext in extensions:
             if len(glob.glob(ext)) == 0:
                 print("User error: could not find file with extension: {}".format(ext))
@@ -48,31 +52,46 @@ class bands:
                 return False
         return True
 
-
     def files(self):
         #TODO: rewrite this to find all of the files that match the extension
         # in the directory
         """load all the necessary files into the spaghetti class."""
-        self.bands = glob.glob("*.spaghetti_ene")[0]
+        
+        if self.args.spin is not None:
+            self.bands = [glob.glob("*.spaghettiup_ene")[0], glob.glob("*.spaghettidn_ene")[0]]
+        else:
+            self.bands = glob.glob("*.spaghetti_ene")[0]
+        
         self.klist   = glob.glob("*.klist_band")[0]
         try:
             self.struct = glob.glob("*.struct")[0]
         except:
             self.struct = None
         try:
-            self.qtl   = glob.glob("*.qtl")[0]
+            if self.args.spin is not None:
+                self.qtl   = [glob.glob("*.qtlup")[0], glob.glob("*.qtldn")[0]]
+            else:
+                self.qtl = glob.glob("*qtl")[0]
         except:
             self.qtl =None
         try:
             self.scf   = glob.glob("*.scf")[0]
         except:
             self.scf = None
+        
 
     def band_data(self):
         """get the band data from the case.spaghetti_ene"""
-        data = np.loadtxt(self.bands, comments="bandindex")
-        self.kpts = np.unique(data[:, 3])
-        self.Ek = data[:,4].reshape(int(len(data)/len(self.kpts)), len(self.kpts))
+        if self.args.spin is not None:
+            data_up = np.loadtxt(self.bands[0], comments="bandindex")
+            self.kpts = np.unique(data_up[:, 3])
+            data_dn = np.loadtxt(self.bands[1], comments="bandindex")
+            self.Ek = [data_up[:,4].reshape(int(len(data_up)/len(self.kpts)), len(self.kpts)),
+                       data_dn[:,4].reshape(int(len(data_dn)/len(self.kpts)), len(self.kpts))]
+        else:
+            data = np.loadtxt(self.bands, comments="bandindex")
+            self.kpts = np.unique(data[:, 3])
+            self.Ek = data[:,4].reshape(int(len(data)/len(self.kpts)), len(self.kpts))
 
     def arg2latex(self, string):
         if string == '\\xG':
@@ -119,14 +138,41 @@ class bands:
         """program to create band structure plot"""
         self.band_data()
         self.kpath()
-        plt.figure()
-        for b in range(len(self.Ek)): plt.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
-        plt.xticks(self.high_symm, self.klabel)
-        for k in self.high_symm: plt.axvline(k, color="k", lw=0.5)
-        plt.axhline(0.0, color="k", lw=0.5)
-        plt.ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
-        plt.ylim(self.args.ymin, self.args.ymax); 
-        plt.xlim(np.min(self.high_symm), np.max(self.high_symm));
+        if self.args.spin  == "join":
+            fig, ax = plt.subplots()
+            for b in range(len(self.Ek[0])): ax.plot(self.kpts, self.Ek[0][b,:], "b-", lw=1.5)
+            for b in range(len(self.Ek[1])): ax.plot(self.kpts, self.Ek[1][b,:], "r.-", lw=1.5)
+
+        elif self.args.spin == "sep":
+            fig, ax = plt.subplots(1, 2, sharey=True)
+            for b in range(len(self.Ek[0])): ax[0].plot(self.kpts, self.Ek[0][b,:], "b-", lw=1.5)
+            for b in range(len(self.Ek[1])): ax[1].plot(self.kpts, self.Ek[1][b,:], "r.-", lw=1.5)
+        else:
+            fig, ax = plt.subplots()
+            for b in range(len(self.Ek)): plt.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
+
+        if self.args.spin == "sep":
+            for p in range(2): 
+                ax[p].set_xticks(self.high_symm)
+                ax[p].set_xticklabels(self.klabel)
+                for k in self.high_symm: ax[p].axvline(k, color="k", lw=0.5)
+                ax[p].axhline(0.0, color="k", lw=0.5)
+                ax[0].set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+                ax[0].set_ylim(self.args.ymin, self.args.ymax); 
+                ax[p].set_xlim(np.min(self.high_symm), np.max(self.high_symm));
+        else:
+            ax.set_xticks(self.high_symm,)
+            ax.set_xticklabels(self.klabel)
+            for k in self.high_symm: ax.axvline(k, color="k", lw=0.5)
+            ax.axhline(0.0, color="k", lw=0.5)
+            ax.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+            ax.set_ylim(self.args.ymin, self.args.ymax); 
+            ax.set_xlim(np.min(self.high_symm), np.max(self.high_symm));
+
+        if self.args.spin is not None: 
+            legend_elements = [Line2D([0], [0], linestyle= '-',color="b", lw=3, label="up"),
+                               Line2D([0], [0], linestyle="-", color="r", lw=3, label="down")]
+            fig.legend(handles=legend_elements, loc="upper left")
 
         if self.args.save:
             plt.savefig(self.args.save+".pdf", format="pdf", dpi=300)
@@ -182,8 +228,6 @@ class bands:
                                        lw=3, 
                                        label=structure.atoms[a-1][0]+"-"+labels[o]))
         return legend_elements
-
-
 
     def plot_fatbands(self):
         ry2eV = 13.6
