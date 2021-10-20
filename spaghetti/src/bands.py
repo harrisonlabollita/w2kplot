@@ -60,7 +60,7 @@ class bands:
         if self.args.spin is not None:
             self.bands = [glob.glob("*.spaghettiup_ene")[0], glob.glob("*.spaghettidn_ene")[0]]
         else:
-            self.bands = glob.glob("*.spaghettiup_ene")[0]
+            self.bands = glob.glob("*.spaghetti_ene")[0]
         
         self.klist   = glob.glob("*.klist_band")[0]
         try:
