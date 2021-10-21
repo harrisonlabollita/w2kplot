@@ -9,7 +9,16 @@ from spaghetti.src.w2kstruct import w2kstruct as struct
 try:
     plt.style.use("band_publish")
 except:
-    print("Spaghetti matplotlib style sheet not found")
+    print("Spaghetti matplotlib style sheet not found!")
+
+
+class Error(Exception):
+    """base error class."""
+    pass
+
+class KlistBandError(Exception):
+    """Raised when there is an error parsing the the *.klist_band file."""
+    pass
 
 class bands:
     def __init__(self, args):
@@ -53,10 +62,7 @@ class bands:
         return True
 
     def files(self):
-        #TODO: rewrite this to find all of the files that match the extension
-        # in the directory
         """load all the necessary files into the spaghetti class."""
-        
         if self.args.spin is not None:
             self.bands = [glob.glob("*.spaghettiup_ene")[0], glob.glob("*.spaghettidn_ene")[0]]
         else:
@@ -98,37 +104,30 @@ class bands:
             return '$\Gamma$'
         elif string == "GAMMA":
             return '$\Gamma$'
+        elif  string == "LAMBDA":
+            return "$\lambda$"
+        elif  string == "DELTA":
+            return "$\Delta$"
+        elif  string == "SIGMA":
+            return "$\Sigma$"
         else:
             return string
     
     def kpath(self):
+        """get the high symmetry points and labels from klist band."""
         klist = open(self.klist).readlines()
         self.high_symm = []
         self.klabel = []
-        for il, line in enumerate(klist):
-            if line[:3] == "END": break
-            if line[:10].split():
-                self.klabel.append(self.arg2latex(line.strip().split()[0]))
-                self.high_symm.append(il)
-        self.high_symm = [self.kpts[ind] for ind in self.high_symm]
-
-    #def kpath(self):
-    #    """get the high-symmetry points and labels"""
-    #    # TODO Is there a better way to do this?
-    #    # we can parse the case.klist_band file to get the highsymm points
-    #    # and labels
-    #    info = open(self.agr).readlines()
-    #    self.high_symm = []
-    #    self.klabel = []
-    #    for (i, line) in enumerate(info):
-    #        if "xaxis" in line and "tick major" in line and "grid" not in line:
-    #            try:
-    #                pt = info[i+1].split("\"")[1].strip()
-    #                if pt != "":
-    #                    self.high_symm.append(float(line.split(",")[1].strip()))
-    #                    self.klabel.append(self.arg2latex(pt))
-    #            except:
-    #                continue
+        try:
+            for il, line in enumerate(klist):
+                if line[:3] == "END": break
+                if line[:10].split():
+                    self.klabel.append(self.arg2latex(line.strip().split()[0]))
+                    self.high_symm.append(il)
+            self.high_symm = [self.kpts[ind] for ind in self.high_symm]
+        except KlistBandError:
+            print("spaghetti encountered an error when parsing the {} file".format(self.klist))
+            print("You can define custom labels and high-symmetry points\n in the spaghetti.init file")
 
     def fermi(self):
         """get the Fermi energy (eF) from the case.scf file."""
