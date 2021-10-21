@@ -1,11 +1,9 @@
 Spaghetti
 =========
 
-**Spaghetti** is a Python program to create publication quality band structure plots from [Wien2k](http://susi.theochem.tuwien.ac.at) density-functional theory (DFT) calculations. The user simply runs the program inside the directory with the required files from Wien2k and it takes care of the rest! 
+**spaghetti** is a Python program to create publication quality band structure plots from [Wien2k](http://susi.theochem.tuwien.ac.at) density-functional theory (DFT) calculations. The user simply runs the program inside the directory with the required files from Wien2k and it takes care of the rest! 
 
-
-
-**Warning: This program _works_! But only the minimal functionalilty right now! More to come.**
+**This program works! But it is still in beta. See below**
 
 ## Example
 Inside a directory with files: case.bands.agr and case.spaghetti\_ene (minimal files), simply type
@@ -13,7 +11,10 @@ Inside a directory with files: case.bands.agr and case.spaghetti\_ene (minimal f
 ```bash
 	spaghetti --switch bands
 ```
-This will plot the E(k) vs the high-symmetry k-path detected from the case.bands.agr. The user can provide this information as well. For fatbands,
+This will plot the E(k) vs the high-symmetry k-path detected from the case.klist\_band. The user can provide this information as well. Spin-polarized cases work similarily just add ``--spin join or sep``, where ``join`` will plot spin channels on top of each other and ``sep`` will plot spin channels separately.
+
+
+For fatbands,
 
 ```bash
 	spaghetti --init --switch fatbands
@@ -22,15 +23,18 @@ The init flag creates the ``spaghetti.init`` file which tells the progam which a
 
 
 **TO-DO**
-- [x] basic band structure program basically done
-- [ ] new features
-	- [x] make nice legend for fatbands
-	- [ ] speed up qtl loops
-	- [ ] add spin-polarized feature
-	- [ ] for spin-polarized feature, we need to rewrite everything to handle either non-magnetic or magneti cases
 - [ ] complete Fermi surface slices program
 	- generate klistband file
         - create a job.sh file to run wien2k
 	- program to plot the resulting Fermi surface slice
+- [ ] register package with pypy
 
 **PRs and feedback are welcome!**
+
+## Installation
+
+Currently, if you clone this repository and inside the repo issue the command you should be good to go!
+
+```bash
+    pip install -e .
+```
