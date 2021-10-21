@@ -1,5 +1,8 @@
-Spaghetti
-=========
+<p align="center">
+<a href="https://github.com/harrisonlabollita/spaghetti">
+<img width = "300" src="logo.png" alt="spaghetti"/>
+</a>
+</p>
 
 **spaghetti** is a Python program to create publication quality band structure plots from [Wien2k](http://susi.theochem.tuwien.ac.at) density-functional theory (DFT) calculations. The user simply runs the program inside the directory with the required files from Wien2k and it takes care of the rest! 
 
