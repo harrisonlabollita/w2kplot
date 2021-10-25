@@ -230,6 +230,7 @@ class bands:
 
     def plot_fatbands(self):
         ry2eV = 13.6
+
         default_cols = [["dodgerblue", "lightcoral", "gold", "forestgreen", "magenta"],
                         ["b", "r", "g", "y", "c"],
                         ["royalblue", "salmon", "lawngreen", "orange", "deeppink"]]
