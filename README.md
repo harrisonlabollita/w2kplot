@@ -26,6 +26,8 @@ The init flag creates the ``spaghetti.init`` file which tells the progam which a
 
 
 **TO-DO**
+- [ ] it would be helpful if there was a library associated with this package such that one could write something like the following
+	-``from spaghetti import band_plot; band_plot("filename", **kwargs); plt.show()``
 - [ ] complete Fermi surface slices program
 	- generate klistband file
         - create a job.sh file to run wien2k
