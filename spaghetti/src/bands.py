@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import numpy as np
 import sys, glob, os
-from numba import jit
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 from spaghetti.src.w2kstruct import w2kstruct as struct

@@ -2,6 +2,7 @@
 import glob, sys
 from spaghetti.src.w2kstruct import *
 from spaghetti.src.bands import *
+from spaghetti.src.dos import *
 
 def command_line():
     import argparse
@@ -66,5 +67,8 @@ if __name__ == "__main__":
     if args.switch in ["bands", "fatbands"]:
         bands(args)
     elif args.switch in ["fs"]:
+        print("Not implemented!")
+        sys.exit(1)
+    elif args.switch == "dos":
         print("Not implemented!")
         sys.exit(1)
