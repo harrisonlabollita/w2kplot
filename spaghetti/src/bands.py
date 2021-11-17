@@ -19,6 +19,33 @@ class KlistBandError(Exception):
     """Raised when there is an error parsing the the *.klist_band file."""
     pass
 
+class SpaghettiError(Exception):
+    """Error parsing the case.spaghetti_ene file."""
+    pass
+
+def backup_parse(file):
+    lines = open(file).readlines()
+    kpts = []
+    bands = []
+    for (il, line) in enumerate(lines):
+        if "bandindex" not in line:
+            if len(line.split()) == 4:
+                kpts.append(float(line.split()[-1].split("-")[0]))
+                bands.append(-1*float(line.split()[-1].split("-")[0]))
+            elif len(line.split()) == 5:
+                kpts.append(float(line.split()[-2]))
+                bands.append(float(line.split()[-1]))
+            else:
+                print("Error parsing {}".format(file))
+                sys.exit(1)
+    kpts = np.unique(kpts)
+    print(len(kpts))
+    Ek   = np.array(bands).reshape(int(len(bands)/len(kpts)), len(kpts))
+    print(Ek.shape)
+    return kpts, Ek
+           
+
+
 class bands:
     def __init__(self, args):
         if not self.dir_chk():  # check if the directory contains the files we need
@@ -94,9 +121,12 @@ class bands:
             self.Ek = [data_up[:,4].reshape(int(len(data_up)/len(self.kpts)), len(self.kpts)),
                        data_dn[:,4].reshape(int(len(data_dn)/len(self.kpts)), len(self.kpts))]
         else:
-            data = np.loadtxt(self.bands, comments="bandindex")
-            self.kpts = np.unique(data[:, 3])
-            self.Ek = data[:,4].reshape(int(len(data)/len(self.kpts)), len(self.kpts))
+            try:
+                data = np.loadtxt(self.bands, comments="bandindex")
+                self.kpts = np.unique(data[:, 3])
+                self.Ek = data[:,4].reshape(int(len(data)/len(self.kpts)), len(self.kpts))
+            except:
+                self.kpts, self.Ek = backup_parse(self.bands)
 
     def arg2latex(self, string):
         if string == '\\xG':

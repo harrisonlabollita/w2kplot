@@ -19,3 +19,4 @@ class Error(Exception):
 class dos(object):
 
     def __init__(self):
+        pass
