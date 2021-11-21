@@ -15,7 +15,7 @@ except:
 def install_style_sheet():
     sheet = "style/band_publish.mplstyle"
     location = os.path.dirname(plt.__file__) + "/mpl-data/stylelib/"
-    print("[INFO]: installing w2kplot's matplotlib style sheet: %s" %(location))
+    print("[INFO] installing w2kplot's matplotlib style sheet: %s" %(location))
     shutil.copy(sheet, location)
 
     import matplotlib.pyplot as plt

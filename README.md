@@ -1,10 +1,10 @@
 <p align="center">
 <a href="https://github.com/harrisonlabollita/w2kplot">
-<img width = "300" src="logo.png" alt="spaghetti"/>
+<img width = "300" src="logo.png" alt="w2kplot"/>
 </a>
 </p>
 
-**w2kplot** is a Python program to create publication quality band structure plots from [Wien2k](http://susi.theochem.tuwien.ac.at) density-functional theory (DFT) calculations. The user simply runs the program inside the directory with the required files from Wien2k and it takes care of the rest! 
+**w2kplot** is a Python program to create publication quality band structure plots from [WIEN2k](http://susi.theochem.tuwien.ac.at) density-functional theory (DFT) calculations. The user simply runs the program inside the directory with the required files from Wien2k and it takes care of the rest! 
 
 **This program works! But it is still in beta. See below**
 
@@ -28,7 +28,7 @@ The init flag creates the ``w2kplot.init`` file which tells the progam which ato
 **TO-DO**
 - [ ] **it would be helpful if there was a library associated with this package such that one could write something like the following**
 This would be the most helpful thing to implement at the moment! High priority on the todo list.
-	-``from spaghetti import band_plot; band_plot("filename", **kwargs); plt.show()``
+	-``from w2kplot import band_plot; band_plot("filename", **kwargs); plt.show()``
 - [ ] complete Fermi surface slices program
 	- generate klistband file
         - create a job.sh file to run wien2k
