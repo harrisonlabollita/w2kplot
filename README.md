@@ -1,5 +1,5 @@
 <p align="center">
-<a href="https://github.com/harrisonlabollita/spaghetti">
+<a href="https://github.com/harrisonlabollita/w2kplot">
 <img width = "300" src="logo.png" alt="spaghetti"/>
 </a>
 </p>
