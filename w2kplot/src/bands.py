@@ -3,12 +3,24 @@ import numpy as np
 import sys, glob, os
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
-from spaghetti.src.w2kstruct import w2kstruct as struct
+from w2kplot.src.w2kstruct import w2kstruct as struct
 
 try:
     plt.style.use("band_publish")
 except:
-    print("Spaghetti matplotlib style sheet not found!")
+    print("[WARNING] Custom matplotlib style sheet not found!")
+    install = input("Would you like to install it? (y/n)\n")
+    if install == "y": install_style_sheet()
+
+def install_style_sheet():
+    sheet = "style/band_publish.mplstyle"
+    location = os.path.dirname(plt.__file__) + "/mpl-data/stylelib/"
+    print("[INFO]: installing w2kplot's matplotlib style sheet: %s" %(location))
+    shutil.copy(sheet, location)
+
+    import matplotlib.pyplot as plt
+    plt.style.use("band_publish")
+
 
 
 class Error(Exception):
@@ -208,7 +220,7 @@ class bands:
             plt.show()
 
     def load_init(self): 
-        exec(open("spaghetti.init").read())
+        exec(open("w2kplot.init").read())
         load=locals()
         control={}
         control.update(load)

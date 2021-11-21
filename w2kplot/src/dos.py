@@ -3,7 +3,7 @@ import numpy as np
 import sys, glob, os
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
-from spaghetti.src.w2kstruct import w2kstruct as struct
+from w2kplot.src.w2kstruct import w2kstruct as struct
 
 try:
     plt.style.use("publish")

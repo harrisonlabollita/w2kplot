@@ -1,0 +1,14 @@
+README.md
+setup.py
+w2kplot/__init__.py
+w2kplot.egg-info/PKG-INFO
+w2kplot.egg-info/SOURCES.txt
+w2kplot.egg-info/dependency_links.txt
+w2kplot.egg-info/requires.txt
+w2kplot.egg-info/top_level.txt
+w2kplot/src/__init__.py
+w2kplot/src/bands.py
+w2kplot/src/dos.py
+w2kplot/src/fs.py
+w2kplot/src/w2kplot
+w2kplot/src/w2kstruct.py

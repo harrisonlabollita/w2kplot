@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 import glob, sys
-from spaghetti.src.w2kstruct import *
-from spaghetti.src.bands import *
-from spaghetti.src.dos import *
+from w2kplot.src.w2kstruct import *
+from w2kplot.src.bands import *
+from w2kplot.src.dos import *
 
 def command_line():
     import argparse
@@ -22,11 +22,11 @@ def command_line():
 
 def init():
     """interactive intialization of the input file."""
-    if os.path.isfile("spaghetti.init"): #check if previous file
-        prev=input("Previous spaghetti.init file detected. Continue? (y/n): ")
+    if os.path.isfile("w2kplot.init"): #check if previous file
+        prev=input("Previous w2kplot.init file detected. Continue? (y/n): ")
         if prev=="n":
             return 
-    fout=open("spaghetti.init","w")
+    fout=open("w2kplot.init","w")
     structure=struct()
     klabels=input("Enter the klabels that you would like to use (Ex - Gamma X M Gamma): ")
     if len(klabels) > 0: fout.write("klabels= {}\n".format(klabels))

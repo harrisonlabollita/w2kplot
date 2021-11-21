@@ -4,7 +4,7 @@ import numpy as np
 plt.style.use("publish")
 
 
-def spaghetti():
+def w2kplot():
     fig, ax = plt.subplots(figsize=(3.5,2.5))
 
     # bands
@@ -34,7 +34,7 @@ def spaghetti():
     font["weight"] = "bold"
     
 
-    sym = ax.text(0.5*(left+right), 0.5*(bottom+top), 'spaghetti',
+    sym = ax.text(0.5*(left+right), 0.5*(bottom+top), 'w2kplot',
         horizontalalignment='center',
         verticalalignment='center',
         transform=ax.transAxes, fontdict=font)
@@ -49,5 +49,5 @@ def spaghetti():
     plt.savefig("logo.png", transparent=True, dpi=300)
 
 if __name__ == "__main__":
-    spaghetti()
+    w2kplot()
 
