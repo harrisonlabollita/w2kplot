@@ -3,8 +3,8 @@ import subprocess
 import sys
 
 def run():
-    cmds=["spaghetti --spin sep --save la112_ex_sep", 
-          "spaghetti --spin join --save la112_ex_join"]
+    cmds=["w2kplot --spin sep --save la112_ex_sep", 
+          "w2kplot --spin join --save la112_ex_join"]
     for cmd in cmds:
         info = subprocess.call(cmd, shell=True)
         if info != 0:

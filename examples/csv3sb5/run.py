@@ -3,8 +3,8 @@ import subprocess
 import sys
 
 def run():
-    cmds=["spaghetti --save csv3sb5_ex", 
-          "spaghetti --switch fatbands --save csv3sb5_fat"]
+    cmds=["w2kplot --save csv3sb5_ex", 
+          "w2kplot --switch fatbands --save csv3sb5_fat"]
     for cmd in cmds:
         info = subprocess.call(cmd, shell=True)
         if info != 0:
