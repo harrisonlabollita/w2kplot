@@ -1,27 +1,98 @@
 #!/usr/bin/env python
 import numpy as np
-import sys, glob, os
+import sys, glob, os, shutil
 from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 from w2kplot.src.w2kstruct import w2kstruct as struct
+import matplotlib as mpl
 
-try:
-    plt.style.use("band_publish")
-except:
-    print("[WARNING] Custom matplotlib style sheet not found!")
-    install = input("Would you like to install it? (y/n)\n")
-    if install == "y": install_style_sheet()
+mpl.rcdefaults()
+mpl.rcParams["xtick.direction"]   = "in"
+mpl.rcParams["xtick.major.size"]  = 7
+mpl.rcParams["xtick.major.width"] = 0.5
+mpl.rcParams["xtick.minor.size"]  = 0.0
+mpl.rcParams["xtick.minor.width"] =  0.0
+mpl.rcParams["xtick.minor.visible"] = False
+mpl.rcParams["xtick.top"] =  True
+mpl.rcParams["xtick.labelsize"] = 18
+mpl.rcParams["ytick.direction"] =  "in"
+mpl.rcParams["ytick.major.size"] = 7
+mpl.rcParams["ytick.major.width"] = 0.5
+mpl.rcParams["ytick.minor.size"] = 3.5
+mpl.rcParams["ytick.minor.width"] =  0.5
+mpl.rcParams["ytick.minor.visible"] = True
+mpl.rcParams["ytick.right"] = True
+mpl.rcParams["ytick.labelsize"] = 18
+mpl.rcParams["axes.linewidth"] = 1.5
+mpl.rcParams["axes.labelsize"] = 20
+mpl.rcParams["lines.linewidth"] = 1.0
+mpl.rcParams["legend.frameon"] = False
+mpl.rcParams["savefig.bbox"] = "tight"
+mpl.rcParams["savefig.pad_inches"] = 0.05
+mpl.rcParams["font.family"] = "sans-serif"
+mpl.rcParams["font.sans-serif"] = "Arial"
 
-def install_style_sheet():
-    sheet = "style/band_publish.mplstyle"
-    location = os.path.dirname(plt.__file__) + "/mpl-data/stylelib/"
-    print("[INFO] installing w2kplot's matplotlib style sheet: %s" %(location))
-    shutil.copy(sheet, location)
 
-    import matplotlib.pyplot as plt
-    plt.style.use("band_publish")
+def style_sheet(plt_file):
+    sheet = ["xtick.direction           : in",
+             "xtick.major.size          : 7",
+              "xtick.major.width        : 0.5",
+              "xtick.minor.size         : 3.5",
+              "xtick.minor.width        : 0.5",
+              "xtick.minor.visible      : False",
+              "xtick.top                : True",
+              "xtick.labelsize          : 18",
+              "ytick.direction          : in",
+              "ytick.major.size         : 7",
+              "ytick.major.width        : 0.5",
+              "ytick.minor.size         : 3.5",
+              "ytick.minor.width        : 0.5",
+              "ytick.minor.visible      : True",
+              "ytick.right              : True",
+              "ytick.labelsize          : 18",
+              "axes.linewidth           : 1.5",
+              "lines.linewidth          : 1.0",
+              "legend.frameon           : False",
+              "savefig.bbox             : tight",
+              "savefig.pad_inches       : 0.05",
+              "font.family              : sans-serif",
+              "font.sans-serif          : Arial",
+             ]
+    mpl.rcParams["xtick.direction"]   = "in"
+    mpl.rcParams["xtick.major.size"]  = 7
+    mpl.rcParams["xtick.major.width"] = 0.5
+    mpl.rcParams["xtick.minor.size"]  = 0.0
+    mpl.rcParams["xtick.minor.width"] =  0.0
+    mpl.rcParams["xtick.minor.visible"] = False
+    mpl.rcParams["xtick.top"] =  False
+    mpl.rcParams["xtick.labelsize"] = 18
+    mpl.rcParams["ytick.direction"] =  "in"
+    mpl.rcParams["ytick.major.size"] = 7
+    mpl.rcParams["ytick.major.width"] = 0.5
+    mpl.rcParams["ytick.minor.size"] = 3.5
+    mpl.rcParams["ytick.minor.width"] =  0.5
+    mpl.rcParams["ytick.minor.visible"] = True
+    mpl.rcParams["ytick.right"] = True
+    mpl.rcParams["ytick.labelsize"] = 18
+    mpl.rcParams["axes.linewidth"] = 1.5
+    mpl.rcParams["axes.labelsize"] = 20
+    mpl.rcParams["lines.linewidth"] = 1.0
+    mpl.rcParams["legend.frameon"] = False
+    mpl.rcParams["savefig.bbox"] = "tight"
+    mpl.rcParams["savefig.pad_inches"] = 0.05
+    mpl.rcParams["font.family"] = "sans-serif"
+    mpl.rcParams["font.sans-serif"] = "Arial"
+    #location = os.path.dirname(plt_file) + "/mpl-data/stylelib/"
+    #print("[INFO] installing w2kplot's matplotlib style sheet: %s" %(location))
+    #with open(location + "w2kplot.mplstyle", "w") as f: f.write("\n".join(sheet))
 
-
+#if "w2kplot" in plt.style.available:
+#    plt.style.use("w2kplot")
+#else:
+#    print("[WARNING] Custom matplotlib style sheet not found!")
+#    install = input("Would you like to install it? (y/n)\n")
+#    if install == "y": install_style_sheet(plt.__file__)
+# style_sheet(plt.__file__)
 
 class Error(Exception):
     """base error class."""
@@ -48,7 +119,7 @@ def backup_parse(file):
                 kpts.append(float(line.split()[-2]))
                 bands.append(float(line.split()[-1]))
             else:
-                print("Error parsing {}".format(file))
+                print("[ERROR] could not successfully parse {}".format(file))
                 sys.exit(1)
     kpts = np.unique(kpts)
     print(len(kpts))
@@ -61,16 +132,16 @@ def backup_parse(file):
 class bands:
     def __init__(self, args):
         if not self.dir_chk():  # check if the directory contains the files we need
-            exit = """Can not find at least a case.spaghetti_ene file!
-                      Make sure that you are in the correct directory
-                      and that you have at least executed:
-                      x lapw1 -band (-p)
-                      edit case.insp
-                      x spaghetti (-p)
+            exit = """[HELP] Can not find at least a case.spaghetti_ene file!
+                             Make sure that you are in the correct directory
+                             and that you have at least executed:
+                             x lapw1 -band (-p)
+                             edit case.insp
+                             x spaghetti (-p)
 
-                      For band character plotting, you must run
-                      x lapw2 -band -qtl (-p)
-                      after lapw1."""
+                             For band character plotting, you must run
+                             x lapw2 -band -qtl (-p)
+                             after lapw1."""
             print(exit)
             sys.exit(1)
         
@@ -81,11 +152,11 @@ class bands:
             self.plot_bands()             # plot
         elif self.args.switch=="fatbands":
             if self.args.spin is not None:
-                print("Plotting fatbands for spin-polarized calculations is not supported yet!")
+                print("[ERROR] Plotting fatbands for spin-polarized calculations is not supported yet!")
                 sys.exit(1)
             self.plot_fatbands()
         else:
-            print("Did not recognize that switch ({})".format(args.switch))
+            print("[ERROR] Did not recognize that switch ({})".format(args.switch))
             sys.exit(1)
 
 
@@ -94,8 +165,8 @@ class bands:
         extensions = ["*.spaghetti*","*.klist_band"]
         for ext in extensions:
             if len(glob.glob(ext)) == 0:
-                print("User error: could not find file with extension: {}".format(ext))
-                print("Program will not be able to run with this file")
+                print("[ERROR] could not find file with extension: {}".format(ext))
+                print("        Program will not be able to run with this file")
                 return False
         return True
 
@@ -167,8 +238,8 @@ class bands:
                     self.high_symm.append(il)
             self.high_symm = [self.kpts[ind] for ind in self.high_symm]
         except KlistBandError:
-            print("spaghetti encountered an error when parsing the {} file".format(self.klist))
-            print("You can define custom labels and high-symmetry points\n in the spaghetti.init file")
+            print("[ERROR] w2kplot encountered an error when parsing the {} file".format(self.klist))
+            print("        You can define custom labels and high-symmetry points\n in the w2kplot.init file")
 
     def fermi(self):
         """get the Fermi energy (eF) from the case.scf file."""
@@ -178,6 +249,8 @@ class bands:
         """program to create band structure plot"""
         self.band_data()
         self.kpath()
+        
+        print("[INFO] plotting bands...")
         if self.args.spin  == "join":
             fig, ax = plt.subplots()
             for b in range(len(self.Ek[0])): ax.plot(self.kpts, self.Ek[0][b,:], "b-", lw=1.5)
@@ -201,7 +274,7 @@ class bands:
                 ax[0].set_ylim(self.args.ymin, self.args.ymax); 
                 ax[p].set_xlim(np.min(self.high_symm), np.max(self.high_symm));
         else:
-            ax.set_xticks(self.high_symm,)
+            ax.set_xticks(self.high_symm)
             ax.set_xticklabels(self.klabel)
             for k in self.high_symm: ax.axvline(k, color="k", lw=0.5)
             ax.axhline(0.0, color="k", lw=0.5)
@@ -215,11 +288,13 @@ class bands:
             fig.legend(handles=legend_elements, loc="upper left")
 
         if self.args.save:
+            print("[INFO] saving figure {}.pdf".format(self.args.save))
             plt.savefig(self.args.save+".pdf", format="pdf", dpi=300)
         else:
             plt.show()
 
     def load_init(self): 
+        print("[INFO] reading w2kplot.init")
         exec(open("w2kplot.init").read())
         load=locals()
         control={}
@@ -279,20 +354,20 @@ class bands:
         self.fermi()           # get εF
         self.kpath()           # get the kpath
         fig, ax = plt.subplots()
-
+        print("[INFO] plotting fatbands...")
         for b in range(len(self.Ek)): ax.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
         # perform some checks to make sure we have necessary files  
         if self.qtl is None or self.struct is None or self.scf is None:    # checks for necessary files
-            print("Spaghetti needs: case.qtl, case.struct, and case.scf to run fatbands!")
+            print("[ERROR] w2kplot needs: case.qtl, case.struct, and case.scf to run fatbands!")
             sys.exit(1)
         if len(glob.glob("spaghetti.init")) == 0:                          # checks for init file
-            msg="""To run fatbands, we need a spaghetti.init file.\nTry running spaghetti --init --switch fatbands."""
+            msg="""[INFO] To run fatbands, we need a spaghetti.init file.\nTry running spaghetti --init --switch fatbands."""
             print(msg)
             sys.exit(1)
 
         structure=struct() # initialize a struct object
         
-        self.load_init() # load info from the spaghetti.init file
+        self.load_init() # load info from the w2kplot.init file
         
         self.weight = self.args.weight if self.keywords["weight"] is None else self.keywords["weight"]
         
@@ -332,6 +407,7 @@ class bands:
         ax.set_xlim(np.min(self.high_symm), np.max(self.high_symm));
 
         # create the legend
+        print("[INFO] building legend")
         if self.args.legend == "center":
             legend_handles=self.create_legend(structure)
             fig.legend(handles=legend_handles, loc="upper center", ncol=len(legend_handles), fontsize = 10)
@@ -346,11 +422,12 @@ class bands:
             ax.set_xticks(self.high_symm)
             ax.set_xticklabels(self.klabel)
         else:
-            assert len(self.high_symm) == len(self.keywords["klabels"]), "number of k labels provided does not match number of high-symmetry points!"
+            assert len(self.high_symm) == len(self.keywords["klabels"]), "[ERROR] number of k labels provided does not match number of high-symmetry points!"
             ax.set_xticks(self.high_symm)
             ax.set_xticklabels(self.keywords["klabels"])
 
         if self.args.save:
+            print("[INFO] saving figure {}.png".format(self.args.save))
             plt.savefig(self.args.save+".png", format="png", dpi=300)
         else:
             plt.show()
