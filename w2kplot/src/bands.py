@@ -360,8 +360,8 @@ class bands:
         if self.qtl is None or self.struct is None or self.scf is None:    # checks for necessary files
             print("[ERROR] w2kplot needs: case.qtl, case.struct, and case.scf to run fatbands!")
             sys.exit(1)
-        if len(glob.glob("spaghetti.init")) == 0:                          # checks for init file
-            msg="""[INFO] To run fatbands, we need a spaghetti.init file.\nTry running spaghetti --init --switch fatbands."""
+        if len(glob.glob("w2kplot.init")) == 0:                          # checks for init file
+            msg="""[INFO] To run fatbands, we need a w2kplot.init file.\n\tTry running w2kplot --init --switch fatbands."""
             print(msg)
             sys.exit(1)
 
