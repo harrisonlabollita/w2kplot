@@ -5,12 +5,6 @@ from matplotlib.lines import Line2D
 import matplotlib.pyplot as plt
 from w2kplot.src.w2kstruct import w2kstruct as struct
 
-try:
-    plt.style.use("publish")
-except:
-    print("Spaghetti matplotlib style sheet not found!")
-
-
 class Error(Exception):
     """base error class."""
     pass
