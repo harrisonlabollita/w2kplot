@@ -40,9 +40,7 @@ def install_style_sheet(plt_file):
     print("[INFO] installing w2kplot's matplotlib style sheet: %s" %(location))
     with open(location + "w2kplot.mplstyle", "w") as f: f.write("\n".join(sheet))
 
-if "w2kplot" in plt.style.available:
-    plt.style.use("w2kplot")
-else:
+if "w2kplot" not in plt.style.available:
     print("[WARNING] Custom matplotlib style sheet not found!")
     install = input("Would you like to install it? (y/n)\n")
     if install == "y": install_style_sheet(plt.__file__)
@@ -202,6 +200,7 @@ class bands:
 
     def plot_bands(self):
         """program to create band structure plot"""
+        plt.style.use("w2kplot")
         self.band_data()
         self.kpath()
         
@@ -300,6 +299,7 @@ class bands:
         return legend_elements
 
     def plot_fatbands(self):
+        plt.style.use("w2kplot")
         ry2eV = 13.6
 
         default_cols = [["dodgerblue", "lightcoral", "gold", "forestgreen", "magenta"],

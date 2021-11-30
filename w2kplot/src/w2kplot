@@ -8,13 +8,16 @@ def command_line():
     import argparse
     parser=argparse.ArgumentParser()
     parser.add_argument("--init", dest="init", action="store_true", help="sets up the interactive initialization to create the plot")
-    parser.add_argument("--switch", default="bands", type=str, help="control the program")
+    parser.add_argument("--switch", default="bands", type=str, help="control the w2kplot program")
     parser.add_argument("--spin", default=None, choices=["join", "sep", None], 
             help="plots spin polarized calculations for two cases: (1) up and down channels on top of each other or (2) up and down channels separately.")
     parser.add_argument("--legend", default="center", type=str, choices=["center", "right", "left", "none"], 
                         help="location of the legend")
     parser.add_argument("--ymin", type = float, default = -1.5)
     parser.add_argument("--ymax", type = float, default = 1.5)
+    parser.add_argument("--xmin", type = float, default = -1.5)
+    parser.add_argument("--xmax", type = float, default = 1.5)
+    parser.add_argument("--orientation", type = str, default = "v", choices= ["v", "h"])
     parser.add_argument("--weight", type=int, default=20, help = "weights multiply character by")
     parser.add_argument("--save", default = None, help = "option to save the image")
     args = parser.parse_args()
@@ -70,5 +73,7 @@ if __name__ == "__main__":
         print("[ERROR] Not implemented!")
         sys.exit(1)
     elif args.switch == "dos":
-        print("[ERROR] Not implemented!")
+        dos(args)
+    else:
+        print("[ERROR] did not recognized switch= { }! Try again".format(args.switch))
         sys.exit(1)
