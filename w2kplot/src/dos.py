@@ -49,5 +49,5 @@ class dos(object):
             if self.args.orientation == "h":
                 plt.plot(Emesh, self.dos_data[:,iname+1])
             elif self.args.orientation == "v":
-                plt.plot(self.dos_data[:,iname+1]), Emesh)
+                plt.plot(self.dos_data[:,iname+1], Emesh)
 
