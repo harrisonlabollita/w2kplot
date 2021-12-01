@@ -21,6 +21,7 @@ def command_line():
     parser.add_argument("--orientation", type = str, default = "v", choices= ["v", "h"])
     parser.add_argument("--weight", type=int, default=20, help = "weights multiply character by")
     parser.add_argument("--save", default = None, help = "option to save the image")
+    parser.add_argument("--subplots", dest="subplots", action="store_true", help="plot fatbands as subplots")
     args = parser.parse_args()
     return args
 

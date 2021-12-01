@@ -269,11 +269,11 @@ class bands:
                        "PY"        : r"$p_{y}$",
                        "PX+PY"     : r"$p_{x}+p_{y}$",
                        "DZ2"       : r"$d_{z^{2}}$",
-                       "DX2Y2"     : r"$d_{x^{2}+y^{2}}$",
+                       "DX2Y2"     : r"$d_{x^{2}-y^{2}}$",
                        "DXZ"       : r"$d_{xz}$",
                        "DYZ"       : r"$d_{yz}$",
                        "DXY"       : r"$d_{xy}$",
-                       "DX2Y2+DXY" : r"$d_{x^{2}+y^{2}}+d_{xy}$",
+                       "DX2Y2+DXY" : r"$d_{x^{2}-y^{2}}+d_{xy}$",
                        "DXZ+DYZ"   : r"$d_{xz}+d_{yz}$",
                        "0"         : "$s$",
                        "1"         : "$p$",
@@ -308,8 +308,6 @@ class bands:
         self.band_data()       # get the bands
         self.fermi()           # get εF
         self.kpath()           # get the kpath
-        fig, ax = plt.subplots()
-        for b in range(len(self.Ek)): ax.plot(self.kpts, self.Ek[b,:]+self.args.eF, "k-", lw=1.5)
         # perform some checks to make sure we have necessary files  
         if self.qtl is None or self.struct is None or self.scf is None:    # checks for necessary files
             print("[ERROR] w2kplot needs: case.qtl, case.struct, and case.scf to run fatbands!")
@@ -333,6 +331,20 @@ class bands:
             self.colors = self.keywords["colors"]
        
         print("[INFO] plotting fatbands")
+        if self.args.subplots:
+            if len(self.keywords["atoms"]) > 1:
+                print("[ERROR] Can not plot subplots for more than atom!")
+                sys.exit(1)
+            else:
+                fig, ax = plt.subplots(1, len(self.keywords["orbitals"][0]), sharey=True)
+        else:
+            fig, ax = plt.subplots()
+        if self.args.subplots:
+            for sub in range(len(self.keywords["orbitals"][0])):
+                for b in range(len(self.Ek)): ax[sub].plot(self.kpts, self.Ek[b,:]+self.args.eF, "k-", lw=1.5)
+        else:
+            for b in range(len(self.Ek)): ax.plot(self.kpts, self.Ek[b,:]+self.args.eF, "k-", lw=1.5)
+
         for (a, at) in enumerate(self.keywords["atoms"]):
             for o in range(len(self.keywords["orbitals"][a])):
                 qtl           = open(self.qtl).readlines() 
@@ -351,37 +363,58 @@ class bands:
                     else:
                         assert len(self.kpts) == len(E), "lenghts of arrays do not match!"
                         assert len(E) == len(character), "lengths of arrays do not match!"
-                        ax.scatter(self.kpts, E, character, color=self.colors[a][o], rasterized=True)
+                        if self.args.subplots:
+                            ax[o].scatter(self.kpts, E, character, color=self.colors[a][o], rasterized=True)
+                        else:
+                            ax.scatter(self.kpts, E, character, color=self.colors[a][o], rasterized=True)
                         E = []
                         character = []
         # decorate
-        for k in self.high_symm: ax.axvline(k, color="k", lw=0.5)
-        ax.axhline(0.0, color="k", lw=0.5)
-        ax.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
-        ax.set_ylim(self.args.ymin, self.args.ymax);
-        ax.set_xlim(np.min(self.high_symm), np.max(self.high_symm));
+        if self.args.subplots:
+            for sub in range(len(self.keywords["orbitals"][0])):
+                for k in self.high_symm: ax[sub].axvline(k, color="k", lw=0.5)
+                ax[sub].axhline(0.0, color="k", lw=0.5)
+                if sub == 0: ax[sub].set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+                ax[sub].set_ylim(self.args.ymin, self.args.ymax);
+                ax[sub].set_xlim(np.min(self.high_symm), np.max(self.high_symm));
+        else:
+            for k in self.high_symm: ax.axvline(k, color="k", lw=0.5)
+            ax.axhline(0.0, color="k", lw=0.5)
+            ax.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+            ax.set_ylim(self.args.ymin, self.args.ymax);
+            ax.set_xlim(np.min(self.high_symm), np.max(self.high_symm));
 
         # create the legend
         print("[INFO] building legend")
-        if self.args.legend == "center":
-            legend_handles=self.create_legend(structure)
-            fig.legend(handles=legend_handles, loc="upper center", ncol=len(legend_handles), fontsize = 10)
-        elif self.args.legend == "right":
+        if self.args.subplots:
             legend_handles=self.create_legend(structure)
             fig.legend(handles=legend_handles, loc="upper right", fontsize = 10)
-        elif self.args.legend == "left":
-            legend_handles=self.create_legend(structure)
-            fig.legend(handles=legend_handles, loc="upper left", fontsize = 10)
+        else:
+            if self.args.legend == "center":
+                legend_handles=self.create_legend(structure)
+                fig.legend(handles=legend_handles, loc="upper center", ncol=len(legend_handles), fontsize = 10)
+            elif self.args.legend == "right":
+                legend_handles=self.create_legend(structure)
+                fig.legend(handles=legend_handles, loc="upper right", fontsize = 10)
+            elif self.args.legend == "left":
+                legend_handles=self.create_legend(structure)
+                fig.legend(handles=legend_handles, loc="upper left", fontsize = 10)
 
         if self.keywords["klabels"] is None: 
-            ax.set_xticks(self.high_symm)
-            ax.set_xticklabels(self.klabel)
+            if self.args.subplots:
+                for sub in range(len(self.keywords["orbitals"][0])):
+                    ax[sub].set_xticks(self.high_symm)
+                    ax[sub].set_xticklabels(self.klabel)
+            else:
+                ax.set_xticks(self.high_symm)
+                ax.set_xticklabels(self.klabel)
+
         else:
             assert len(self.high_symm) == len(self.keywords["klabels"]), "[ERROR] number of k labels provided does not match number of high-symmetry points!"
             ax.set_xticks(self.high_symm)
             ax.set_xticklabels(self.keywords["klabels"])
+        if self.args.subplots: plt.subplots_adjust(hspace=0.1)
 
-        #ax.set_xlim(self.high_symm[0], self.high_symm[1]);
         if self.args.save:
             print("[INFO] saving figure {}.png".format(self.args.save))
             plt.savefig(self.args.save+".png", format="png", dpi=300)
