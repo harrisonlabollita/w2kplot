@@ -13,6 +13,7 @@ def command_line():
             help="plots spin polarized calculations for two cases: (1) up and down channels on top of each other or (2) up and down channels separately.")
     parser.add_argument("--legend", default="center", type=str, choices=["center", "right", "left", "none"], 
                         help="location of the legend")
+    parser.add_argument("--eF", type = float, default = 0.0)
     parser.add_argument("--ymin", type = float, default = -1.5)
     parser.add_argument("--ymax", type = float, default = 1.5)
     parser.add_argument("--xmin", type = float, default = -1.5)

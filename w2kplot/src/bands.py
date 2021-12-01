@@ -207,16 +207,16 @@ class bands:
         print("[INFO] plotting bands")
         if self.args.spin  == "join":
             fig, ax = plt.subplots()
-            for b in range(len(self.Ek[0])): ax.plot(self.kpts, self.Ek[0][b,:], "b-", lw=1.5)
-            for b in range(len(self.Ek[1])): ax.plot(self.kpts, self.Ek[1][b,:], "r.-", lw=1.5)
+            for b in range(len(self.Ek[0])): ax.plot(self.kpts, self.Ek[0][b,:]+self.args.eF, "b-", lw=1.5)
+            for b in range(len(self.Ek[1])): ax.plot(self.kpts, self.Ek[1][b,:]+self.args.eF, "r.-", lw=1.5)
 
         elif self.args.spin == "sep":
             fig, ax = plt.subplots(1, 2, sharey=True)
-            for b in range(len(self.Ek[0])): ax[0].plot(self.kpts, self.Ek[0][b,:], "b-", lw=1.5)
-            for b in range(len(self.Ek[1])): ax[1].plot(self.kpts, self.Ek[1][b,:], "r.-", lw=1.5)
+            for b in range(len(self.Ek[0])): ax[0].plot(self.kpts, self.Ek[0][b,:]+self.args.eF, "b-", lw=1.5)
+            for b in range(len(self.Ek[1])): ax[1].plot(self.kpts, self.Ek[1][b,:]+self.args.eF, "r.-", lw=1.5)
         else:
             fig, ax = plt.subplots()
-            for b in range(len(self.Ek)): plt.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
+            for b in range(len(self.Ek)): plt.plot(self.kpts, self.Ek[b,:]+self.args.eF, "k-", lw=1.5)
 
         if self.args.spin == "sep":
             for p in range(2): 
@@ -309,7 +309,7 @@ class bands:
         self.fermi()           # get εF
         self.kpath()           # get the kpath
         fig, ax = plt.subplots()
-        for b in range(len(self.Ek)): ax.plot(self.kpts, self.Ek[b,:], "k-", lw=1.5)
+        for b in range(len(self.Ek)): ax.plot(self.kpts, self.Ek[b,:]+self.args.eF, "k-", lw=1.5)
         # perform some checks to make sure we have necessary files  
         if self.qtl is None or self.struct is None or self.scf is None:    # checks for necessary files
             print("[ERROR] w2kplot needs: case.qtl, case.struct, and case.scf to run fatbands!")
@@ -344,7 +344,7 @@ class bands:
                 for line in qtl:
                     if 'BAND' not in line:
                         if line.split()[1] == str(at):
-                            E.append((float(line.split()[0]) - self.eF)*ry2eV)                         # wien2k interal units are Ry switch to eV
+                            E.append((float(line.split()[0]) - self.eF)*ry2eV +self.args.eF)                         # wien2k interal units are Ry switch to eV
                             enh   = float(self.weight*structure.atoms[at-1][1])                        # weight factor
                             ovlap = (float(line.split()[int(self.keywords["orbitals"][a][o]) + 1]))    # qtl overlap
                             character.append(enh*ovlap)
@@ -381,6 +381,7 @@ class bands:
             ax.set_xticks(self.high_symm)
             ax.set_xticklabels(self.keywords["klabels"])
 
+        #ax.set_xlim(self.high_symm[0], self.high_symm[1]);
         if self.args.save:
             print("[INFO] saving figure {}.png".format(self.args.save))
             plt.savefig(self.args.save+".png", format="png", dpi=300)
