@@ -22,6 +22,7 @@ def command_line():
     parser.add_argument("--weight", type=int, default=20, help = "weights multiply character by")
     parser.add_argument("--save", default = None, help = "option to save the image")
     parser.add_argument("--subplots", dest="subplots", action="store_true", help="plot fatbands as subplots")
+    parser.add_argument("--combine", dest="combine", action="store_true", help="combine the legend for inequivalent atoms")
     args = parser.parse_args()
     return args
 

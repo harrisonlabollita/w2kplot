@@ -296,7 +296,12 @@ class bands:
                                        color=self.colors[ia][o], 
                                        lw=3, 
                                        label=structure.atoms[a-1][0]+"-"+labels[o]))
-        return legend_elements
+        # TODO: hack to combine atoms, but don't love this
+        if self.args.combine:
+            return legend_elements[0]
+        else:
+            return legend_elements
+
 
     def plot_fatbands(self):
         plt.style.use("w2kplot")
@@ -386,18 +391,15 @@ class bands:
 
         # create the legend
         print("[INFO] building legend")
+        legend_handles=self.create_legend(structure)
         if self.args.subplots:
-            legend_handles=self.create_legend(structure)
             fig.legend(handles=legend_handles, loc="upper right", fontsize = 10)
         else:
             if self.args.legend == "center":
-                legend_handles=self.create_legend(structure)
                 fig.legend(handles=legend_handles, loc="upper center", ncol=len(legend_handles), fontsize = 10)
             elif self.args.legend == "right":
-                legend_handles=self.create_legend(structure)
                 fig.legend(handles=legend_handles, loc="upper right", fontsize = 10)
             elif self.args.legend == "left":
-                legend_handles=self.create_legend(structure)
                 fig.legend(handles=legend_handles, loc="upper left", fontsize = 10)
 
         if self.keywords["klabels"] is None: 
