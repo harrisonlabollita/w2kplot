@@ -21,7 +21,7 @@ fig.legend(handles=dft.create_legend(), ncol=3, loc="upper center")
 plt.savefig('plot.png', dpi=300)
 ```
 
-<img style="padding: 0 50% 0 0" src="csv3sb5/plot.png" />
+<img style="padding: 0 100% 0 0" src="csv3sb5/plot.png" height="100" width="100"/>
 
 ## Spin-polarized
 
