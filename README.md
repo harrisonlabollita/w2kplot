@@ -1,6 +1,6 @@
 <p align="center">
 <a href="https://github.com/harrisonlabollita/w2kplot">
-<img width = "300" src="logo.png" alt="w2kplot"/>
+<img width = "300" src="doc/logo.png" alt="w2kplot"/>
 </a>
 </p>
 
