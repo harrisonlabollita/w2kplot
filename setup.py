@@ -1,11 +1,8 @@
 from setuptools import setup
 
 setup(name = "w2kplot",
-      version = "0.0.1",
+      version = "0.0.2",
       author = "Harrison LaBollita",
       author_email = "hlabolli@asu.edu",
-      description = "a small plotting program written in Python for post processing results in Wien2k",
-      packages = ["w2kplot", "w2kplot.src"],
-      install_requires =["numpy", "matplotlib"],
-      scripts = ["w2kplot/src/w2kplot"])
-
+      description = "a Python wrapper to Matplotlib for plotting results from WIEN2k",
+      install_requires =["numpy", "matplotlib"])

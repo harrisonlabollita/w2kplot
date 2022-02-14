@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: w2kplot
-Version: 0.0.1
-Summary: a small plotting program written in Python for post processing results in Wien2k
+Version: 0.0.2
+Summary: a Python wrapper to Matplotlib for plotting results from WIEN2k
 Home-page: UNKNOWN
 Author: Harrison LaBollita
 Author-email: hlabolli@asu.edu
