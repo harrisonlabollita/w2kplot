@@ -36,15 +36,14 @@ Currently, this is the only way to install w2kplot
     pip install -e .
 ```
 
+<a name="documentation"><a/>
 ## Documenation
 
 w2kplot provides the user with various data objects: `Bands`, `FatBands`, `DensityOfStates`, which can then be passed to plotting functions `band_plot`, `fatband_plot`, `dos_plot`, which unravel the data contained in each object and create beautiful publication quality figures. We show case some examples [here](examples/README.md).
 
 ### Bands
 `Bands` is a `w2kplot` data object that contains the information about the band structure (extracted from case.spaghetti\_ene). This object takes the following keywords:
-```python
-	Bands(spaghetti, klist_band)
-```
+
 `spaghetti` (optional): filename of the case.spaghetti\_ene file.
 
 `klist_band` (optional): filename of the case.klist\_band file.
