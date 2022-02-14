@@ -281,12 +281,22 @@ class DensityOfStates(object):
         return energy, density_of_states
 
     
-    def smooth_dos(self):
-        print("not implemented yet")
-        pass
+    def fwhm2sigma(self, fwhm):
+        return fwhm / np.sqrt(8 * np.log(2))
 
-
-
+    def smooth_dos(self, fwhm):
+        """smooths out the density of states. Mainly for aesthetics"""
+        sigma=self.fwhm2sigma(fwhm)
+        for d in range(len(self.density_of_states)): # loop over the various dos files given
+            for s in range(self.density_of_states[d].shape[1]): # loop over the columns in each dos file
+                rho = self.density_of_states[d][:,s]
+                smooth=np.zeros(self.density_of_states[d].shape[0])
+                for (ie, e) in enumerate(self.energy): # should be vectorized?
+                    kernel=np.exp(-(mesh-e)**2/(2*sigma**2))
+                    kernel/=np.sum(kernel) # normalize
+                    smooth[ie]=np.sum(rho*kernel)
+                # write over dos with smoothed dos
+                self.density_of_states[d][:,s] = smooth
 
 
 class FermiSurface(object):
