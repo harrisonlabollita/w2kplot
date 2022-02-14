@@ -7,7 +7,7 @@
 
 **w2kplot** is a Python wrapper built on [Matplotlib](https://matplotlib.org) to create publication quality plots from data generated from [WIEN2k](http://susi.theochem.tuwien.ac.at) density-functional theory (DFT) calculations.
 
-**This wrapper works! But it is still underdevelopment**
+**This program works! But it is still underdevelopment**
 
 ## Example
 
@@ -25,8 +25,7 @@
 **TO-DO**
 
 - [x] basic library functions
-- [ ] command line scripts
-- [ ] density of states functionality
+- [x] density of states functionality
 - [ ] fermi surface functionality
 
 
