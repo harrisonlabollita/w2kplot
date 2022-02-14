@@ -42,7 +42,7 @@ def w2kplot():
     font["size"] = 10
     font["color"] = "dimgrey"
     font["family"] = "Helvetica"
-    sub = ax.text(0.5*(left+right), 0.35*(bottom+top), 'command-line plotting tool',
+    sub = ax.text(0.5*(left+right), 0.35*(bottom+top), 'WIEN2k plotting tool',
         horizontalalignment='center',
         verticalalignment='center',
         transform=ax.transAxes, fontdict=font)
