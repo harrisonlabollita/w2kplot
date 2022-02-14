@@ -1,5 +1,4 @@
 Examples
 ========
 
-Here, we have a few examples of the band structures [spaghetti](https://github.com/harrisonlabollita/spaghetti) is capable of creating!
-
+Here, we provide a few example scripts for plotting band structures with both orbital character and spin-polarized cases.

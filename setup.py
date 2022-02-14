@@ -5,4 +5,5 @@ setup(name = "w2kplot",
       author = "Harrison LaBollita",
       author_email = "hlabolli@asu.edu",
       description = "a Python wrapper to Matplotlib for plotting results from WIEN2k",
+      packages=['w2kplot'],
       install_requires =["numpy", "matplotlib"])
