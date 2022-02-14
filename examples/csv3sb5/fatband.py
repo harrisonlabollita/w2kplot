@@ -7,7 +7,7 @@ dft = FatBands(atoms=[2,4,3],                 # 2 = V, 3=Sb1, 4=Sb2 (see struct 
               colors=[['dodgerblue'],['forestgreen'],['tomato']],
               weight  = 50)
 
-fig, ax = plt.subplots()
+fig, ax = plt.subplots(figsize=(3,3))
 ax.fatband_plot(dft, "k-", lw=1.5)
 fig.legend(handles=dft.create_legend(), ncol=3, loc="upper center")
 plt.savefig('plot.png', dpi=300)

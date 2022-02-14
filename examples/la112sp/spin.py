@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from w2kplot import *
 
 
-fig, ax = plt.subplots(1,2,sharey=True)
+fig, ax = plt.subplots(1,2,sharey=True, figsize=(6,3))
 
 up_channel=Bands(spaghetti="la112sp.spaghettiup_ene")
 dn_channel=Bands(spaghetti="la112sp.spaghettidn_ene")
