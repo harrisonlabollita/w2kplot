@@ -247,14 +247,46 @@ class FatBands(Bands):
                                        label=self.structure.atoms[a-1][0]+"-"+labels[o]))
         return legend_elements
 
-                
-
-
 
 class DensityOfStates(object):
-    def __init__(self):
+    def __init__(self, dos=None, dos_dict=None):
+        self.dos = dos
+        self.dos_dict = dos_dict
+
+        if self.dos is None:
+            try:
+                self.dos = glob.glob("*.dos*")
+                print("Found {} density of states files".format(len(self.dos)))
+            except FileNotFoundError:
+                print("Could not find any files matching case.dosXev, where X is a number")
+        
+        if self.dos_dict is None:
+            # if a dictionary mapping each column to a name is not provided we will build one
+            self.dos_dict = {}
+            offset = 0
+            for file in self.dos:
+                headers=open(file).readlines()[2].split()[2:] # skips the # and ENERGY
+                for h in range(len(headers)):
+                    self.dos_dict[h+offset] = headers[h]
+                offset += len(headers)
+
+        self.energy, self.density_of_states = self.grab_dos()
+
+    def grab_dos(self):
+        density_of_states = []
+        for file in self.dos:
+            data = np.loadtxt(file, comments='#')
+            energy = data[:,0]
+            density_of_states.append(np.loadtxt(file, comments="#")[:,2:])
+        return energy, density_of_states
+
+    
+    def smooth_dos(self):
         print("not implemented yet")
         pass
+
+
+
 
 
 class FermiSurface(object):
@@ -265,7 +297,6 @@ class FermiSurface(object):
 
 
 # plotting methods
-
 
 # plot bandstructure
 def band_plot(bands, *opt_list, **opt_dict):
@@ -299,7 +330,6 @@ def fatband_plot(fat_bands, *opt_list, **opt_dict):
 def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType): figure = figure.gca()
 
-
     # plot the bands 
     __band_plot(figure, fat_bands, *opt_list, **opt_dict)
     
@@ -330,13 +360,32 @@ mpl.axes.Axes.fatband_plot = lambda self, fat_bands, *opt_list, **opt_dict : __f
 
 
 # plot density of states
-#def dos_plot(dos):
-#    __dos_plot(plt, dos)
+def dos_plot(dos, *opt_list, **opt_dict):
+    __dos_plot(plt, dos, *opt_list, **opt_dict)
 
-#def __dos_plot(figure, dos):
-#    if isinstance(figure, types.ModuleType): figure = figure.gca()
 
-#mpl.axes.Axes.dos_plot = lambda self, dos : __dos_plot(self, dos)
+def __dos_plot(figure, dos, *opt_list, **opt_dict):
+    if isinstance(figure, types.ModuleType): figure = figure.gca()
+    
+    offset = 0
+    dos_max = 0
+    for d in range(len(dos.density_of_states)): # loop over the various dos files given
+        for s in range(dos.density_of_states[d].shape[1]): # loop over the columns in each dos file
+            if dos_max < np.max(dos.density_of_states[d][:,s]):
+                dos_max = np.max(dos.density_of_states[d][:,s])
+            figure.plot(dos.energy, dos.density_of_states[d][:,s], label=dos.dos_dict[offset+s], *opt_list, **opt_dict)
+        offset += s
+
+    # decorate
+    figure.set_xlabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
+    figure.set_ylabel(r'DOS (1/eV)')
+    figure.set_xlim(-10, 10)
+    figure.set_ylim(0, 1.05*dos_max)
+    figure.axvline(0.0, color='k', lw=1, ls='dotted')
+    figure.legend(loc="best")
+
+
+mpl.axes.Axes.dos_plot = lambda self, dos, *opt_list, **opt_dict : __dos_plot(self, dos, *opt_list, **opt_dict)
 
 
 # plot fermi surface
