@@ -10,5 +10,5 @@ dft = FatBands(atoms=[2,4,3],                 # 2 = V, 3=Sb1, 4=Sb2 (see struct 
 fig, ax = plt.subplots()
 ax.fatband_plot(dft, "k-", lw=1.5)
 fig.legend(handles=dft.create_legend(), ncol=3, loc="upper center")
-plt.show()
+plt.savefig('plot.png', dpi=300)
 

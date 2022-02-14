@@ -8,9 +8,9 @@ fig, ax = plt.subplots(1,2,sharey=True)
 
 up_channel=Bands(spaghetti="la112sp.spaghettiup_ene")
 dn_channel=Bands(spaghetti="la112sp.spaghettidn_ene")
-ax[0].band_plot(up_channel, "b-", lw=1)
-ax[1].band_plot(dn_channel, "r-", lw=1)
+ax[0].band_plot(up_channel, "b-", lw=1); ax[0].set_title('majority')
+ax[1].band_plot(dn_channel, "r-", lw=1); ax[1].set_title('minority')
 ax[1].set_ylabel("") # remove the y-label from this subplot
 
 plt.subplots_adjust(hspace=0.05)
-plt.show()
+plt.savefig('plot.png', dpi=300)
