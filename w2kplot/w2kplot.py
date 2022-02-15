@@ -61,6 +61,9 @@ if "w2kplot" not in plt.style.available:
     install_style_sheet(plt.__file__)
 plt.style.use("w2kplot")
 
+
+
+
 class Error(Exception):
     """Base class for other exceptions"""
     pass
@@ -107,8 +110,6 @@ class Structure(object):
         assert len(mults)==len(specs), "The struct file was not parsed correctly!"
         assert len(iatom)==len(specs), "The struct file was not parsed correctly!"
         for a in range(self.nat): self.atoms[a]=[specs[a], mults[a]]
-
-
 
 class Bands(object):
     def __init__(self, spaghetti=None, klist_band=None):
@@ -280,31 +281,30 @@ class DensityOfStates(object):
             density_of_states.append(np.loadtxt(file, comments="#")[:,2:])
         return energy, density_of_states
 
-    
-    def fwhm2sigma(self, fwhm):
-        return fwhm / np.sqrt(8 * np.log(2))
-
     def smooth_dos(self, fwhm):
         """smooths out the density of states. Mainly for aesthetics"""
-        sigma=self.fwhm2sigma(fwhm)
+        
+        def fwhm2sigma(fwhm):
+            return fwhm / np.sqrt(8 * np.log(2))
+
+        def blur(ie, e):
+            kernel=np.exp(-(energy-e)**2/(2*sigma**2))
+            kernel/=np.sum(kernel) # normalize
+            return np.sum(rho*kernel)
+
+        sigma = fwhm2sigma(fwhm)
+        smoother = np.vectorize(blur)
+
         for d in range(len(self.density_of_states)): # loop over the various dos files given
             for s in range(self.density_of_states[d].shape[1]): # loop over the columns in each dos file
                 rho = self.density_of_states[d][:,s]
-                smooth=np.zeros(self.density_of_states[d].shape[0])
-                for (ie, e) in enumerate(self.energy): # should be vectorized?
-                    kernel=np.exp(-(mesh-e)**2/(2*sigma**2))
-                    kernel/=np.sum(kernel) # normalize
-                    smooth[ie]=np.sum(rho*kernel)
-                # write over dos with smoothed dos
-                self.density_of_states[d][:,s] = smooth
-
+                energy=self.energy
+                self.density_of_states[d][:,s][:] = smoother(list(range(len(rho))), energy)
 
 class FermiSurface(object):
     def __init__(self):
         print("not implemented yet")
         pass
-
-
 
 # plotting methods
 
@@ -354,9 +354,9 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
             for line in qtl:
                 if 'BAND' not in line:
                     if line.split()[1] == str(at):
-                        E.append((float(line.split()[0]) - fat_bands.eF)*fat_bands.Ry2eV)                # wien2k interal units are Ry switch to eV
-                        enh   = float(fat_bands.weight*fat_bands.structure.atoms[at-1][1])                        # weight factor
-                        ovlap = (float(line.split()[int(fat_bands.orbitals[a][o]) + 1]))    # qtl overlap
+                        E.append((float(line.split()[0]) - fat_bands.eF)*fat_bands.Ry2eV)    # wien2k interal units are Ry switch to eV
+                        enh   = float(fat_bands.weight*fat_bands.structure.atoms[at-1][1])   # weight factor
+                        ovlap = (float(line.split()[int(fat_bands.orbitals[a][o]) + 1]))     # qtl overlap
                         character.append(enh*ovlap)
                 else:
                     assert len(fat_bands.kpoints) == len(E), "Did not parse file correctly!"
