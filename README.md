@@ -10,7 +10,7 @@
 **This program works! But is under underdevelopment**
 
 - [Getting Started](#started)
-- [Installtion](#installation)
+- [Installation](#installation)
 - [Documentation](#documentation)
 
 
