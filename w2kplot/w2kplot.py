@@ -112,9 +112,11 @@ class Structure(object):
         for a in range(self.nat): self.atoms[a]=[specs[a], mults[a]]
 
 class Bands(object):
-    def __init__(self, spaghetti=None, klist_band=None):
+    def __init__(self, spaghetti=None, klist_band=None, eF_shift=0):
         self.spaghetti = spaghetti
         self.klist_band = klist_band
+        self.eF_shift   = eF_shift
+
         if self.spaghetti is None:
             try:
                 self.spaghetti = glob.glob("*.spaghetti_ene")[0]
@@ -175,8 +177,8 @@ class Bands(object):
 
 
 class FatBands(Bands):
-    def __init__(self, atoms, orbitals, colors=None, weight=80, spaghetti=None, klist_band=None, qtl=None, eF=None, struct=None):
-        super().__init__(spaghetti, klist_band)
+    def __init__(self, atoms, orbitals, colors=None, weight=80, spaghetti=None, klist_band=None, qtl=None, eF=None, struct=None, eF_shift=0):
+        super().__init__(spaghetti, klist_band, eF_shift)
 
         self.default_colors = [["dodgerblue", "lightcoral", "gold", "forestgreen", "magenta"],
                                ["b", "r", "g", "y", "c"],
@@ -318,7 +320,7 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
             
 
     # plot the the dispersion from the bands object
-    for b in range(len(bands.Ek)): figure.plot(bands.kpoints, bands.Ek[b,:], *opt_list, **opt_dict)
+    for b in range(len(bands.Ek)): figure.plot(bands.kpoints, bands.Ek[b,:]-bands.eF_shift, *opt_list, **opt_dict)
 
 
     # decorate the figure from here
@@ -354,7 +356,7 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
             for line in qtl:
                 if 'BAND' not in line:
                     if line.split()[1] == str(at):
-                        E.append((float(line.split()[0]) - fat_bands.eF)*fat_bands.Ry2eV)    # wien2k interal units are Ry switch to eV
+                        E.append((float(line.split()[0]) - fat_bands.eF)*fat_bands.Ry2eV - fat_bands.eF_shift)    # wien2k interal units are Ry switch to eV
                         enh   = float(fat_bands.weight*fat_bands.structure.atoms[at-1][1])   # weight factor
                         ovlap = (float(line.split()[int(fat_bands.orbitals[a][o]) + 1]))     # qtl overlap
                         character.append(enh*ovlap)
