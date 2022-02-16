@@ -308,6 +308,12 @@ class FermiSurface(object):
         print("not implemented yet")
         pass
 
+class WannierBands(object):
+    def __init__(self):
+        print("not implemented yet")
+        pass
+
+
 # plotting methods
 
 # plot bandstructure
@@ -402,9 +408,18 @@ mpl.axes.Axes.dos_plot = lambda self, dos, *opt_list, **opt_dict : __dos_plot(se
 
 # plot fermi surface
 #def fermi_surface_plot(fermi_surface):
-#    __fermi_surface_plot(plt, dos)
+#    __fermi_surface_plot(plt, fermi_surface)
 
 #def __fermi_surface_plot(figure, fermi_surface):
 #    if isinstance(figure, types.ModuleType): figure = figure.gca()
 
-#mpl.axes.Axes.fermi_surface_plot = lambda self, dos : __fermi_surface_plot(self, fermi_surface)
+#mpl.axes.Axes.fermi_surface_plot = lambda self, fermi_surface, *opt_list, **opt_dict : __fermi_surface_plot(self, fermi_surface, *opt_list, **opt_dict)
+
+# plot wannier90 bands compared to DFT bands
+#def wannier_band_plot(wannier_bands):
+#    __wannier_band_plot(plt, wannier_bands)
+
+#def __wannier_band_plot(figure, wannier_bands):
+#    if isinstance(figure, types.ModuleType): figure = figure.gca()
+
+#mpl.axes.Axes.wannier_band_plot = lambda self, wannier_bands, *opt_list, **opt_dict : __wannier_band_plot(self, wannier_bands, *opt_list, **opt_dict)
