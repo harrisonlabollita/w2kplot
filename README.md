@@ -85,6 +85,6 @@ If either of these files are not provided, w2kplot looks in the current director
 - [x] basic library functions
 - [x] density of states functionality
 - [ ] fermi surface functionality
-
+- [ ] support for WIEN2k + Wannier90 comparison
 
 **PRs and feedback are welcome!**
