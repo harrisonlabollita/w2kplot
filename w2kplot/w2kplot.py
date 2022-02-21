@@ -280,7 +280,10 @@ class DensityOfStates(object):
         for file in self.dos:
             data = np.loadtxt(file, comments='#')
             energy = data[:,0]
-            density_of_states.append(np.loadtxt(file, comments="#")[:,2:])
+            if "dn" in file:
+                density_of_states.append(-1*data[:,1:])
+            else:
+                density_of_states.append(data[:,1:])
         return energy, density_of_states
 
     def smooth_dos(self, fwhm):
@@ -327,7 +330,6 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
 
     # plot the the dispersion from the bands object
     for b in range(len(bands.Ek)): figure.plot(bands.kpoints, bands.Ek[b,:]-bands.eF_shift, *opt_list, **opt_dict)
-
 
     # decorate the figure from here
     figure.set_xticks(bands.high_symmetry_points)
@@ -387,10 +389,13 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
     
     offset = 0
     dos_max = 0
+    dos_min = 0
     for d in range(len(dos.density_of_states)): # loop over the various dos files given
         for s in range(dos.density_of_states[d].shape[1]): # loop over the columns in each dos file
             if dos_max < np.max(dos.density_of_states[d][:,s]):
                 dos_max = np.max(dos.density_of_states[d][:,s])
+            if dos_min > np.min(dos.density_of_states[d][:,s]):
+                dos_min = np.min(dos.density_of_states[d][:,s])
             figure.plot(dos.energy, dos.density_of_states[d][:,s], label=dos.dos_dict[offset+s], *opt_list, **opt_dict)
         offset += s
 
@@ -398,7 +403,11 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
     figure.set_xlabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
     figure.set_ylabel(r'DOS (1/eV)')
     figure.set_xlim(-10, 10)
-    figure.set_ylim(0, 1.05*dos_max)
+    if abs(dos_max) > abs(dos_min):
+        figure.set_ylim(0, 1.05*dos_max)
+    else:
+        figure.set_ylim(0.95*dos_min, 1.05*abs(dos_min))
+        figure.axhline(0.0, color='k',  lw=1, ls='dotted')
     figure.axvline(0.0, color='k', lw=1, ls='dotted')
     figure.legend(loc="best")
 
