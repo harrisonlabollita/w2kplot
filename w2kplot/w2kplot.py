@@ -134,12 +134,16 @@ class Bands(object):
 
     # methods for parsing the spaghetti_ene file and the klist_band file
     def grab_bands(self):
-        try:
-            data = np.loadtxt(self.spaghetti, comments="bandindex")
-            kpoints = np.unique(data[:,3])
-            Ek      = data[:,4].reshape(int(len(data)/len(kpoints)), len(kpoints))
-        except ParseSpaghettiError:
-            print("An error occured when trying to parse the {} file".format(self.spaghetti))
+        skiprows = 0
+        while True:
+            try:
+                data = np.loadtxt(self.spaghetti, comments="bandindex", skiprows=skiprows)
+                kpoints = np.unique(data[:,3])
+                Ek      = data[:,4].reshape(int(len(data)/len(kpoints)), len(kpoints))
+                break
+            except:
+                skiprows += 1
+
         return kpoints, Ek
 
     
