@@ -180,6 +180,7 @@ class Bands(object):
             return string
 
 
+
 class FatBands(Bands):
     def __init__(self, atoms, orbitals, colors=None, weight=80, spaghetti=None, klist_band=None, qtl=None, eF=None, struct=None, eF_shift=0):
         super().__init__(spaghetti, klist_band, eF_shift)
@@ -254,6 +255,26 @@ class FatBands(Bands):
                                        label=self.structure.atoms[a-1][0]+"-"+labels[o]))
         return legend_elements
 
+class WannierBands(object):
+    def __init__(self, wann_bands=None):
+        self.wann_bands = wann_bands
+
+        if self.wann_bands is None:
+            try:
+                self.wann_bands = glob.glob("*_band.dat")[0]
+            except FileNotFoundError:
+                print("Could not find a case_band.dat file in this directory\n. Please provide a case_band.dat file!")
+
+        self.kpts, self.wann_bands = self.grab_wannier_bands()
+
+
+    def grab_wannier_bands(self):
+        data = np.loadtxt(self.wann_bands)
+        kpts = np.unique(data[:,0]) * 0.53 # convert units!
+        wann_bands = data[:,1].reshape(int(len(data)/len(kpts)), len(kpts))
+        return  kpts, wann_bands
+
+
 
 class DensityOfStates(object):
     def __init__(self, dos=None, dos_dict=None):
@@ -315,10 +336,6 @@ class FermiSurface(object):
         print("not implemented yet")
         pass
 
-class WannierBands(object):
-    def __init__(self):
-        print("not implemented yet")
-        pass
 
 
 # plotting methods
@@ -331,7 +348,6 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
     
     if isinstance(figure, types.ModuleType): figure = figure.gca()
             
-
     # plot the the dispersion from the bands object
     for b in range(len(bands.Ek)): figure.plot(bands.kpoints, bands.Ek[b,:]-bands.eF_shift, *opt_list, **opt_dict)
 
@@ -429,10 +445,20 @@ mpl.axes.Axes.dos_plot = lambda self, dos, *opt_list, **opt_dict : __dos_plot(se
 #mpl.axes.Axes.fermi_surface_plot = lambda self, fermi_surface, *opt_list, **opt_dict : __fermi_surface_plot(self, fermi_surface, *opt_list, **opt_dict)
 
 # plot wannier90 bands compared to DFT bands
-#def wannier_band_plot(wannier_bands):
-#    __wannier_band_plot(plt, wannier_bands)
+def wannier_band_plot(wannier_bands, *opt_list, **opt_dict):
+    __wannier_band_plot(plt, wannier_bands, *opt_list, **opt_dict)
 
-#def __wannier_band_plot(figure, wannier_bands):
-#    if isinstance(figure, types.ModuleType): figure = figure.gca()
+def __wannier_band_plot(figure, wannier_bands, *opt_list, **opt_dict):
+    if isinstance(figure, types.ModuleType): figure = figure.gca()
+            
+    #plot the wannier bands
+    for b in range(len(wannier_bands.wann_bands)):
+        figure.plot(wannier_bands.kpts, wannier_bands.wann_bands[b,:], *opt_list, **opt_dict)
 
-#mpl.axes.Axes.wannier_band_plot = lambda self, wannier_bands, *opt_list, **opt_dict : __wannier_band_plot(self, wannier_bands, *opt_list, **opt_dict)
+    # decorate the figure from here
+    figure.axhline(0.0, color="k", lw=1)
+    figure.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+    figure.set_ylim(-2, 2); 
+    figure.set_xlim(wannier_bands.kpts[0], wannier_bands.kpts[-1])
+
+mpl.axes.Axes.wannier_band_plot = lambda self, wannier_bands, *opt_list, **opt_dict : __wannier_band_plot(self, wannier_bands, *opt_list, **opt_dict)
