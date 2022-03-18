@@ -51,7 +51,7 @@ w2kplot provides the user with various data objects: `Bands`, `FatBands`, `Densi
 If either of these files are not provided, w2kplot looks in the current directory for any files with the corresponding extensions.
 
 ### FatBands
-`FatBand` is a child of the `Bands` object, but requires a few more inputs from the user in order to determine what to plot. They keyword arguments for this object are the following:
+`FatBands` is a child of the `Bands` object, but requires a few more inputs from the user in order to determine what to plot. They keyword arguments for this object are the following:
 
 `atoms` (required): a list of atoms for which to plot the orbital character. 
 
