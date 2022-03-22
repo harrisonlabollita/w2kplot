@@ -79,12 +79,15 @@ If either of these files are not provided, w2kplot looks in the current director
 
 `dos_dict` (optional): a Python dictionary that matches each column in the dosXev files to a label name for creating a legend in the final plot. If not provided, this is built from the headers in the dosXev files.
 
+### WannierBands
+
+`WannierBands` is an object that contains the Wannier band data to be plot with or without the DFT band structure. Internally, the units are converted to match the units of Wien2k.
 
 **TO-DO**
 
 - [x] basic library functions
 - [x] density of states functionality
+- [x] support for WIEN2k + Wannier90 comparison
 - [ ] fermi surface functionality
-- [ ] support for WIEN2k + Wannier90 comparison
 
 **PRs and feedback are welcome!**
