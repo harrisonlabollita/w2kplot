@@ -140,6 +140,16 @@ class Bands(object):
 
     # methods for parsing the spaghetti_ene file and the klist_band file
     def grab_bands(self):
+        # first check if the file name given is good, if not return error
+        try:
+            f=open(self.spaghetti,"r"); f.close()
+        except FileNotFoundError:
+            print("Could not find a case.spaghetti_ene file in this directory\n. Please provide a valid case.spaghetti_ene file")
+        try:
+            f=open(self.klist_band,"r"); f.close()
+        except FileNotFoundError:
+            print("Could not find a case.klist_band file in this directory\n. Please provide a valid case.klist_band file")
+
         skiprows = 0
         while True:
             try:
