@@ -1,13 +1,10 @@
-Metadata-Version: 2.1
+Metadata-Version: 1.0
 Name: w2kplot
 Version: 0.0.2
-Summary: a Python wrapper to Matplotlib for plotting results from WIEN2k
-Home-page: UNKNOWN
+Summary: a Matplotlib wrapper written in Python for plotting DFT results from WIEN2k
+Home-page: https://github.com/harrisonlabollita/w2kplot
 Author: Harrison LaBollita
 Author-email: hlabolli@asu.edu
-License: UNKNOWN
+License: MIT
+Description: UNKNOWN
 Platform: UNKNOWN
-License-File: LICENSE
-
-UNKNOWN
-

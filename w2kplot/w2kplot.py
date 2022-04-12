@@ -14,6 +14,7 @@
 import sys
 import glob
 import os
+import importlib
 import shutil
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,6 +22,7 @@ import matplotlib as mpl
 from matplotlib.lines import Line2D
 import types
 
+# TODO: Currently doesnt' install properly
 def install_style_sheet(matplotlib_file):
     sheet = ["# Matplotlib style for w2kplot figures",
              "# set x axis",
@@ -57,10 +59,9 @@ def install_style_sheet(matplotlib_file):
 
 if "w2kplot" not in plt.style.available:
     print("[WARNING] Custom matplotlib style sheet not found!")
-    print("Installing style sheet")
+    print("[INFO] Installing style sheet")
     install_style_sheet(plt.__file__)
 plt.style.use("w2kplot")
-
 
 
 
@@ -122,6 +123,7 @@ class Bands(object):
                 self.spaghetti = glob.glob("*.spaghetti_ene")[0]
             except FileNotFoundError:
                 print("Could not find a case.spaghetti_ene file in this directory\n. Please provide a case.spaghetti_ene file")
+
         if self.klist_band is None:
             try:
                 self.klist_band = glob.glob("*.klist_band")[0]
@@ -135,17 +137,15 @@ class Bands(object):
     # methods for parsing the spaghetti_ene file and the klist_band file
     def grab_bands(self):
         skiprows = 0
-        while True:
+        while skiprows < 1e5:
             try:
                 data = np.loadtxt(self.spaghetti, comments="bandindex", skiprows=skiprows)
                 kpoints = np.unique(data[:,3])
                 Ek      = data[:,4].reshape(int(len(data)/len(kpoints)), len(kpoints))
-                break
+                return kpoints, Ek
             except:
                 skiprows += 1
-
-        return kpoints, Ek
-
+        print("[ERROR] There is some error parsing the spaghetti file. Please contact developer")
     
     def grab_high_symmetry_path(self):
         high_symmetry_points = []
