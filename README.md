@@ -85,5 +85,7 @@ If either of these files are not provided, w2kplot looks in the current director
 
 **TO-DO**
 - [ ] 2D fermi surface functionality
+- [ ] Fix import w2kplot style sheet
+- [ ] add tests
 
 **PRs and feedback are welcome!**
