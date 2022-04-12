@@ -136,16 +136,25 @@ class Bands(object):
 
     # methods for parsing the spaghetti_ene file and the klist_band file
     def grab_bands(self):
-        skiprows = 0
-        while skiprows < 1e5:
-            try:
-                data = np.loadtxt(self.spaghetti, comments="bandindex", skiprows=skiprows)
-                kpoints = np.unique(data[:,3])
-                Ek      = data[:,4].reshape(int(len(data)/len(kpoints)), len(kpoints))
-                return kpoints, Ek
-            except:
-                skiprows += 1
-        print("[ERROR] There is some error parsing the spaghetti file. Please contact developer")
+        #TODO: edge case when the spaghetti-ene file is not readable by np.loadtxt
+        #skiprows = 0
+        #while skiprows < 1e5:
+        #    try:
+        #        data = np.loadtxt(self.spaghetti, comments="bandindex", skiprows=skiprows)
+        #        kpoints = np.unique(data[:,3])
+        #        Ek      = data[:,4].reshape(int(len(data)/len(kpoints)), len(kpoints))
+        #        return kpoints, Ek
+        #    except:
+        #        skiprows += 1
+        #print("[ERROR] There is some error parsing the spaghetti file. Please contact developer")
+        #        skiprows += 1
+        try:
+            data = np.loadtxt(self.spaghetti, comments="bandindex")
+            kpoints = np.unique(data[:,3])
+            Ek      = data[:,4].reshape(int(len(data)/len(kpoints)), len(kpoints))
+            return kpoints, Ek
+        except:
+            print("[ERROR] There is some error parsing the spaghetti file. Please contact developer")
     
     def grab_high_symmetry_path(self):
         high_symmetry_points = []
