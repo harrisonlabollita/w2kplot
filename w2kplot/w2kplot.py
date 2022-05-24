@@ -64,20 +64,15 @@ if "w2kplot" not in plt.style.available:
 plt.style.use("w2kplot")
 
 
-
-class Error(Exception):
+class w2kplotError(Exception):
     """Base class for other exceptions"""
     pass
 
-class w2kplotError(Error):
-    """Base class for other exceptions"""
-    pass
-
-class ParseSpaghettiError(Error):
+class ParseSpaghettiError(Exception):
     """Raised when there is an error parsing the case.spaghetti_ene file."""
     pass
 
-class ParseKlistBandError(Error):
+class ParseKlistBandError(Exception):
     """Raised when there is an error parsing the case.klist_band file."""
     pass
 
@@ -89,8 +84,8 @@ class Structure(object):
         if filename is None:
             try:
                 self.load()
-            except FileNotFoundError :
-                print("Couldn't find a case.struct file in this directory!")
+            except: 
+                raise FileNotFoundError("Couldn't find a case.struct file in this directory!")
         else:
             self.load(filename=filename)
 
@@ -124,31 +119,31 @@ class Bands(object):
         if self.spaghetti is None:
             try:
                 self.spaghetti = glob.glob("*.spaghetti_ene")[0]
-            except FileNotFoundError:
-                print("Could not find a case.spaghetti_ene file in this directory\n. Please provide a case.spaghetti_ene file")
+            except:
+                raise FileNotFoundError("Could not find a case.spaghetti_ene file in this directory.\nPlease provide a case.spaghetti_ene file")
 
         if self.klist_band is None:
             try:
                 self.klist_band = glob.glob("*.klist_band")[0]
-            except FileNotFoundError:
-                print("Could not find a case.klist_band file in this directory\n. Please provide a case.klist_band file")
+            except:
+                raise FileNotFoundError("Could not find a case.klist_band file in this directory.\nPlease provide a case.klist_band file")
         try:
             self.kpoints, self.Ek = self.grab_bands()
             self.high_symmetry_points, self.high_symmetry_labels = self.grab_high_symmetry_path()
-        except w2kplotError:
-            print("[ERROR] please contact the developer with your issue!")
+        except: 
+            raise w2kplotError("[ERROR] please contact the developer with your issue!")
 
     # methods for parsing the spaghetti_ene file and the klist_band file
     def grab_bands(self):
         # first check if the file name given is good, if not return error
         try:
             f=open(self.spaghetti,"r"); f.close()
-        except FileNotFoundError:
-            print("Could not find a case.spaghetti_ene file in this directory\n. Please provide a valid case.spaghetti_ene file")
+        except:
+            raise FileNotFoundError("Could not find a case.spaghetti_ene file in this directory.\nPlease provide a case.spaghetti_ene file")
         try:
             f=open(self.klist_band,"r"); f.close()
-        except FileNotFoundError:
-            print("Could not find a case.klist_band file in this directory\n. Please provide a valid case.klist_band file")
+        except: 
+            raise FileNotFoundError("Could not find a case.klist_band file in this directory\n. Please provide a valid case.klist_band file")
 
         skiprows = 0
         while True:
@@ -159,6 +154,7 @@ class Bands(object):
                 break
             except:
                 skiprows += 1
+
         return kpoints, Ek
     
     def grab_high_symmetry_path(self):
@@ -173,9 +169,8 @@ class Bands(object):
                     high_symmetry_labels.append(self.arg2latex(line.strip().split()[0]))
                     high_symmetry_points.append(il)
             high_symmetry_points = [self.kpoints[ind] for ind in high_symmetry_points]
-
-        except ParseKlistBandError:
-            print("An error occured when trying to parse the {} file".format(self.klist_band))
+        except:
+            raise ParseKlistBandError("An error occured when trying to parse the {} file".format(self.klist_band))
 
         return high_symmetry_points, high_symmetry_labels
     
@@ -221,15 +216,15 @@ class FatBands(Bands):
         if self.qtl is None:
             try:
                 self.qtl = glob.glob("*.qtl")[0]
-            except FileNotFoundError:
-                print("Could not find a case.qtl file in this directory. Please provide a case.qtl file")
+            except: 
+                raise FileNotFoundError("Could not find a case.qtl file in this directory. Please provide a case.qtl file")
 
         if self.eF is None:
             try:
                 scf = glob.glob("*.scf")[0]
                 self.eF = float([line for line in open(scf).readlines() if ":FER" in line][-1].split()[-1].strip())
-            except FileNotFoundError:
-                print("Could not find a case.scf file in this directory\n. This file is needed to determine the Fermi energy. \
+            except: 
+                raise FileNotFoundError("Could not find a case.scf file in this directory.\nThis file is needed to determine the Fermi energy. \
                        You can instead simply provide this quantity upon initialization.")
                 
 
@@ -276,8 +271,8 @@ class WannierBands(object):
         if self.wann_bands is None:
             try:
                 self.wann_bands = glob.glob("*_band.dat")[0]
-            except FileNotFoundError:
-                print("Could not find a case_band.dat file in this directory\n. Please provide a case_band.dat file!")
+            except: 
+                raise FileNotFoundError("Could not find a case_band.dat file in this directory\n. Please provide a case_band.dat file!")
 
         self.kpts, self.wann_bands = self.grab_wannier_bands()
 
@@ -298,9 +293,10 @@ class DensityOfStates(object):
         if self.dos is None:
             try:
                 self.dos = glob.glob("*.dos*")
-                print("Found {} density of states files".format(len(self.dos)))
-            except FileNotFoundError:
-                print("Could not find any files matching case.dosXev, where X is a number")
+                # For debugging
+                #print("Found {} density of states files".format(len(self.dos)))
+            except:
+                raise FileNotFoundError("Could not find any files matching case.dosXev, where X is a number")
         
         if self.dos_dict is None:
             # if a dictionary mapping each column to a name is not provided we will build one
