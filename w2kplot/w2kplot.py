@@ -109,6 +109,8 @@ class Structure(object):
         assert len(mults)==len(specs), "The struct file was not parsed correctly!"
         assert len(iatom)==len(specs), "The struct file was not parsed correctly!"
         for a in range(self.nat): self.atoms[a]=[specs[a], mults[a]]
+        # load the symmetries in the structure here as well.
+        # store them in self.symmetries
 
 class Bands(object):
     def __init__(self, spaghetti=None, klist_band=None, eF_shift=0):
@@ -342,11 +344,22 @@ class DensityOfStates(object):
                 self.density_of_states[d][:,s][:] = smoother(list(range(len(rho))), energy)
 
 class FermiSurface(object):
-    def __init__(self):
-        print("not implemented yet")
-        pass
+    def __init__(self, energy=None, struct=None):
 
+        self.energy = energy
+        self.struct = Structure(struct)
+        
+        if self.energy is None:
+            try:
+                self.energy = glob.glob("*.energy")[0]
+            except:
+                raise FileNotFoundError("Could not find a case.energy file in this directory.\nPlease provide a case.energy file")
 
+        def grab_fermi_surface(self):
+            # from case.energy get kpts and energies
+            # interpolate data using griddata
+            # return kx, ky grid and surf grid to be plotted
+            pass
 
 # plotting methods
 
@@ -440,7 +453,6 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
         figure.axhline(0.0, color='k',  lw=1, ls='dotted')
     figure.axvline(0.0, color='k', lw=1, ls='dotted')
     figure.legend(loc="best")
-
 
 mpl.axes.Axes.dos_plot = lambda self, dos, *opt_list, **opt_dict : __dos_plot(self, dos, *opt_list, **opt_dict)
 
