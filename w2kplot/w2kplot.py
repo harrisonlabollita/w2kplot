@@ -22,8 +22,9 @@ import matplotlib as mpl
 from matplotlib.lines import Line2D
 import types
 
-# TODO: Currently doesnt' install properly
 def install_style_sheet(matplotlib_file):
+    # TODO: Currently doesnt' install properly
+    # not sure why this current implementation does not work...
     sheet = ["# Matplotlib style for w2kplot figures",
              "# set x axis",
              "xtick.direction : in",
@@ -130,13 +131,13 @@ class Bands(object):
             except:
                 raise FileNotFoundError("Could not find a case.klist_band file in this directory.\nPlease provide a case.klist_band file")
         try:
-            self.kpoints, self.Ek = self.grab_bands()
-            self.high_symmetry_points, self.high_symmetry_labels = self.grab_high_symmetry_path()
+            self.kpoints, self.Ek = self.get_dft_bands()
+            self.high_symmetry_points, self.high_symmetry_labels = self.get_high_symmetry_path()
         except: 
             raise w2kplotError("[ERROR] please contact the developer with your issue!")
 
     # methods for parsing the spaghetti_ene file and the klist_band file
-    def grab_bands(self):
+    def get_dft_bands(self):
         # first check if the file name given is good, if not return error
         try:
             f=open(self.spaghetti,"r"); f.close()
@@ -159,7 +160,7 @@ class Bands(object):
 
         return kpoints, Ek
     
-    def grab_high_symmetry_path(self):
+    def get_high_symmetry_path(self):
         high_symmetry_points = []
         high_symmetry_labels = []
         
@@ -230,7 +231,7 @@ class FatBands(Bands):
                        You can instead simply provide this quantity upon initialization.")
                 
 
-    def grab_orbital_labels(self, atom, orbs):
+    def get_orbital_labels(self, atom, orbs):
         """grabs the labels of the fatbands plotted from the qtl file and returns an array labels."""
         qtl2orb = {    "PZ"        : r"$p_{z}$",
                        "PX"        : r"$p_{x}$",
@@ -257,7 +258,7 @@ class FatBands(Bands):
     def create_legend(self):
         legend_elements = []
         for (ia, a) in enumerate(self.atoms):
-            labels=self.grab_orbital_labels(a, self.orbitals[ia])
+            labels=self.get_orbital_labels(a, self.orbitals[ia])
             for o in range(len(self.orbitals[ia])):
                 legend_elements.append(Line2D([0], [0], 
                                        linestyle= '-', 
@@ -276,10 +277,10 @@ class WannierBands(object):
             except: 
                 raise FileNotFoundError("Could not find a case_band.dat file in this directory\n. Please provide a case_band.dat file!")
 
-        self.kpts, self.wann_bands = self.grab_wannier_bands()
+        self.kpts, self.wann_bands = self.get_wannier_bands()
 
 
-    def grab_wannier_bands(self):
+    def get_wannier_bands(self):
         data = np.loadtxt(self.wann_bands)
         kpts = np.unique(data[:,0]) * 0.53 # convert units!
         wann_bands = data[:,1].reshape(int(len(data)/len(kpts)), len(kpts))
@@ -310,9 +311,9 @@ class DensityOfStates(object):
                     self.dos_dict[h+offset] = headers[h]
                 offset += len(headers)
 
-        self.energy, self.density_of_states = self.grab_dos()
+        self.energy, self.density_of_states = self.get_dos()
 
-    def grab_dos(self):
+    def get_dos(self):
         density_of_states = []
         for file in self.dos:
             data = np.loadtxt(file, comments='#')
@@ -337,7 +338,7 @@ class DensityOfStates(object):
         sigma = fwhm2sigma(fwhm)
         smoother = np.vectorize(blur)
 
-        for d in range(len(self.density_of_states)): # loop over the various dos files given
+        for d in range(len(self.density_of_states)):            # loop over the various dos files given
             for s in range(self.density_of_states[d].shape[1]): # loop over the columns in each dos file
                 rho = self.density_of_states[d][:,s]
                 energy=self.energy
@@ -355,7 +356,7 @@ class FermiSurface(object):
             except:
                 raise FileNotFoundError("Could not find a case.energy file in this directory.\nPlease provide a case.energy file")
 
-        def grab_fermi_surface(self):
+        def get_fermi_surface(self):
             # from case.energy get kpts and energies
             # interpolate data using griddata
             # return kx, ky grid and surf grid to be plotted
@@ -383,6 +384,7 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
     figure.set_ylim(-2, 2); 
     figure.set_xlim(bands.high_symmetry_points[0], bands.high_symmetry_points[-1]);
 
+# band_plot
 mpl.axes.Axes.band_plot = lambda self, bands, *opt_list, **opt_dict : __band_plot(self, bands, *opt_list, **opt_dict)
 
 # plot fatbands
@@ -418,6 +420,7 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
                     E = []
                     character = []
 
+# fatband_plot
 mpl.axes.Axes.fatband_plot = lambda self, fat_bands, *opt_list, **opt_dict : __fatband_plot(self, fat_bands, *opt_list, **opt_dict)
                 
 
@@ -454,6 +457,7 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
     figure.axvline(0.0, color='k', lw=1, ls='dotted')
     figure.legend(loc="best")
 
+# dos_plot
 mpl.axes.Axes.dos_plot = lambda self, dos, *opt_list, **opt_dict : __dos_plot(self, dos, *opt_list, **opt_dict)
 
 
