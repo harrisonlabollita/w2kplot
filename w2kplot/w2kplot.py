@@ -157,14 +157,14 @@ class Bands(object):
                 break
             except:
                 skiprows += 1
-
         return kpoints, Ek
     
     def get_high_symmetry_path(self):
         high_symmetry_points = []
         high_symmetry_labels = []
-        
-        klist_band = open(self.klist_band).readlines()
+        f = open(self.klist_band) 
+        klist_band = f.readlines()
+        f.close()
         try:
             for il, line in enumerate(klist_band):
                 if line[:3] == "END": break
