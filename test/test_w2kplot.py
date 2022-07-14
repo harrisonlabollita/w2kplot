@@ -1,7 +1,8 @@
-import unittest
 import glob, os
 from w2kplot import Bands
 import numpy as np
+
+import unittest
 
 spaghetti = glob.glob(os.getcwd() + "/test/*spaghetti_ene")[0]
 klist_band = glob.glob(os.getcwd() + "/test/*klist_band")[0]
