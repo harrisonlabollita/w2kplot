@@ -2,7 +2,6 @@ import glob
 import os
 import shutil
 
-import matplotlib
 from setuptools import setup
 from setuptools.command.install import install
 
@@ -18,6 +17,7 @@ class InstallFiles(install):
         install.run(self)
 
     def install_style(self):
+        import matplotlib
         # https://stackoverflow.com/questions/31559225/how-to-ship-or-distribute-a-matplotlib-stylesheet
         w2kplot_styles = glob.glob('style/*.mplstyle', recursive=True)
         mpl_dir = os.path.join(matplotlib.get_configdir(), "stylelib")
