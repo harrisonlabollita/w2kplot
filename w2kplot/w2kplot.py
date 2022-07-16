@@ -22,60 +22,10 @@ import matplotlib as mpl
 from matplotlib.lines import Line2D
 import types
 
-def install_style_sheet(matplotlib_file):
-    # TODO: Currently doesnt' install properly
-    # not sure why this current implementation does not work...
-    sheet = ["# Matplotlib style for w2kplot figures",
-             "# set x axis",
-             "xtick.direction : in",
-             "xtick.major.size : 7",
-             "xtick.major.width : 0.5",
-             "xtick.minor.size : 3.5",
-             "xtick.minor.width : 0.5",
-             "xtick.minor.visible : False",
-             "xtick.top : True",
-             "xtick.labelsize : 15",
-             "# set y axis",
-             "ytick.direction : in",
-             "ytick.major.size : 7",
-             "ytick.major.width : 0.5",
-             "ytick.minor.size : 3.5",
-             "ytick.minor.width : 0.5",
-             "ytick.minor.visible : True",
-             "ytick.right : True",
-             "ytick.labelsize : 15",
-             "# set line widths",
-             "axes.linewidth : 0.5",
-             "axes.labelsize : 15",
-             "lines.linewidth : 0.5",
-             "legend.frameon : False",
-             "savefig.bbox : tight",
-             "savefig.pad_inches : 0.05",
-             "font.sans-serif : Arial",
-             "font.family : sans-serif"
-             ]
-    location = os.path.dirname(matplotlib_file) + "/mpl-data/stylelib/"
-    print("[INFO] installing w2kplot's matplotlib style sheet: %s" %(location))
-    with open(location + "w2kplot.mplstyle", "w") as f: f.write("\n".join(sheet))
-
-if "w2kplot" not in plt.style.available:
-    print("[WARNING] Custom matplotlib style sheet not found!")
-    print("[INFO] Installing style sheet")
-    install_style_sheet(plt.__file__)
-plt.style.use("w2kplot")
-
-
-class w2kplotError(Exception):
-    """Base class for other exceptions"""
-    pass
-
-class ParseSpaghettiError(Exception):
-    """Raised when there is an error parsing the case.spaghetti_ene file."""
-    pass
-
-class ParseKlistBandError(Exception):
-    """Raised when there is an error parsing the case.klist_band file."""
-    pass
+try:
+    plt.style.use("w2kplot")
+except:
+    raise ImportError("Could not find install w2kplot style sheet!")
 
 class Structure(object):
     """this is a wien2k structure class that contains the information 
@@ -134,7 +84,7 @@ class Bands(object):
             self.kpoints, self.Ek = self.get_dft_bands()
             self.high_symmetry_points, self.high_symmetry_labels = self.get_high_symmetry_path()
         except: 
-            raise w2kplotError("[ERROR] please contact the developer with your issue!")
+            raise Exception("please contact the developer with your issue!")
 
     # methods for parsing the spaghetti_ene file and the klist_band file
     def get_dft_bands(self):
@@ -173,7 +123,7 @@ class Bands(object):
                     high_symmetry_points.append(il)
             high_symmetry_points = [self.kpoints[ind] for ind in high_symmetry_points]
         except:
-            raise ParseKlistBandError("An error occured when trying to parse the {} file".format(self.klist_band))
+            raise Exception("An error occured when trying to parse the {} file".format(self.klist_band))
 
         return high_symmetry_points, high_symmetry_labels
     
@@ -360,7 +310,7 @@ class FermiSurface(object):
             # from case.energy get kpts and energies
             # interpolate data using griddata
             # return kx, ky grid and surf grid to be plotted
-            pass
+            raise NotImplementedError("This function has not been implemented yet!")
 
 # plotting methods
 
