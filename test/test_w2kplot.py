@@ -1,6 +1,7 @@
 import glob, os
 from w2kplot import Bands
 import numpy as np
+import matplotlib.pyplot as plt
 
 import unittest
 
@@ -10,6 +11,17 @@ target_Ek = np.loadtxt(glob.glob(os.getcwd() + "/test/*dat")[0])
 
 
 class Testw2kplot(unittest.TestCase):
+
+    def test_style_sheet(self):
+        def try_import():
+            worked = False
+            try:
+                plt.style.use("w2kplot")
+                worked = True
+            except:
+                worked = False
+            return worked
+        self.assertEqual(try_import(), True)
 
     def test_klist_band_parser(self):
         dft = Bands(spaghetti=spaghetti, klist_band=klist_band)

@@ -1,0 +1,35 @@
+# Matplotlib style for w2kplot figures
+
+# set x axis
+xtick.direction : in
+xtick.major.size : 7
+xtick.major.width : 0.5
+xtick.minor.size : 3.5
+xtick.minor.width : 0.5
+xtick.minor.visible : False
+xtick.top : True
+xtick.labelsize : 15
+
+# set y axis
+ytick.direction : in
+ytick.major.size : 7
+ytick.major.width : 0.5
+ytick.minor.size : 3.5
+ytick.minor.width : 0.5
+ytick.minor.visible : True
+ytick.right : True
+ytick.labelsize : 15
+
+# set line widths
+axes.linewidth : 0.5
+axes.labelsize : 15
+axes.prop_cycle : cycler('color', ["lightcoral", "dodgerblue", "gold", "forestgreen", "magenta", "mediumslateblue", "cyan", "slategray"])
+lines.linewidth : 0.5
+
+legend.frameon : False
+
+savefig.bbox : tight
+savefig.pad_inches : 0.05
+
+font.sans-serif : Arial 
+font.family : sans-serif
