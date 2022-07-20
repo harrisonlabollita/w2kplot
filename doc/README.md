@@ -43,8 +43,3 @@ If either of these files are not provided, w2kplot looks in the current director
 ### WannierBands
 
 `WannierBands` is an object that contains the Wannier band data to be plot with or without the DFT band structure. Internally, the units are converted to match the units of Wien2k.
-
-**TO-DO**
-- [ ] 2D fermi surface functionality
-- [ ] Fix import w2kplot style sheet
-- [ ] add tests
