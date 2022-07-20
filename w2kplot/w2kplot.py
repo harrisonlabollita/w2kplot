@@ -42,9 +42,11 @@ class Structure(object):
 
     def load(self, filename=None):
         if filename is None:
-            contents=open(glob.glob("*.struct")[0]).readlines()
+            struct_file = open(glob.glob("*.struct")[0])
+            contents = struct_file.readlines(); struct_file.close()
         else:
-            contents=open(filename).readlines()
+            f = open(filename)
+            contents=f.readlines(); f.close()
 
         try: # does this try/except handle all cases
             self.nat=int(contents[1].split()[2])
@@ -174,11 +176,20 @@ class FatBands(Bands):
 
         if self.eF is None:
             try:
-                scf = glob.glob("*.scf")[0]
-                self.eF = float([line for line in open(scf).readlines() if ":FER" in line][-1].split()[-1].strip())
+                scf = open(glob.glob("*.scf")[0])
+                self.eF = float([line for line in scf.readlines() if ":FER" in line][-1].split()[-1].strip())
+                scf.close()
             except: 
                 raise FileNotFoundError("Could not find a case.scf file in this directory.\nThis file is needed to determine the Fermi energy. \
                        You can instead simply provide this quantity upon initialization.")
+
+        if isinstance(self.eF, str): 
+            scf = open(self.eF)
+            self.eF = float([line for line in scf.readlines() if ":FER" in line][-1].split()[-1].strip())
+            scf.close()
+
+        assert isinstance(self.eF, float), "Please provide the Fermi energy from the scf file or provide the scf file!"
+
                 
 
     def get_orbital_labels(self, atom, orbs):
@@ -200,7 +211,8 @@ class FatBands(Bands):
                        "3"         : "$f$",
                        "tot"       : "Total",
                   }
-        orbitals=[line for line in open(self.qtl).readlines() if "JATOM" in line] 
+        qtl_file = open(self.qtl)
+        orbitals=[line for line in qtl_file.readlines() if "JATOM" in line]; qtl_file.close()
         orbs_for_atom = orbitals[atom-1].split()[-1].split(",")
         labels = [ qtl2orb[orbs_for_atom[int(orbs[o])-1]] for o in range(len(orbs))] 
         return labels
@@ -351,7 +363,8 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
     # plot the fatband character
     for (a, at) in enumerate(fat_bands.atoms):
         for o in range(len(fat_bands.orbitals[a])):
-            qtl           = open(fat_bands.qtl).readlines() 
+            qtl_file      = open(fat_bands.qtl)
+            qtl           = qtl_file.readlines(); qtl_file.close()
             start         = [line+1 for line in range(len(qtl)) if "BAND" in qtl[line]][0]
             qtl           = qtl[start:]
             E         = []
