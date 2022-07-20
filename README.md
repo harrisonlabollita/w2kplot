@@ -5,9 +5,7 @@
 </p>
 
 
-**w2kplot** is a [Matplotlib](https://matplotlib.org) wrapper written in Python to create publication quality plots from data generated from [WIEN2k](http://susi.theochem.tuwien.ac.at) density-functional theory (DFT) calculations.
-
-**This program works! But is under underdevelopment**
+**w2kplot** is a [Matplotlib](https://matplotlib.org) wrapper written in Python to create publication quality plots from data generated from the [WIEN2k](http://susi.theochem.tuwien.ac.at) density-functional theory (DFT) code.
 
 - [Getting Started](#started)
 - [Installation](#installation)
@@ -16,7 +14,7 @@
 
 <a name="started"></a>
 ## Getting Started
-w2kplot is designed to be intuitive for any one familiar with matplotlib. It is seamless integrated, such that the user only has to worry showcasing their results, not how to showcase their resutls. For example, we can plot the band structure from calculation `case` in just a few lines of Python code.
+w2kplot is designed to be intuitive for anyone familiar with the matplotlib library. It is seamlessly integrated, such that the user only has to worry about showcasing their results, not how to showcase their resutls. For example, we can plot the band structure from WIEN2k calculation in directory `case` with just a few lines of Python code.
 
 ```python
 	# plot basic band structure
@@ -27,6 +25,8 @@ w2kplot is designed to be intuitive for any one familiar with matplotlib. It is 
 	band_plot(dft_bands, 'k-', lw=1.5)
 	plt.show()
 ```
+
+For more examples, see [examples](examples/)!
 
 <a name="installation"></a>
 ## Installation
@@ -39,7 +39,7 @@ Currently, this is the only way to install w2kplot
 <a name="documentation"><a/>
 ## Documenation
 
-w2kplot provides the user with various data objects: `Bands`, `FatBands`, `DensityOfStates`, which can then be passed to plotting functions `band_plot`, `fatband_plot`, `dos_plot`, which unravel the data contained in each object and create beautiful publication quality figures. We show case some examples [here](examples/README.md).
+w2kplot provides the user with various Python class objects: `Bands`, `FatBands`, `DensityOfStates`, etc. which are then passed to the matplotlib plotting functions provided by this package: `band_plot`, `fatband_plot`, `dos_plot` to create publication quality figures with minimal effort. We show case some examples [here](examples/README.md).
 
 ### Bands
 `Bands` is a `w2kplot` data object that contains the information about the band structure (extracted from case.spaghetti\_ene). This object takes the following keywords:
@@ -48,10 +48,10 @@ w2kplot provides the user with various data objects: `Bands`, `FatBands`, `Densi
 
 `klist_band` (optional): filename of the case.klist\_band file.
 
-If either of these files are not provided, w2kplot looks in the current directory for any files with the corresponding extensions.
+If either of these files are not provided, w2kplot looks in the current directory for any files with the corresponding extensions. In general, it is always safest to provide the exact file that you would like the program to parse, otherwise, this can lead to some ambiguity and potentially spurious results.
 
 ### FatBands
-`FatBands` is a child of the `Bands` object, but requires a few more inputs from the user in order to determine what to plot. They keyword arguments for this object are the following:
+`FatBands` is another data object that is inherited from the `Bands` object, but requires a few more inputs from the user in order to determine how to plot the fatbands. The keyword arguments for this object are the following:
 
 `atoms` (required): a list of atoms for which to plot the orbital character. 
 
