@@ -72,9 +72,11 @@ class Testw2kplot(unittest.TestCase):
 
 
         funcs = [la112sp, csv3sb5]
-        for fun in funcs:
-            print("executed example ", fun.__name__, " in ", fun(), "s")
-
+        runtimes = [1, 6]
+        for fun, rt in zip(funcs, runtimes):
+            run = fun()
+            print("executed example ", fun.__name__, " in ", run, "s")
+            self.assertLessEqual(run, rt)
 
 
 

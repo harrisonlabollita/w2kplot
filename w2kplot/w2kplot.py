@@ -21,6 +21,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from matplotlib.lines import Line2D
 import types
+from typing import Union, List, Dict
 
 try:
     plt.style.use("w2kplot")
@@ -31,7 +32,18 @@ class Structure(object):
     """this is a wien2k structure class that contains the information 
        we need about about the crystal structure to plot the bands.
     """
-    def __init__(self, filename):
+    def __init__(self, filename : str) -> None:
+        """
+        Initialize the structure class. This is used to contain information
+        about the crystal structure store in filename.
+        This class is intended to only be used internally by w2kplot.
+
+        Parameters
+        ----------
+        filename : string, optional
+                   Filename of case.struct. If not given glob.glob will search current directory
+                   for file with extension .struct.
+        """
         if filename is None:
             try:
                 self.load()
@@ -40,7 +52,16 @@ class Structure(object):
         else:
             self.load(filename=filename)
 
-    def load(self, filename=None):
+    def load(self, filename : str = None) -> None:
+        """
+        Function to parse struct file and store the data into the Structure class
+
+        Parameters
+        ----------
+        filename : string, optional
+                   Filename of case.struct. If not given glob.glob will search current directory
+                   for file with extension .struct.
+        """
         if filename is None:
             struct_file = open(glob.glob("*.struct")[0])
             contents = struct_file.readlines(); struct_file.close()
@@ -66,7 +87,20 @@ class Structure(object):
         # store them in self.symmetries
 
 class Bands(object):
-    def __init__(self, spaghetti=None, klist_band=None, eF_shift=0):
+    def __init__(self, spaghetti : str =None, klist_band : str =None, eF_shift : float=0) -> None:
+        """
+        Initialize the Bands w2kplot object.
+
+        Parameters
+        ----------
+        spaghetti  : string, optional
+                     Filename of case.spaghetti/up/dn_ene containing the εk information.
+        klist_band : string, optional
+                     Filename of case.klist_band containing the kpoint information, specifically,
+                     the high symmetry points and high symmetry labels.
+        eF_shit    : float, optional
+                     Optional parameter to shift the Fermi energy. Units are eV.
+        """
         self.spaghetti = spaghetti
         self.klist_band = klist_band
         self.eF_shift   = eF_shift
@@ -90,7 +124,9 @@ class Bands(object):
 
     # methods for parsing the spaghetti_ene file and the klist_band file
     def get_dft_bands(self):
-        # first check if the file name given is good, if not return error
+        """
+        Internal function to parse the provided case.spaghetti/up/dn_ene file.
+        """
         try:
             f=open(self.spaghetti,"r"); f.close()
         except:
@@ -112,6 +148,10 @@ class Bands(object):
         return kpoints, Ek
     
     def get_high_symmetry_path(self):
+        """
+        Internal function to parse the case.klist_band file for high symmetry points and
+        high symmetry labels.
+        """
         high_symmetry_points = []
         high_symmetry_labels = []
         f = open(self.klist_band) 
@@ -129,7 +169,16 @@ class Bands(object):
 
         return high_symmetry_points, high_symmetry_labels
     
-    def arg2latex(self, string):
+    def arg2latex(self, string : str) -> str:
+        """
+        Internal function to convert labels parsed from case.klist_band to
+        LaTeX format.
+
+        Parameters
+        ----------
+        string : string, required
+                 Character from case.klist_band to be converted to LaTeX format.
+        """
         if string == '\\xG':
             return '$\Gamma$'
         elif string == "GAMMA":
@@ -143,10 +192,74 @@ class Bands(object):
         else:
             return string
 
+# plot bandstructure
+def band_plot(bands, *opt_list, **opt_dict):
+    __band_plot(plt, bands, *opt_list, **opt_dict)
+
+def __band_plot(figure, bands, *opt_list, **opt_dict):
+    
+    if isinstance(figure, types.ModuleType): figure = figure.gca()
+            
+    # plot the the dispersion from the bands object
+    for b in range(len(bands.Ek)): figure.plot(bands.kpoints, bands.Ek[b,:]-bands.eF_shift, *opt_list, **opt_dict)
+
+    # decorate the figure from here
+    figure.set_xticks(bands.high_symmetry_points)
+    figure.set_xticklabels(bands.high_symmetry_labels)
+    for k in bands.high_symmetry_points: figure.axvline(k, color="k", lw=1)
+    figure.axhline(0.0, color="k", lw=1)
+    figure.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+    figure.set_ylim(-2, 2); 
+    figure.set_xlim(bands.high_symmetry_points[0], bands.high_symmetry_points[-1]);
+
+# band_plot
+mpl.axes.Axes.band_plot = lambda self, bands, *opt_list, **opt_dict : __band_plot(self, bands, *opt_list, **opt_dict)
+
 
 
 class FatBands(Bands):
-    def __init__(self, atoms, orbitals, colors=None, weight=80, spaghetti=None, klist_band=None, qtl=None, eF=None, struct=None, eF_shift=0):
+    def __init__(self, atoms : List[int], 
+                       orbitals : List[List[int]], 
+                       colors : List[List[str]]=None, 
+                       weight : int =80, 
+                       spaghetti : str =None, 
+                       klist_band : str =None, 
+                       qtl : str =None, 
+                       eF : Union[str, float]=None, 
+                       struct : str = None, 
+                       eF_shift :float=0) -> None:
+        """
+        Initialize the FatBand data object. This class is a child of the Bands class.
+
+        Parameters
+        ----------
+        atoms       : list[int], required
+                      List of atoms corresponding to the atoms in the case.struct file for which
+                      the orbital character will be parsed and plotted.
+        orbitals    : list[list[int]], required
+                      a nested list where len(orbtials) == len(atoms). For atom, a list of orbitals for which
+                      to plot the character of must be provided.
+        colors      : list[list[string]], optional
+                      a nested listed where len(colors) == len(atoms). For each atom, a list of colors should be provided
+                      which corresponds to the color that will be given to the orbtial in the plot.
+        weight      : int, optional
+                      the weight to scale the orbital character by to enhance visualization. 
+                      The default value is 80
+        spaghetti   : string, optional
+                      Filename of case.spaghetti/up/dn_ene containing the εk information.
+        klist_band  : string, optional
+                      Filename of case.klist_band containing the kpoint information, specifically,
+                      the high symmetry points and high symmetry labels.
+        qtl         : string, optional
+                      Filename of the case.qtl file which contains all of the information about the orbital
+                      character of the bands.
+        eF          : string or float, optional
+                      The Fermi energy in Rydbergs. Needed to match the orbital weight to the band structure.
+        struct      : string, optional
+                      Filename of the case.struct file. Used to created a legend for the figure. 
+        eF_shit     : float, optional
+                      Optional parameter to shift the Fermi energy. Units are eV.
+        """
         super().__init__(spaghetti, klist_band, eF_shift)
 
         self.default_colors = [["dodgerblue", "lightcoral", "gold", "forestgreen", "magenta"],
@@ -157,6 +270,9 @@ class FatBands(Bands):
         self.orbitals = orbitals
         self.weight = weight
         self.colors = colors
+
+        assert len(atoms) == len(orbitals), f"list of atoms does not match list of orbitals: {len(atoms)} != {len(orbitals)}"
+        assert len(atoms) == len(colors), f"list of atoms does not match list of colors: {len(atoms)} != {len(colors)}"
 
         if colors is None:
             self.colors = [[self.default_colors[ia%len(self.default_colors)][o%len(self.default_colors[0])]  \
@@ -180,8 +296,8 @@ class FatBands(Bands):
                 self.eF = float([line for line in scf.readlines() if ":FER" in line][-1].split()[-1].strip())
                 scf.close()
             except: 
-                raise FileNotFoundError("Could not find a case.scf file in this directory.\nThis file is needed to determine the Fermi energy. \
-                       You can instead simply provide this quantity upon initialization.")
+                raise FileNotFoundError("Could not find a case.scf file in this directory.\nThis file is needed to determine the Fermi energy.\
+                                         You can instead simply provide this quantity upon initialization.")
 
         if isinstance(self.eF, str): 
             scf = open(self.eF)
@@ -191,9 +307,22 @@ class FatBands(Bands):
         assert isinstance(self.eF, float), "Please provide the Fermi energy from the scf file or provide the scf file!"
 
                 
+    def get_orbital_labels(self, atom :int , orbs : List[int]) -> List[str]:
+        """
+        convert the orbital labels in the case.qtl file into LaTeX format.
 
-    def get_orbital_labels(self, atom, orbs):
-        """grabs the labels of the fatbands plotted from the qtl file and returns an array labels."""
+        Parameters
+        ----------
+        atom        : int, required
+                      Index of atom from case.struct to get orbital labels for
+        orbs        : list[int], required
+                      list of orbitals to get the labels for. The indices correspond to the header of the case.qtl 
+                      for the atom provided under variable atom.
+        Returns
+        -------
+        labels      : list[string]
+                      converted orbital labels to LaTeX format.
+        """
         qtl2orb = {    "PZ"        : r"$p_{z}$",
                        "PX"        : r"$p_{x}$",
                        "PY"        : r"$p_{y}$",
@@ -218,6 +347,9 @@ class FatBands(Bands):
         return labels
     
     def create_legend(self):
+        """
+        internal function to build the legend elements for the figure legend.
+        """
         legend_elements = []
         for (ia, a) in enumerate(self.atoms):
             labels=self.get_orbital_labels(a, self.orbitals[ia])
@@ -229,125 +361,6 @@ class FatBands(Bands):
                                        label=self.structure.atoms[a-1][0]+"-"+labels[o]))
         return legend_elements
 
-class WannierBands(object):
-    def __init__(self, wann_bands=None):
-        self.wann_bands = wann_bands
-
-        if self.wann_bands is None:
-            try:
-                self.wann_bands = glob.glob("*_band.dat")[0]
-            except: 
-                raise FileNotFoundError("Could not find a case_band.dat file in this directory\n. Please provide a case_band.dat file!")
-
-        self.kpts, self.wann_bands = self.get_wannier_bands()
-
-
-    def get_wannier_bands(self):
-        data = np.loadtxt(self.wann_bands)
-        kpts = np.unique(data[:,0]) * 0.53 # convert units!
-        wann_bands = data[:,1].reshape(int(len(data)/len(kpts)), len(kpts))
-        return  kpts, wann_bands
-
-
-
-class DensityOfStates(object):
-    def __init__(self, dos=None, dos_dict=None):
-        self.dos = dos
-        self.dos_dict = dos_dict
-
-        if self.dos is None:
-            try:
-                self.dos = glob.glob("*.dos*")
-                # For debugging
-                #print("Found {} density of states files".format(len(self.dos)))
-            except:
-                raise FileNotFoundError("Could not find any files matching case.dosXev, where X is a number")
-        
-        if self.dos_dict is None:
-            # if a dictionary mapping each column to a name is not provided we will build one
-            self.dos_dict = {}
-            offset = 0
-            for file in self.dos:
-                headers=open(file).readlines()[2].split()[2:] # skips the # and ENERGY
-                for h in range(len(headers)):
-                    self.dos_dict[h+offset] = headers[h]
-                offset += len(headers)
-
-        self.energy, self.density_of_states = self.get_dos()
-
-    def get_dos(self):
-        density_of_states = []
-        for file in self.dos:
-            data = np.loadtxt(file, comments='#')
-            energy = data[:,0]
-            if "dn" in file:
-                density_of_states.append(-1*data[:,1:])
-            else:
-                density_of_states.append(data[:,1:])
-        return energy, density_of_states
-
-    def smooth_dos(self, fwhm):
-        """smooths out the density of states. Mainly for aesthetics"""
-        
-        def fwhm2sigma(fwhm):
-            return fwhm / np.sqrt(8 * np.log(2))
-
-        def blur(ie, e):
-            kernel=np.exp(-(energy-e)**2/(2*sigma**2))
-            kernel/=np.sum(kernel) # normalize
-            return np.sum(rho*kernel)
-
-        sigma = fwhm2sigma(fwhm)
-        smoother = np.vectorize(blur)
-
-        for d in range(len(self.density_of_states)):            # loop over the various dos files given
-            for s in range(self.density_of_states[d].shape[1]): # loop over the columns in each dos file
-                rho = self.density_of_states[d][:,s]
-                energy=self.energy
-                self.density_of_states[d][:,s][:] = smoother(list(range(len(rho))), energy)
-
-class FermiSurface(object):
-    def __init__(self, energy=None, struct=None):
-
-        self.energy = energy
-        self.struct = Structure(struct)
-        
-        if self.energy is None:
-            try:
-                self.energy = glob.glob("*.energy")[0]
-            except:
-                raise FileNotFoundError("Could not find a case.energy file in this directory.\nPlease provide a case.energy file")
-
-        def get_fermi_surface(self):
-            # from case.energy get kpts and energies
-            # interpolate data using griddata
-            # return kx, ky grid and surf grid to be plotted
-            raise NotImplementedError("This function has not been implemented yet!")
-
-# plotting methods
-
-# plot bandstructure
-def band_plot(bands, *opt_list, **opt_dict):
-    __band_plot(plt, bands, *opt_list, **opt_dict)
-
-def __band_plot(figure, bands, *opt_list, **opt_dict):
-    
-    if isinstance(figure, types.ModuleType): figure = figure.gca()
-            
-    # plot the the dispersion from the bands object
-    for b in range(len(bands.Ek)): figure.plot(bands.kpoints, bands.Ek[b,:]-bands.eF_shift, *opt_list, **opt_dict)
-
-    # decorate the figure from here
-    figure.set_xticks(bands.high_symmetry_points)
-    figure.set_xticklabels(bands.high_symmetry_labels)
-    for k in bands.high_symmetry_points: figure.axvline(k, color="k", lw=1)
-    figure.axhline(0.0, color="k", lw=1)
-    figure.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
-    figure.set_ylim(-2, 2); 
-    figure.set_xlim(bands.high_symmetry_points[0], bands.high_symmetry_points[-1]);
-
-# band_plot
-mpl.axes.Axes.band_plot = lambda self, bands, *opt_list, **opt_dict : __band_plot(self, bands, *opt_list, **opt_dict)
 
 # plot fatbands
 def fatband_plot(fat_bands, *opt_list, **opt_dict):
@@ -385,8 +398,85 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
 
 # fatband_plot
 mpl.axes.Axes.fatband_plot = lambda self, fat_bands, *opt_list, **opt_dict : __fatband_plot(self, fat_bands, *opt_list, **opt_dict)
-                
 
+
+class DensityOfStates(object):
+    def __init__(self, dos : List[str] =None, 
+                       dos_dict : Dict[str, str]=None) -> None:
+        """
+        Initialize the DensityOfStates object.
+
+        Parameters
+        ----------
+        dos        : list[string], optional
+                     A list of dosfiles to be parsed and plotted.
+        dos_dict   : dict[str, str], optional
+                     A dictionary mapping the column names in the dosfiles to
+                     desired name in plot legend.
+        """
+        self.dos = dos
+        self.dos_dict = dos_dict
+
+        if self.dos is None:
+            try:
+                self.dos = glob.glob("*.dos*")
+            except:
+                raise FileNotFoundError("Could not find any files matching case.dosXev, where X is a number")
+        
+        if self.dos_dict is None:
+            # if a dictionary mapping each column to a name is not provided we will build one
+            self.dos_dict = {}
+            offset = 0
+            for file in self.dos:
+                headers=open(file).readlines()[2].split()[2:] # skips the # and ENERGY
+                for h in range(len(headers)):
+                    self.dos_dict[h+offset] = headers[h]
+                offset += len(headers)
+
+        self.energy, self.density_of_states = self.get_dos()
+
+    def get_dos(self):
+        """
+        internal function to parse the density of state files
+        """
+        density_of_states = []
+        for file in self.dos:
+            data = np.loadtxt(file, comments='#')
+            energy = data[:,0]
+            if "dn" in file:
+                density_of_states.append(-1*data[:,1:])
+            else:
+                density_of_states.append(data[:,1:])
+        return energy, density_of_states
+
+    def smooth_dos(self, fwhm : float) -> None:
+        """
+        A Gaussian smoothing function to smear out the harsh peaks in the density of states
+        when a small broadening was used.
+
+        Parameters
+        ----------
+
+        fwhm    : float, required
+                  Full width Half Maximum for gaussian smearing converts to σ.
+        """
+        
+        def fwhm2sigma(fwhm):
+            return fwhm / np.sqrt(8 * np.log(2))
+
+        def blur(ie, e):
+            kernel=np.exp(-(energy-e)**2/(2*sigma**2))
+            kernel/=np.sum(kernel) # normalize
+            return np.sum(rho*kernel)
+
+        sigma = fwhm2sigma(fwhm)
+        smoother = np.vectorize(blur)
+
+        for d in range(len(self.density_of_states)):            # loop over the various dos files given
+            for s in range(self.density_of_states[d].shape[1]): # loop over the columns in each dos file
+                rho = self.density_of_states[d][:,s]
+                energy=self.energy
+                self.density_of_states[d][:,s][:] = smoother(list(range(len(rho))), energy)
 
 # plot density of states
 def dos_plot(dos, *opt_list, **opt_dict):
@@ -423,15 +513,36 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
 # dos_plot
 mpl.axes.Axes.dos_plot = lambda self, dos, *opt_list, **opt_dict : __dos_plot(self, dos, *opt_list, **opt_dict)
 
+class WannierBands(object):
+    def __init__(self, wann_bands : str =None) -> None:
+        """
+        Initialze the WannierBands object.
 
-# plot fermi surface
-#def fermi_surface_plot(fermi_surface):
-#    __fermi_surface_plot(plt, fermi_surface)
+        Parameters
+        ----------
+        wann_bands  : string, optional
+                      Filename of Wannier90 *_band.dat file.
+        """
+        self.wann_bands = wann_bands
 
-#def __fermi_surface_plot(figure, fermi_surface):
-#    if isinstance(figure, types.ModuleType): figure = figure.gca()
+        if self.wann_bands is None:
+            try:
+                self.wann_bands = glob.glob("*_band.dat")[0]
+            except: 
+                raise FileNotFoundError("Could not find a case_band.dat file in this directory\n. Please provide a case_band.dat file!")
 
-#mpl.axes.Axes.fermi_surface_plot = lambda self, fermi_surface, *opt_list, **opt_dict : __fermi_surface_plot(self, fermi_surface, *opt_list, **opt_dict)
+        self.kpts, self.wann_bands = self.get_wannier_bands()
+
+
+    def get_wannier_bands(self):
+        """
+        internal function for parsing the Wannier90 band.dat file.
+        """
+        data = np.loadtxt(self.wann_bands)
+        kpts = np.unique(data[:,0]) * 0.53 # convert units!
+        wann_bands = data[:,1].reshape(int(len(data)/len(kpts)), len(kpts))
+        return  kpts, wann_bands
+
 
 # plot wannier90 bands compared to DFT bands
 def wannier_band_plot(wannier_bands, *opt_list, **opt_dict):
@@ -451,3 +562,31 @@ def __wannier_band_plot(figure, wannier_bands, *opt_list, **opt_dict):
     figure.set_xlim(wannier_bands.kpts[0], wannier_bands.kpts[-1])
 
 mpl.axes.Axes.wannier_band_plot = lambda self, wannier_bands, *opt_list, **opt_dict : __wannier_band_plot(self, wannier_bands, *opt_list, **opt_dict)
+
+
+class FermiSurface(object):
+    def __init__(self, energy=None, struct=None):
+
+        self.energy = energy
+        self.struct = Structure(struct)
+        
+        if self.energy is None:
+            try:
+                self.energy = glob.glob("*.energy")[0]
+            except:
+                raise FileNotFoundError("Could not find a case.energy file in this directory.\nPlease provide a case.energy file")
+
+        def get_fermi_surface(self):
+            # from case.energy get kpts and energies
+            # interpolate data using griddata
+            # return kx, ky grid and surf grid to be plotted
+            raise NotImplementedError("This function has not been implemented yet!")
+
+# plot fermi surface
+#def fermi_surface_plot(fermi_surface):
+#    __fermi_surface_plot(plt, fermi_surface)
+
+#def __fermi_surface_plot(figure, fermi_surface):
+#    if isinstance(figure, types.ModuleType): figure = figure.gca()
+
+#mpl.axes.Axes.fermi_surface_plot = lambda self, fermi_surface, *opt_list, **opt_dict : __fermi_surface_plot(self, fermi_surface, *opt_list, **opt_dict)
