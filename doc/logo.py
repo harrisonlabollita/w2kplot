@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
-plt.style.use("publish")
+plt.style.use('w2kplot')
 
 
 def w2kplot():
