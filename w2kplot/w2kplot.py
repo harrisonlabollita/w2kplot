@@ -454,20 +454,43 @@ mpl.axes.Axes.fatband_plot = lambda self, fat_bands, * \
 
 class DensityOfStates(object):
     def __init__(self, dos: List[str] = None,
-                 dos_dict: Dict[str, str] = None) -> None:
+                 dos_dict: Dict[int, str] = None,
+                 sumdos: Union[List[List[int]], bool] = None,
+                 colors: List[str] = None,
+                 orientation: str = "horizontal"
+                 ) -> None:
         """
         Initialize the DensityOfStates object.
 
         Parameters
         ----------
-        dos        : list[string], optional
+        dos         : list[string], optional
                      A list of dosfiles to be parsed and plotted.
-        dos_dict   : dict[str, str], optional
+        dos_dict    : dict[int, str], optional
                      A dictionary mapping the column names in the dosfiles to
                      desired name in plot legend.
+        sumdos      : union[list[list[int]], bool], optional
+                     A nested of list of how to sum density of states from different columns
+        colors      : ist[str], optional
+                     A list of matplotlib colors for each dos. Must match the number of keys
+                     in the dos_dict
+        orientation : string, optional
+                     Plot the dos horizontally (horizontal) or vertically (vertical)
         """
+        # TODO: need to work on the sumdos featture. For now the user will provide how to sum by hand.
         self.dos = dos
         self.dos_dict = dos_dict
+        self.sumdos = sumdos
+        self.colors = colors
+        self.orientation = orientation
+
+        if self.colors is not None:
+            assert len(self.colors) == len(self.dos_dict.keys()
+                                           ), "incorrect number of colors for dos!"
+
+        if self.dos_dict is None and self.sumdos is not None:
+            raise NotImplementedError(
+                "Unfortanately, this is feature is not valid. Please provide a valid dictionary of labels")
 
         if self.dos is None:
             try:
@@ -486,7 +509,6 @@ class DensityOfStates(object):
                 for h in range(len(headers)):
                     self.dos_dict[h+offset] = headers[h]
                 offset += len(headers)
-
         self.energy, self.density_of_states = self.get_dos()
 
     def get_dos(self):
@@ -494,13 +516,39 @@ class DensityOfStates(object):
         internal function to parse the density of state files
         """
         density_of_states = []
-        for file in self.dos:
+        for i, file in enumerate(self.dos):
             data = np.loadtxt(file, comments='#')
             energy = data[:, 0]
-            if "dn" in file:
-                density_of_states.append(-1*data[:, 1:])
+            dos_data = data[:, 1:]
+            if self.sumdos is not None:
+                tosum = self.sumdos[i]
+                one_dim = True
+                try:
+                    check = [item for sublist in tosum for item in sublist]
+                    one_dim = False
+                except TypeError:
+                    check = [item for item in tosum]
+                dos = np.zeros((len(energy), len(tosum)))
+                place = 0
+                for col in range(dos_data.shape[1]):
+                    if col not in check:
+                        dos[:, place] = dos_data[:, col]
+                        place += 1
+                if one_dim:
+                    dos[:, place] = np.mean(dos_data[:, tosum], axis=1)
+                else:
+                    for add in tosum:
+                        dos[:, place] = np.mean(dos_data[:, add], axis=1)
+                        place += 1
+                if "dn" in file:
+                    density_of_states.append(-1*dos)
+                else:
+                    density_of_states.append(dos)
             else:
-                density_of_states.append(data[:, 1:])
+                if "dn" in file:
+                    density_of_states.append(-1*dos_data)
+                else:
+                    density_of_states.append(dos_data)
         return energy, density_of_states
 
     def smooth_dos(self, fwhm: float) -> None:
@@ -556,20 +604,38 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
                 dos_max = np.max(dos.density_of_states[d][:, s])
             if dos_min > np.min(dos.density_of_states[d][:, s]):
                 dos_min = np.min(dos.density_of_states[d][:, s])
-            figure.plot(
-                dos.energy, dos.density_of_states[d][:, s], label=dos.dos_dict[offset+s], *opt_list, **opt_dict)
-        offset += s
+            if dos.orientation == "vertical":
+                figure.plot(dos.density_of_states[d][:, s],
+                            dos.energy, label=dos.dos_dict[offset+s], *opt_list, **opt_dict)
+            elif dos.orientation == "horizontal":
+                figure.plot(
+                    dos.energy, dos.density_of_states[d][:, s], label=dos.dos_dict[offset+s], *opt_list, **opt_dict)
+            else:
+                raise ValueError(
+                    f"The option {dos.orientation} is not a valid setting")
+        offset += s+1
 
     # decorate
-    figure.set_xlabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
-    figure.set_ylabel(r'DOS (1/eV)')
-    figure.set_xlim(-10, 10)
-    if abs(dos_max) > abs(dos_min):
-        figure.set_ylim(0, 1.05*dos_max)
-    else:
-        figure.set_ylim(0.95*dos_min, 1.05*abs(dos_min))
+    if dos.orientation == "vertical":
+        figure.set_ylabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
+        figure.set_xlabel(r'DOS (1/eV)')
+        figure.set_ylim(-10, 10)
         figure.axhline(0.0, color='k',  lw=1, ls='dotted')
-    figure.axvline(0.0, color='k', lw=1, ls='dotted')
+        if abs(dos_max) > abs(dos_min):
+            figure.set_xlim(0, 1.05*dos_max)
+        else:
+            figure.set_xlim(0.95*dos_min, 1.05*abs(dos_min))
+            figure.axvline(0.0, color='k',  lw=1, ls='dotted')
+
+    elif dos.orientation == "horizontal":
+        figure.set_xlabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
+        figure.set_ylabel(r'DOS (1/eV)')
+        figure.set_xlim(-10, 10)
+        if abs(dos_max) > abs(dos_min):
+            figure.set_ylim(0, 1.05*dos_max)
+        else:
+            figure.set_ylim(0.95*dos_min, 1.05*abs(dos_min))
+            figure.axhline(0.0, color='k',  lw=1, ls='dotted')
     figure.legend(loc="best")
 
 
