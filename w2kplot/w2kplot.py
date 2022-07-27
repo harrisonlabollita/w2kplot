@@ -302,15 +302,15 @@ class FatBands(Bands):
         self.weight = weight
         self.colors = colors
 
-        assert len(atoms) == len(
-            orbitals), f"list of atoms does not match list of orbitals: {len(atoms)} != {len(orbitals)}"
-        assert len(atoms) == len(
-            colors), f"list of atoms does not match list of colors: {len(atoms)} != {len(colors)}"
+        assert len(self.atoms) == len(
+            self.orbitals), f"list of atoms does not match list of orbitals: {len(atoms)} != {len(orbitals)}"
 
         if colors is None:
             self.colors = [[self.default_colors[ia % len(self.default_colors)][o % len(self.default_colors[0])]
                            for o in self.orbitals[ia]]
                            for (ia, a) in enumerate(self.atoms)]
+        assert len(self.atoms) == len(
+            self.colors), f"list of atoms does not match list of colors: {len(atoms)} != {len(colors)}"
 
         self.Ry2eV = 13.6          # convert from Ry (wien2k default) to eV
         self.qtl = qtl
