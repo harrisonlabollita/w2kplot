@@ -226,6 +226,9 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType):
         figure = figure.gca()
 
+    is_first_col = figure.is_first_col()
+    is_last_row  = figure.is_last_row()
+
     # plot the the dispersion from the bands object
     for b in range(len(bands.Ek)):
         figure.plot(bands.kpoints,
@@ -233,15 +236,19 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
 
     # decorate the figure from here
     figure.set_xticks(bands.high_symmetry_points)
-    figure.set_xticklabels(bands.high_symmetry_labels)
+    if is_last_row:
+        figure.set_xticklabels(bands.high_symmetry_labels)
     for k in bands.high_symmetry_points:
         figure.axvline(k, color="k", lw=1)
+
     figure.axhline(0.0, color="k", lw=1)
-    figure.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+    if is_first_col:
+        # if we are the first column we will always add the ylabel
+        figure.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+
     figure.set_ylim(-2, 2)
     figure.set_xlim(
         bands.high_symmetry_points[0], bands.high_symmetry_points[-1])
-
 
 # band_plot
 mpl.axes.Axes.band_plot = lambda self, bands, * \
