@@ -46,7 +46,9 @@ For more examples, see [examples](examples/)!
 
 Currently, this is the only way to install w2kplot
 ```bash
-    pip install -e .
+	git clone https://github.com/harrisonlabollita/w2kplot.git
+    cd w2kplot
+    pip install .
 ```
 
 <a name="documentation"><a/>
