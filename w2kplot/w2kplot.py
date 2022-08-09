@@ -227,7 +227,7 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
         figure = figure.gca()
 
     is_first_col = figure.is_first_col()
-    is_last_row  = figure.is_last_row()
+    is_last_row = figure.is_last_row()
 
     # plot the the dispersion from the bands object
     for b in range(len(bands.Ek)):
@@ -249,6 +249,7 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
     figure.set_ylim(-2, 2)
     figure.set_xlim(
         bands.high_symmetry_points[0], bands.high_symmetry_points[-1])
+
 
 # band_plot
 mpl.axes.Axes.band_plot = lambda self, bands, * \
@@ -601,6 +602,9 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType):
         figure = figure.gca()
 
+    is_last_row = figure.is_last_row()
+    is_first_col = figure.is_first_col()
+
     offset = 0
     dos_max = 0
     dos_min = 0
@@ -624,8 +628,11 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
 
     # decorate
     if dos.orientation == "vertical":
-        figure.set_ylabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
-        figure.set_xlabel(r'DOS (1/eV)')
+        if is_last_row:
+            figure.set_xlabel(r'DOS (1/eV)')
+        if is_first_col:
+            figure.set_ylabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
+
         figure.set_ylim(-10, 10)
         figure.axhline(0.0, color='k',  lw=1, ls='dotted')
         if abs(dos_max) > abs(dos_min):
@@ -635,8 +642,10 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
             figure.axvline(0.0, color='k',  lw=1, ls='dotted')
 
     elif dos.orientation == "horizontal":
-        figure.set_xlabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
-        figure.set_ylabel(r'DOS (1/eV)')
+        if is_last_row:
+            figure.set_xlabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
+        if is_first_col:
+            figure.set_ylabel(r'DOS (1/eV)')
         figure.set_xlim(-10, 10)
         if abs(dos_max) > abs(dos_min):
             figure.set_ylim(0, 1.05*dos_max)
@@ -652,6 +661,8 @@ mpl.axes.Axes.dos_plot = lambda self, dos, * \
 
 
 class WannierBands(object):
+    # TODO: would it be possible to get high-symmetry points
+    # for just a Wannier band plot?
     def __init__(self, wann_bands: str = None) -> None:
         """
         Initialze the WannierBands object.
@@ -691,6 +702,8 @@ def __wannier_band_plot(figure, wannier_bands, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType):
         figure = figure.gca()
 
+    is_first_col = figure.is_first_col()
+
     # plot the wannier bands
     for b in range(len(wannier_bands.wann_bands)):
         figure.plot(wannier_bands.kpts,
@@ -698,7 +711,9 @@ def __wannier_band_plot(figure, wannier_bands, *opt_list, **opt_dict):
 
     # decorate the figure from here
     figure.axhline(0.0, color="k", lw=1)
-    figure.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+    if is_first_col:
+        figure.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
+
     figure.set_ylim(-2, 2)
     figure.set_xlim(wannier_bands.kpts[0], wannier_bands.kpts[-1])
 
