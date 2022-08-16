@@ -108,7 +108,7 @@ class Bands(object):
         klist_band : string, optional
                      Filename of case.klist_band containing the kpoint information, specifically,
                      the high symmetry points and high symmetry labels.
-        eF_shit    : float, optional
+        eF_shift   : float, optional
                      Optional parameter to shift the Fermi energy. Units are eV.
         """
         self.spaghetti = spaghetti
