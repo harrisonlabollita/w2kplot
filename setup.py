@@ -39,4 +39,9 @@ setup(name = "w2kplot",
       license='MIT',
       install_requires =["numpy", "matplotlib"],
       cmdclass={'install': InstallFiles, },
+      entry_points={
+          "console_scripts": [
+              "w2kplot-bands = w2kplot.cli.bandplot:main",
+              ]
+          },
       )
