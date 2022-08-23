@@ -1,0 +1,149 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+#
+# w2kplot: a thin Python wrapper around matplotlib
+#
+# Copyright (C) 2022 Harrison LaBollita
+# Authors: H. LaBollita
+#
+# w2kplot is free software licensed under the terms of the MIT license.
+#
+################################################################################
+
+from w2kplot import FatBands, fatband_plot
+import matplotlib.pyplot as plt
+
+import argparse
+
+def get_parser():
+    parser = argparse.ArgumentParser()
+    
+    parser.add_argument("--atoms",
+                        nargs="+",
+                        required=True,
+                        type=int
+                        )
+
+    parser.add_argument("-orb",
+                        "--orbitals",
+                        nargs="+",
+                        required=True
+                        )
+    
+    parser.add_argument("-struct",
+                        "--structure",
+                        default=None
+                        )
+    
+    parser.add_argument("--qtl",
+                        default=None
+                        )
+    
+    parser.add_argument("--ef",
+                        default=None
+                        )
+
+    parser.add_argument("--weight",
+                        type=int,
+                        default=50,
+                        help="scaling factor for the size of the orbital character."
+                        )
+
+    parser.add_argument("-spag", 
+                        "--spaghetti", 
+                        default=None, 
+                        help="name of case.spaghetti/up/dn_ene file"
+                        )
+
+    parser.add_argument("-klist", 
+                        "--klistband", 
+                        default=None, 
+                        help="name of case.klist_band file"
+                        )
+
+
+    parser.add_argument("-eF",
+                        "--fermienergy",
+                        type=float,
+                        default=0.0,
+                        help="shift the Fermi energy by the amount Fermi energy (units eV)"
+                        )
+
+    parser.add_argument("--colors",
+                        default=None,
+                        nargs="+",
+                        help="colors of the orbitals"
+                        )
+
+    parser.add_argument("-c",
+                        "--color",
+                        type=str,
+                        default="k",
+                        help="color of the bands"
+                        )
+
+    parser.add_argument("-ls",
+                        "--linestyle",
+                        type=str,
+                        default="-",
+                        help="linestyle of ε(k)"
+                        )
+
+    parser.add_argument("-lw",
+                        "--linewidth",
+                        type=float,
+                        default=1.5,
+                        help="linewidth of ε(k)"
+                        )
+
+    parser.add_argument("--ymin",
+                        default=-4,
+                        type=float,
+                        help="minimum of the y-axis."
+                        )
+    
+    parser.add_argument("--ymax",
+                        default=4,
+                        type=float,
+                        help="minimum of the y-axis."
+                        )
+    
+    parser.add_argument("--save",
+                        default=None,
+                        help="save the bandstructure with the provided filename"
+                        )
+
+
+    return parser
+
+convert_orbitals = lambda orbitals : [list(map(int, x.split())) for x in " ".join(orbitals).split(',')]
+convert_colors = lambda colors : [list(x.split()) for x in " ".join(colors).split(',')]
+
+
+def main():
+    args = get_parser().parse_args()
+
+    bands = FatBands(args.atoms,
+                     convert_orbitals(args.orbitals),
+                     colors = convert_colors(args.colors),
+                     weight = args.weight,
+                     spaghetti=args.spaghetti,
+                     klist_band=args.klistband,
+                     qtl = args.qtl,
+                     struct = args.structure,
+                     eF_shift=args.fermienergy
+                    )
+
+    fatband_plot(bands, 
+                 ls=args.linestyle, 
+                 color=args.color, 
+                 lw=args.linewidth
+                )
+
+    plt.ylim(args.ymin, args.ymax)
+
+    if args.save is not None:
+        plt.savefig(args.save)
+    else:
+        plt.show()

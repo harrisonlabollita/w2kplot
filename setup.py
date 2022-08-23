@@ -42,6 +42,7 @@ setup(name = "w2kplot",
       entry_points={
           "console_scripts": [
               "w2kplot-bands = w2kplot.cli.bandplot:main",
+              "w2kplot-fatbands = w2kplot.cli.fatbandplot:main",
               ]
           },
       )
