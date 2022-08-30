@@ -6,12 +6,11 @@ from setuptools import setup
 from setuptools.command.install import install
 
 
-
 class InstallFiles(install):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.install_style()
-        #atexit.register(install_style)
+        # atexit.register(install_style)
 
     def run(self):
         install.run(self)
@@ -29,20 +28,21 @@ class InstallFiles(install):
             shutil.copy(stylefile,
                         os.path.join(mpl_dir, os.path.basename(stylefile)))
 
-setup(name = "w2kplot",
-      version = "0.0.5",
-      author = "Harrison LaBollita",
-      author_email = "hlabolli@asu.edu",
-      description = "a Matplotlib wrapper written in Python for plotting DFT results from WIEN2k",
+
+setup(name="w2kplot",
+      version="0.0.5",
+      author="Harrison LaBollita",
+      author_email="hlabolli@asu.edu",
+      description="a Matplotlib wrapper written in Python for plotting DFT results from WIEN2k",
       url="https://github.com/harrisonlabollita/w2kplot",
       packages=['w2kplot'],
       license='MIT',
-      install_requires =["numpy", "matplotlib"],
+      install_requires=["numpy", "matplotlib"],
       cmdclass={'install': InstallFiles, },
       entry_points={
           "console_scripts": [
               "w2kplot-bands = w2kplot.cli.bandplot:main",
               "w2kplot-fatbands = w2kplot.cli.fatbandplot:main",
-              ]
-          },
+          ]
+      },
       )
