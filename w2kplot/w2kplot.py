@@ -232,7 +232,7 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
         grid_spec = figure.get_subplotspec()
         is_first_col = grid_spec.is_first_col()
         is_last_row = grid_spec.is_last_row()
-    except:
+    except BaseException:
         # old version of matplotlib
         is_first_col = figure.is_first_col()
         is_last_row = figure.is_last_row()
