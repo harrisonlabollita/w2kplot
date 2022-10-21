@@ -227,8 +227,15 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType):
         figure = figure.gca()
 
-    is_first_col = figure.is_first_col()
-    is_last_row = figure.is_last_row()
+    try:
+        # new version of matplotlib
+        grid_spec = figure.get_subplotspec()
+        is_first_col = grid_spec.is_first_col()
+        is_last_row = grid_spec.is_last_row()
+    except:
+        # old version of matplotlib
+        is_first_col = figure.is_first_col()
+        is_last_row = figure.is_last_row()
 
     # plot the the dispersion from the bands object
     for b in range(len(bands.Ek)):
