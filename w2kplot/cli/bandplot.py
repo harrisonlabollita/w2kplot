@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-################################################################################
+##########################################################################
 #
 # w2kplot: a thin Python wrapper around matplotlib
 #
@@ -9,28 +9,28 @@
 #
 # w2kplot is free software licensed under the terms of the MIT license.
 #
-################################################################################
+##########################################################################
 
 from w2kplot import Bands, band_plot
 import matplotlib.pyplot as plt
 
 import argparse
 
+
 def get_parser():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("-spag", 
-                        "--spaghetti", 
-                        default=None, 
+    parser.add_argument("-spag",
+                        "--spaghetti",
+                        default=None,
                         help="name of case.spaghetti/up/dn_ene file"
                         )
 
-    parser.add_argument("-klist", 
-                        "--klistband", 
-                        default=None, 
+    parser.add_argument("-klist",
+                        "--klistband",
+                        default=None,
                         help="name of case.klist_band file"
                         )
-
 
     parser.add_argument("-eF",
                         "--fermienergy",
@@ -65,18 +65,17 @@ def get_parser():
                         type=float,
                         help="minimum of the y-axis."
                         )
-    
+
     parser.add_argument("--ymax",
                         default=4,
                         type=float,
                         help="minimum of the y-axis."
                         )
-    
+
     parser.add_argument("--save",
                         default=None,
                         help="save the bandstructure with the provided filename"
                         )
-
 
     return parser
 
@@ -89,9 +88,9 @@ def main():
                   eF_shift=args.fermienergy
                   )
 
-    band_plot(bands, 
-              ls=args.linestyle, 
-              color=args.color, 
+    band_plot(bands,
+              ls=args.linestyle,
+              color=args.color,
               lw=args.linewidth
               )
 
