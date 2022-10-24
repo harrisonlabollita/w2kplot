@@ -56,6 +56,5 @@ class TestLogo(unittest.TestCase):
             #plt.savefig("logo.png", transparent=True, dpi=300)
         w2kplot()
 
-
-if __name__ == "__main__":
-    unittest.main()
+#if __name__ == "__main__":
+#    unittest.main()
