@@ -761,8 +761,9 @@ class FermiSurface(object):
 
 #mpl.axes.Axes.fermi_surface_plot = lambda self, fermi_surface, *opt_list, **opt_dict : __fermi_surface_plot(self, fermi_surface, *opt_list, **opt_dict)
 
+
 class ChargeDensity(object):
-    def __init__(self, rho=None, transform=lambda x : x):
+    def __init__(self, rho=None, transform=lambda x: x):
         self.rho = rho
         assert callable(transform), "The transform function must be callable!"
 
@@ -771,30 +772,34 @@ class ChargeDensity(object):
             try:
                 self.rho = glob.glob("*.rho")[0]
             except Exception:
-                raise FileNotFoundError("Could not find a case.rho file in this repository.\nPlease provide a case.rho file")
+                raise FileNotFoundError(
+                    "Could not find a case.rho file in this repository.\nPlease provide a case.rho file")
         if isinstance(self.rho, str):
             self.rho = self.get_charge_density()
 
     def __sub__(self, other_rho):
         assert self.rho.shape == other_rho.rho.shape
-        return ChargeDensity(rho = self.rho-other_rho.rho)
+        return ChargeDensity(rho=self.rho - other_rho.rho)
 
     def __add__(self, other_rho):
         assert self.rho.shape == other_rho.rho.shape
-        return ChargeDensity(rho = self.rho+other_rho.rho)
+        return ChargeDensity(rho=self.rho + other_rho.rho)
 
     def get_charge_density(self):
         f = open(self.rho)
         data = f.readlines()
         f.close()
         Nx, Ny = list(map(int, data[0].split()[:2]))
-        charge = [];
-        for i in range(1, len(data)): charge.extend(list(map(float, data[i].split())));
-        charge = np.array(charge).reshape(Nx,Ny)
+        charge = []
+        for i in range(1, len(data)):
+            charge.extend(list(map(float, data[i].split())))
+        charge = np.array(charge).reshape(Nx, Ny)
         return self.transform(charge)
+
 
 def charge_2d_plot(charge_density, *opt_list, **opt_dict):
     __charge_2d_plot(plt, charge_density, *opt_list, **opt_dict)
+
 
 def __charge_2d_plot(figure, charge_density, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType):
@@ -805,6 +810,7 @@ def __charge_2d_plot(figure, charge_density, *opt_list, **opt_dict):
 
     # decorate the figure from here
     figure.axis('off')
+
 
 mpl.axes.Axes.charge_2d_plot = lambda self, charge_density, * \
     opt_list, **opt_dict: __charge_2d_plot(self, charge_density, *opt_list, **opt_dict)
