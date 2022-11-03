@@ -752,7 +752,6 @@ class FermiSurface(object):
             # return kx, ky grid and surf grid to be plotted
             raise NotImplementedError(
                 "This function has not been implemented yet!")
-
 # plot fermi surface
 # def fermi_surface_plot(fermi_surface):
 #    __fermi_surface_plot(plt, fermi_surface)
@@ -761,3 +760,47 @@ class FermiSurface(object):
 #    if isinstance(figure, types.ModuleType): figure = figure.gca()
 
 #mpl.axes.Axes.fermi_surface_plot = lambda self, fermi_surface, *opt_list, **opt_dict : __fermi_surface_plot(self, fermi_surface, *opt_list, **opt_dict)
+
+class ChargeDensity(object):
+    def __init__(self, rho=None, transform=lambda x : x):
+        self.rho = rho
+        assert callable(transform), "The transform function must be callable!"
+
+        self.transform = transform
+        if self.rho is None:
+            try:
+                self.rho = glob.glob("*.rho")[0]
+            except Exception:
+                raise FileNotFoundError("Could not find a case.rho file in this repository.\nPlease provide a case.rho file")
+        if isinstance(self.rho, str):
+            self.rho = self.get_charge_density()
+
+    def __sub__(self, other_rho):
+        assert self.rho.shape == other_rho.rho.shape
+        return ChargeDensity(rho = self.rho-other_rho.rho)
+
+    def get_charge_density(self):
+        f = open(self.rho)
+        data = f.readlines()
+        f.close()
+        Nx, Ny = list(map(int, data[0].split()[:2]))
+        charge = [];
+        for i in range(1, len(data)): charge.extend(list(map(float, data[i].split())));
+        charge = np.array(charge).reshape(Nx,Ny)
+        return self.transform(charge)
+
+def charge_2d_plot(charge_density, *opt_list, **opt_dict):
+    __charge_2d_plot(plt, charge_density, *opt_list, **opt_dict)
+
+def __charge_2d_plot(figure, charge_density, *opt_list, **opt_dict):
+    if isinstance(figure, types.ModuleType):
+        figure = figure.gca()
+
+    # plot the charge density
+    figure.imshow(charge_density.rho, *opt_list, **opt_dict)
+
+    # decorate the figure from here
+    figure.axis('off')
+
+mpl.axes.Axes.charge_2d_plot = lambda self, charge_density, * \
+    opt_list, **opt_dict: __charge_2d_plot(self, charge_density, *opt_list, **opt_dict)
