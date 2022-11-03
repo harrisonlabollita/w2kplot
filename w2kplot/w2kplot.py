@@ -779,6 +779,10 @@ class ChargeDensity(object):
         assert self.rho.shape == other_rho.rho.shape
         return ChargeDensity(rho = self.rho-other_rho.rho)
 
+    def __add__(self, other_rho):
+        assert self.rho.shape == other_rho.rho.shape
+        return ChargeDensity(rho = self.rho+other_rho.rho)
+
     def get_charge_density(self):
         f = open(self.rho)
         data = f.readlines()
