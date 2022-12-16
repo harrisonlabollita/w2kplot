@@ -97,8 +97,10 @@ class Structure(object):
 
 
 class Bands(object):
-    def __init__(self, spaghetti: str = None,
-                 klist_band: str = None, eF_shift: float = 0) -> None:
+    def __init__(self, case : str = None,
+                       spaghetti: str = None,
+                       klist_band: str = None,
+                       eF_shift: float = 0) -> None:
         """
         Initialize the Bands w2kplot object.
 
@@ -112,8 +114,9 @@ class Bands(object):
         eF_shift   : float, optional
                      Optional parameter to shift the Fermi energy. Units are eV.
         """
-        self.spaghetti = spaghetti
-        self.klist_band = klist_band
+
+        self.spaghetti = case + '.spaghetti_ene' if case else spaghetti
+        self.klist_band = case + '.klist_band' if case else klist_band
         self.eF_shift = eF_shift
 
         if self.spaghetti is None:
@@ -265,10 +268,12 @@ mpl.axes.Axes.band_plot = lambda self, bands, * \
 
 
 class FatBands(Bands):
-    def __init__(self, atoms: List[int],
+    def __init__(self, 
+                 atoms: List[int],
                  orbitals: List[List[int]],
                  colors: List[List[str]] = None,
                  weight: int = 80,
+                 case : str = None,
                  spaghetti: str = None,
                  klist_band: str = None,
                  qtl: str = None,
@@ -307,7 +312,7 @@ class FatBands(Bands):
         eF_shit     : float, optional
                       Optional parameter to shift the Fermi energy. Units are eV.
         """
-        super().__init__(spaghetti, klist_band, eF_shift)
+        super().__init__(case, spaghetti, klist_band, eF_shift)
 
         self.default_colors = [["dodgerblue", "lightcoral", "gold", "forestgreen", "magenta"],
                                ["b", "r", "g", "y", "c"],
@@ -317,6 +322,11 @@ class FatBands(Bands):
         self.orbitals = orbitals
         self.weight = weight
         self.colors = colors
+
+        # modify file names if case is available
+        struct = case+'.struct' if case else struct
+        qtl    = case+'.qtl'    if case else qtl
+        eF     = case+'.scf'    if case and not isinstance(eF, float) else eF
 
         assert len(self.atoms) == len(
             self.orbitals), f"list of atoms does not match list of orbitals: {len(atoms)} != {len(orbitals)}"
@@ -763,7 +773,10 @@ class FermiSurface(object):
 
 
 class ChargeDensity(object):
-    def __init__(self, rho=None, transform=lambda x: x):
+    def __init__(self, case = None, rho=None, transform=lambda x: x):
+        
+        rho = case+'.rho' if case else rho
+
         self.rho = rho
         assert callable(transform), "The transform function must be callable!"
 
