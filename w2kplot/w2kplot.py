@@ -97,10 +97,10 @@ class Structure(object):
 
 
 class Bands(object):
-    def __init__(self, case : str = None,
-                       spaghetti: str = None,
-                       klist_band: str = None,
-                       eF_shift: float = 0) -> None:
+    def __init__(self, case: str = None,
+                 spaghetti: str = None,
+                 klist_band: str = None,
+                 eF_shift: float = 0) -> None:
         """
         Initialize the Bands w2kplot object.
 
@@ -268,12 +268,12 @@ mpl.axes.Axes.band_plot = lambda self, bands, * \
 
 
 class FatBands(Bands):
-    def __init__(self, 
+    def __init__(self,
                  atoms: List[int],
                  orbitals: List[List[int]],
                  colors: List[List[str]] = None,
                  weight: int = 80,
-                 case : str = None,
+                 case: str = None,
                  spaghetti: str = None,
                  klist_band: str = None,
                  qtl: str = None,
@@ -324,9 +324,9 @@ class FatBands(Bands):
         self.colors = colors
 
         # modify file names if case is available
-        struct = case+'.struct' if case else struct
-        qtl    = case+'.qtl'    if case else qtl
-        eF     = case+'.scf'    if case and not isinstance(eF, float) else eF
+        struct = case + '.struct' if case else struct
+        qtl = case + '.qtl' if case else qtl
+        eF = case + '.scf' if case and not isinstance(eF, float) else eF
 
         assert len(self.atoms) == len(
             self.orbitals), f"list of atoms does not match list of orbitals: {len(atoms)} != {len(orbitals)}"
@@ -784,9 +784,9 @@ class FermiSurface(object):
 
 
 class ChargeDensity(object):
-    def __init__(self, case = None, rho=None, transform=lambda x: x):
-        
-        rho = case+'.rho' if case else rho
+    def __init__(self, case=None, rho=None, transform=lambda x: x):
+
+        rho = case + '.rho' if case else rho
 
         self.rho = rho
         assert callable(transform), "The transform function must be callable!"
