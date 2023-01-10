@@ -622,8 +622,16 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType):
         figure = figure.gca()
 
-    is_last_row = figure.is_last_row()
-    is_first_col = figure.is_first_col()
+
+    try:
+        # new version of matplotlib
+        grid_spec = figure.get_subplotspec()
+        is_first_col = grid_spec.is_first_col()
+        is_last_row = grid_spec.is_last_row()
+    except BaseException:
+        # old version of matplotlib
+        is_first_col = figure.is_first_col()
+        is_last_row = figure.is_last_row()
 
     offset = 0
     dos_max = 0
@@ -638,10 +646,11 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
                 dos_min = np.min(dos.density_of_states[d][:, s])
             if dos.orientation == "vertical":
                 figure.plot(dos.density_of_states[d][:, s],
-                            dos.energy, label=dos.dos_dict[offset + s], *opt_list, **opt_dict)
+                            dos.energy, label=dos.dos_dict[offset + s], color=dos.colors[offset+s], *opt_list, **opt_dict)
             elif dos.orientation == "horizontal":
                 figure.plot(
-                    dos.energy, dos.density_of_states[d][:, s], label=dos.dos_dict[offset + s], *opt_list, **opt_dict)
+                    dos.energy, dos.density_of_states[d][:, s], color=dos.colors[offset+s], 
+                    label=dos.dos_dict[offset + s], *opt_list, **opt_dict)
             else:
                 raise ValueError(
                     f"The option {dos.orientation} is not a valid setting")
@@ -668,12 +677,14 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
         if is_first_col:
             figure.set_ylabel(r'DOS (1/eV)')
         figure.set_xlim(-10, 10)
+        figure.axvline(0.0, color='k', lw=1, ls='dotted')
         if abs(dos_max) > abs(dos_min):
             figure.set_ylim(0, 1.05 * dos_max)
         else:
             figure.set_ylim(0.95 * dos_min, 1.05 * abs(dos_min))
             figure.axhline(0.0, color='k', lw=1, ls='dotted')
     figure.legend(loc="best")
+    figure.tick_params(axis = 'x', which='minor', length = 3.5, width = 0.5)
 
 
 # dos_plot
