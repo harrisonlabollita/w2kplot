@@ -633,7 +633,6 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType):
         figure = figure.gca()
 
-
     try:
         # new version of matplotlib
         grid_spec = figure.get_subplotspec()
@@ -657,11 +656,12 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
                 dos_min = np.min(dos.density_of_states[d][:, s])
             if dos.orientation == "vertical":
                 figure.plot(dos.density_of_states[d][:, s],
-                            dos.energy, label=dos.dos_dict[offset + s], color=dos.colors[offset+s], *opt_list, **opt_dict)
+                            dos.energy, label=dos.dos_dict[offset + s], color=dos.colors[offset + s], *opt_list, **opt_dict)
             elif dos.orientation == "horizontal":
                 print("d = ", d, "s = ", s)
                 figure.plot(
-                    dos.energy, dos.density_of_states[d][:, s], color=dos.colors[offset+s], 
+                    dos.energy, dos.density_of_states[d][:,
+                                                         s], color=dos.colors[offset + s],
                     label=dos.dos_dict[offset + s], *opt_list, **opt_dict)
             else:
                 raise ValueError(
@@ -696,7 +696,7 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
             figure.set_ylim(0.95 * dos_min, 1.05 * abs(dos_min))
             figure.axhline(0.0, color='k', lw=1, ls='dotted')
     figure.legend(loc="best")
-    figure.tick_params(axis = 'x', which='minor', length = 3.5, width = 0.5)
+    figure.tick_params(axis='x', which='minor', length=3.5, width=0.5)
 
 
 # dos_plot
