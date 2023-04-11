@@ -23,7 +23,7 @@ ytick.labelsize : 15
 # set line widths
 axes.linewidth : 0.5
 axes.labelsize : 15
-axes.prop_cycle : cycler('color', ["lightcoral", "dodgerblue", "gold", "forestgreen", "magenta", "mediumslateblue", "cyan", "slategray"])
+#axes.prop_cycle : cycler('color', ["lightcoral", "dodgerblue", "gold", "forestgreen", "magenta", "mediumslateblue", "cyan", "slategray"])
 lines.linewidth : 0.5
 
 legend.frameon : False

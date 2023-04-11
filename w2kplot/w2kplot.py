@@ -252,7 +252,7 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
     for k in bands.high_symmetry_points:
         figure.axvline(k, color="k", lw=1)
 
-    figure.axhline(0.0, color="k", lw=1)
+    figure.axhline(0.0, color="k", ls='dotted', lw=1)
     if is_first_col:
         # if we are the first column we will always add the ylabel
         figure.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
@@ -544,39 +544,50 @@ class DensityOfStates(object):
         internal function to parse the density of state files
         """
         density_of_states = []
-        for i, file in enumerate(self.dos):
-            data = np.loadtxt(file, comments='#')
-            energy = data[:, 0]
-            dos_data = data[:, 1:]
-            if self.sumdos is not None:
-                tosum = self.sumdos[i]
-                one_dim = True
-                try:
-                    check = [item for sublist in tosum for item in sublist]
-                    one_dim = False
-                except TypeError:
-                    check = [item for item in tosum]
-                dos = np.zeros((len(energy), len(tosum)))
-                place = 0
-                for col in range(dos_data.shape[1]):
-                    if col not in check:
-                        dos[:, place] = dos_data[:, col]
-                        place += 1
-                if one_dim:
-                    dos[:, place] = np.mean(dos_data[:, tosum], axis=1)
-                else:
-                    for add in tosum:
-                        dos[:, place] = np.mean(dos_data[:, add], axis=1)
-                        place += 1
-                if "dn" in file:
-                    density_of_states.append(-1 * dos)
-                else:
-                    density_of_states.append(dos)
-            else:
-                if "dn" in file:
-                    density_of_states.append(-1 * dos_data)
-                else:
-                    density_of_states.append(dos_data)
+        data = np.loadtxt(self.dos[0], comments='#')
+        for file in self.dos[1:]: 
+            tmp = np.loadtxt(file, comments='#')[:,1:]
+            data = np.hstack((data, tmp))
+
+        energy = data[:, 0]
+        dos_data = data[:, 1:]
+        print(dos_data.shape)
+        if self.sumdos is not None:
+            place = 0
+            dos = np.zeros((len(energy), len(self.sumdos)))
+            for to_sum in self.sumdos:
+                dos[:, place] = np.mean(dos_data[:, to_sum], axis=1)
+                place += 1
+
+            #tosum = self.sumdos
+            #one_dim = True
+            #try:
+            #    check = [item for sublist in tosum for item in sublist]
+            #    one_dim = False
+            #except TypeError:
+            #    check = [item for item in tosum]
+
+            #dos = np.zeros((len(energy), len(tosum)))
+            #place = 0
+            #for col in range(dos_data.shape[1]):
+            #    if col not in check:
+            #        dos[:, place] = dos_data[:, col]
+            #        place += 1
+            #if one_dim:
+            #    dos[:, place] = np.mean(dos_data[:, tosum], axis=1)
+            #else:
+            #    for add in tosum:
+            #        dos[:, place] = np.mean(dos_data[:, add], axis=1)
+            #        place += 1
+            #if "dn" in file:
+            #    density_of_states.append(-1 * dos)
+            #else:
+            density_of_states.append(dos)
+        else:
+            #if "dn" in file:
+            #    density_of_states.append(-1 * dos_data)
+            #else:
+            density_of_states.append(dos_data)
         return energy, density_of_states
 
     def smooth_dos(self, fwhm: float) -> None:
@@ -648,6 +659,7 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
                 figure.plot(dos.density_of_states[d][:, s],
                             dos.energy, label=dos.dos_dict[offset + s], color=dos.colors[offset+s], *opt_list, **opt_dict)
             elif dos.orientation == "horizontal":
+                print("d = ", d, "s = ", s)
                 figure.plot(
                     dos.energy, dos.density_of_states[d][:, s], color=dos.colors[offset+s], 
                     label=dos.dos_dict[offset + s], *opt_list, **opt_dict)
@@ -734,7 +746,13 @@ def __wannier_band_plot(figure, wannier_bands, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType):
         figure = figure.gca()
 
-    is_first_col = figure.is_first_col()
+    try:
+        # new version of matplotlib
+        grid_spec = figure.get_subplotspec()
+        is_first_col = grid_spec.is_first_col()
+    except BaseException:
+        # old version of matplotlib
+        is_first_col = figure.is_first_col()
 
     # plot the wannier bands
     for b in range(len(wannier_bands.wann_bands)):
@@ -742,7 +760,7 @@ def __wannier_band_plot(figure, wannier_bands, *opt_list, **opt_dict):
                     wannier_bands.wann_bands[b, :], *opt_list, **opt_dict)
 
     # decorate the figure from here
-    figure.axhline(0.0, color="k", lw=1)
+    figure.axhline(0.0, color="k", lw=1, ls='dotted')
     if is_first_col:
         figure.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
 
