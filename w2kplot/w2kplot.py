@@ -11,9 +11,7 @@
 #
 ##########################################################################
 
-import sys
-import glob
-import os
+import sys, glob, os
 import importlib
 import shutil
 import numpy as np
@@ -97,7 +95,8 @@ class Structure(object):
 
 
 class Bands(object):
-    def __init__(self, case: str = None,
+    def __init__(self, 
+                 case: str = None,
                  spaghetti: str = None,
                  klist_band: str = None,
                  eF_shift: float = 0) -> None:
@@ -114,8 +113,7 @@ class Bands(object):
         eF_shift   : float, optional
                      Optional parameter to shift the Fermi energy. Units are eV.
         """
-
-        self.spaghetti = case + '.spaghetti_ene' if case else spaghetti
+        self.spaghetti  = case + '.spaghetti_ene' if case else spaghetti
         self.klist_band = case + '.klist_band' if case else klist_band
         self.eF_shift = eF_shift
 
@@ -133,13 +131,16 @@ class Bands(object):
                 raise FileNotFoundError(
                     "Could not find a case.klist_band file in this directory.\nPlease provide a case.klist_band file")
         try:
-            self.kpoints, self.Ek = self.get_dft_bands()
-            self.high_symmetry_points, self.high_symmetry_labels = self.get_high_symmetry_path()
+            self.kpoints, self.Ek = self._get_dft_bands()
         except BaseException:
-            raise Exception("please contact the developer with your issue!")
+            raise Exception("Error in parsing bands!")
+        try:
+            self.high_symmetry_points, self.high_symmetry_labels = self._get_high_symmetry_path()
+        except BaseException:
+            raise Exception("Error in parsing klist_band file!")
 
     # methods for parsing the spaghetti_ene file and the klist_band file
-    def get_dft_bands(self):
+    def _get_dft_bands(self):
         """
         Internal function to parse the provided case.spaghetti/up/dn_ene file.
         """
@@ -169,7 +170,7 @@ class Bands(object):
                 skiprows += 1
         return kpoints, Ek
 
-    def get_high_symmetry_path(self):
+    def _get_high_symmetry_path(self):
         """
         Internal function to parse the case.klist_band file for high symmetry points and
         high symmetry labels.
@@ -185,7 +186,7 @@ class Bands(object):
                     break
                 if line[:10].split():
                     high_symmetry_labels.append(
-                        self.arg2latex(line.strip().split()[0]))
+                        self._arg2latex(line.strip().split()[0]))
                     high_symmetry_points.append(il)
             high_symmetry_points = [self.kpoints[ind]
                                     for ind in high_symmetry_points]
@@ -195,7 +196,7 @@ class Bands(object):
 
         return high_symmetry_points, high_symmetry_labels
 
-    def arg2latex(self, string: str) -> str:
+    def _arg2latex(self, string: str) -> str:
         """
         Internal function to convert labels parsed from case.klist_band to
         LaTeX format.
@@ -205,19 +206,39 @@ class Bands(object):
         string : string, required
                  Character from case.klist_band to be converted to LaTeX format.
         """
-        if string == '\\xG':
-            return r'$\Gamma$'
-        elif string == "GAMMA":
-            return r'$\Gamma$'
-        elif string == "LAMBDA":
-            return r"$\lambda$"
-        elif string == "DELTA":
-            return r"$\Delta$"
-        elif string == "SIGMA":
-            return r"$\Sigma$"
-        else:
-            return string
+        special_chars =  {'\\xG': r'$\Gamma$',
+                     "GAMMA": r'$\Gamma$',
+                     "LAMBDA": r"$\lambda$",
+                     "DELTA": r"$\Delta$",
+                     "SIGMA": r"$\Sigma$"}
+        str_in_char = string in special_chars.keys()
+        return special_chars[string] if str_in_char else string
 
+    @staticmethod
+    def Up(case=None,**kwargs): 
+        if case is None:
+            try:
+                spaghetti = glob.glob("*.spaghettiup_ene")[0]
+            except BaseException:
+                raise FileNotFoundError(
+                    "Could not find a case.spaghettiup_ene file in this directory.\nPlease provide a case.spaghettiup_ene file")
+            return Bands(spaghetti=spaghetti, **kwargs)
+        else:
+            return Bands(spaghetti=case+'.spaghettiup_ene', 
+                                           klist_band=case+'.klist_band', **kwargs)
+
+    @staticmethod
+    def Down(case=None, **kwargs): 
+        if case is None:
+            try:
+                spaghetti = glob.glob("*.spaghettidn_ene")[0]
+            except BaseException:
+                raise FileNotFoundError(
+                    "Could not find a case.spaghettidn_ene file in this directory.\nPlease provide a case.spaghetti_ene file")
+            return Bands(spaghetti=spaghetti, **kwargs)
+        else:
+            return Bands(spaghetti=case+'.spaghettidn_ene', 
+                                           klist_band=case+'.klist_band', **kwargs)
 # plot bandstructure
 
 
@@ -369,7 +390,7 @@ class FatBands(Bands):
         assert isinstance(
             self.eF, float), "Please provide the Fermi energy from the scf file or provide the scf file!"
 
-    def get_orbital_labels(self, atom: int, orbs: List[int]) -> List[str]:
+    def _get_orbital_labels(self, atom: int, orbs: List[int]) -> List[str]:
         """
         convert the orbital labels in the case.qtl file into LaTeX format.
 
@@ -416,7 +437,7 @@ class FatBands(Bands):
         """
         legend_elements = []
         for (ia, a) in enumerate(self.atoms):
-            labels = self.get_orbital_labels(a, self.orbitals[ia])
+            labels = self._get_orbital_labels(a, self.orbitals[ia])
             for o in range(len(self.orbitals[ia])):
                 legend_elements.append(Line2D([0], [0],
                                               linestyle='-',
@@ -427,9 +448,7 @@ class FatBands(Bands):
 
 
 # plot fatbands
-def fatband_plot(fat_bands, *opt_list, **opt_dict):
-    __fatband_plot(plt, fat_bands, *opt_list, **opt_dict)
-
+def fatband_plot(fat_bands, *opt_list, **opt_dict): __fatband_plot(plt, fat_bands, *opt_list, **opt_dict)
 
 def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType):
@@ -464,7 +483,7 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
                         character.append(enh * ovlap)
                 else:
                     assert len(fat_bands.kpoints) == len(
-                        E), "Did not parse file correctly!"
+                        E), f"Did not parse file correctly! {len(fat_bands.kpoints), len(E)}"
                     assert len(E) == len(
                         character), "Did not parse file correctly!"
                     figure.scatter(fat_bands.kpoints, E, character,
@@ -474,9 +493,7 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
 
 
 # fatband_plot
-mpl.axes.Axes.fatband_plot = lambda self, fat_bands, * \
-    opt_list, **opt_dict: __fatband_plot(self, fat_bands, *opt_list, **opt_dict)
-
+mpl.axes.Axes.fatband_plot = lambda self, fat_bands, *opt_list, **opt_dict: __fatband_plot(self, fat_bands, *opt_list, **opt_dict)
 
 class DensityOfStates(object):
     def __init__(self, dos: List[str] = None,
@@ -625,8 +642,7 @@ class DensityOfStates(object):
 # plot density of states
 
 
-def dos_plot(dos, *opt_list, **opt_dict):
-    __dos_plot(plt, dos, *opt_list, **opt_dict)
+def dos_plot(dos, *opt_list, **opt_dict): __dos_plot(plt, dos, *opt_list, **opt_dict)
 
 
 def __dos_plot(figure, dos, *opt_list, **opt_dict):
@@ -700,8 +716,7 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
 
 
 # dos_plot
-mpl.axes.Axes.dos_plot = lambda self, dos, * \
-    opt_list, **opt_dict: __dos_plot(self, dos, *opt_list, **opt_dict)
+mpl.axes.Axes.dos_plot = lambda self, dos, *opt_list, **opt_dict: __dos_plot(self, dos, *opt_list, **opt_dict)
 
 
 class WannierBands(object):
@@ -738,8 +753,7 @@ class WannierBands(object):
 
 
 # plot wannier90 bands compared to DFT bands
-def wannier_band_plot(wannier_bands, *opt_list, **opt_dict):
-    __wannier_band_plot(plt, wannier_bands, *opt_list, **opt_dict)
+def wannier_band_plot(wannier_bands, *opt_list, **opt_dict): __wannier_band_plot(plt, wannier_bands, *opt_list, **opt_dict)
 
 
 def __wannier_band_plot(figure, wannier_bands, *opt_list, **opt_dict):
