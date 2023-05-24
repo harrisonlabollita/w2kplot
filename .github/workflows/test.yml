@@ -14,7 +14,7 @@ jobs:
         with:
           python-version: 3.8
       - name: install deps
-        run: pip install .
+        run: pip install -e .
       - name: run unittest
         run: python -m unittest
 
