@@ -447,6 +447,7 @@ class FatBands(Bands):
         return legend_elements
 
 
+
 # plot fatbands
 def fatband_plot(fat_bands, *opt_list, **opt_dict): __fatband_plot(plt, fat_bands, *opt_list, **opt_dict)
 
@@ -457,39 +458,31 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
     # plot the bands
     __band_plot(figure, fat_bands, *opt_list, **opt_dict)
 
+    qtl_file = open(fat_bands.qtl)
+    qtl = qtl_file.readlines()
+    qtl_file.close()
+    start = [line + 1 for line in range(len(qtl)) if "BAND" in qtl[line]][0]
+    qtl = qtl[start:]
+
     # plot the fatband character
     for (a, at) in enumerate(fat_bands.atoms):
         for o in range(len(fat_bands.orbitals[a])):
-            qtl_file = open(fat_bands.qtl)
-            qtl = qtl_file.readlines()
-            qtl_file.close()
-            start = [
-                line + 1 for line in range(len(qtl)) if "BAND" in qtl[line]][0]
-            qtl = qtl[start:]
-            E = []
-            character = []
+            E, character = [], []
             for line in qtl:
                 if 'BAND' not in line:
                     if line.split()[1] == str(at):
                         # wien2k interal units are Ry switch to eV
-                        E.append(
-                            (float(line.split()[0]) - fat_bands.eF) * fat_bands.Ry2eV - fat_bands.eF_shift)
+                        E.append((float(line.split()[0]) - fat_bands.eF) * fat_bands.Ry2eV - fat_bands.eF_shift)
                         # weight factor
-                        enh = float(fat_bands.weight *
-                                    fat_bands.structure.atoms[at - 1][1])
+                        enh = float(fat_bands.weight*fat_bands.structure.atoms[at - 1][1])
                         # qtl overlap
-                        ovlap = (
-                            float(line.split()[int(fat_bands.orbitals[a][o]) + 1]))
+                        ovlap = (float(line.split()[int(fat_bands.orbitals[a][o]) + 1]))
                         character.append(enh * ovlap)
                 else:
-                    assert len(fat_bands.kpoints) == len(
-                        E), f"Did not parse file correctly! {len(fat_bands.kpoints), len(E)}"
-                    assert len(E) == len(
-                        character), "Did not parse file correctly!"
-                    figure.scatter(fat_bands.kpoints, E, character,
-                                   fat_bands.colors[a][o], rasterized=True)
-                    E = []
-                    character = []
+                    assert len(fat_bands.kpoints) == len(E), f"Did not parse file correctly! {len(fat_bands.kpoints), len(E)}"
+                    assert len(E) == len(character), "Did not parse file correctly!"
+                    figure.scatter(fat_bands.kpoints, E, character, fat_bands.colors[a][o], rasterized=True)
+                    E, character = [], []
 
 
 # fatband_plot
