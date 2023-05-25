@@ -36,10 +36,4 @@ setup(name="w2kplot",
       install_requires=["numpy", "matplotlib"],
       cmdclass={'install': InstallFiles, },
       scripts = ["w2kplot/cli/w2kplot-bands", "w2kplot/cli/w2kplot-fatbands"]
-      #entry_points={
-      #    "console_scripts": [
-      #        "w2kplot-bands = w2kplot.cli.bandplot:main",
-      #        "w2kplot-fatbands = w2kplot.cli.fatbandplot:main",
-      #    ]
-      #},
       )
