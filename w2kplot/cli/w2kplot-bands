@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 ##########################################################################
@@ -100,3 +101,7 @@ def main():
         plt.savefig(args.save)
     else:
         plt.show()
+
+
+if __name__ == "__main__":
+    main()
