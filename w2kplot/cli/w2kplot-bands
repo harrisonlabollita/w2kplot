@@ -12,7 +12,7 @@
 #
 ##########################################################################
 
-from w2kplot import Bands, band_plot
+from w2kplot.bands import Bands, band_plot
 import matplotlib.pyplot as plt
 
 import argparse

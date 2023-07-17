@@ -12,7 +12,7 @@
 #
 ##########################################################################
 
-from w2kplot import FatBands, fatband_plot
+from w2kplot.bands import FatBands, fatband_plot
 import matplotlib.pyplot as plt
 
 import argparse

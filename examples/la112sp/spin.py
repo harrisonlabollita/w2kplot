@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import matplotlib.pyplot as plt
-from w2kplot import *
+from w2kplot.bands import Bands, band_plot
 
 
 fig, ax = plt.subplots(1, 2, sharey=True, figsize=(6, 3))

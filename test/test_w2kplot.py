@@ -1,9 +1,8 @@
-import glob
-import os
-import time
-from w2kplot import Bands, FatBands
+import glob, os, time
 import numpy as np
 import matplotlib.pyplot as plt
+
+from w2kplot.bands import Bands, FatBands
 
 import unittest
 
