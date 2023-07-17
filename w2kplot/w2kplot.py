@@ -271,7 +271,7 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
     if is_last_row:
         figure.set_xticklabels(bands.high_symmetry_labels)
     for k in bands.high_symmetry_points:
-        figure.axvline(k, color="k", lw=1)
+        figure.axvline(k, color="k", lw=1, ls='dotted')
 
     figure.axhline(0.0, color="k", ls='dotted', lw=1)
     if is_first_col:
@@ -446,8 +446,6 @@ class FatBands(Bands):
                                               label=self.structure.atoms[a - 1][0] + "-" + labels[o]))
         return legend_elements
 
-
-
 # plot fatbands
 def fatband_plot(fat_bands, *opt_list, **opt_dict): __fatband_plot(plt, fat_bands, *opt_list, **opt_dict)
 
@@ -483,7 +481,6 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
                     assert len(E) == len(character), "Did not parse file correctly!"
                     figure.scatter(fat_bands.kpoints, E, character, fat_bands.colors[a][o], rasterized=True)
                     E, character = [], []
-
 
 # fatband_plot
 mpl.axes.Axes.fatband_plot = lambda self, fat_bands, *opt_list, **opt_dict: __fatband_plot(self, fat_bands, *opt_list, **opt_dict)
