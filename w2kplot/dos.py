@@ -22,160 +22,64 @@ from typing import Union, List, Dict
 try: plt.style.use("w2kplot")
 except BaseException: raise ImportError("Could not find install w2kplot style sheet!")
 
-
-class DensityOfStates(object):
-    def __init__(self, dos: List[str] = None,
-                 dos_dict: Dict[int, str] = None,
-                 sumdos: Union[List[List[int]], bool] = None,
-                 colors: List[str] = None,
-                 orientation: str = "horizontal"
-                 ) -> None:
+# DensityOfStates object
+class DensityOfStates:
+    def __init__(self,  filename): -> None:
         """
         Initialize the DensityOfStates object.
 
         Parameters
         ----------
-        dos         : list[string], optional
-                     A list of dosfiles to be parsed and plotted.
-        dos_dict    : dict[int, str], optional
-                     A dictionary mapping the column names in the dosfiles to
-                     desired name in plot legend.
-        sumdos      : union[list[list[int]], bool], optional
-                     A nested of list of how to sum density of states from different columns
-        colors      : ist[str], optional
-                     A list of matplotlib colors for each dos. Must match the number of keys
-                     in the dos_dict
-        orientation : string, optional
-                     Plot the dos horizontally (horizontal) or vertically (vertical)
+        filename    : string, required
+                     A Wien2k formatted dosXev(X/up/dn) or dossumev(X/up/dn)
         """
-        # TODO: need to work on the sumdos featture. For now the user will
-        # provide how to sum by hand.
-        self.dos = dos
-        self.dos_dict = dos_dict
-        self.sumdos = sumdos
-        self.colors = colors
-        self.orientation = orientation
+        self._filename = filename
+        try: self._data = np.loadtxt(filename);
+        except: raise FileNotFoundError(f"Could not find {filename}.")
 
-        if self.colors is not None:
-            assert len(self.colors) == len(self.dos_dict.keys()
-                                           ), "incorrect number of colors for dos!"
+    # dunder to get the underlying data;
+    def __getitem__(self, x): return self._data.__getitem__(x)
 
-        if self.dos_dict is None and self.sumdos is not None:
-            raise NotImplementedError(
-                "Unfortanately, this is feature is not valid. Please provide a valid dictionary of labels")
+    def _smooth_dos(self, blur):
+        # implement a dos smoother
+        pass
 
-        if self.dos is None:
-            try:
-                self.dos = glob.glob("*.dos*")
-            except BaseException:
-                raise FileNotFoundError(
-                    "Could not find any files matching case.dosXev, where X is a number")
+# alias for DensityOfStates
+DOS = DensityOfStates
 
-        if self.dos_dict is None:
-            # if a dictionary mapping each column to a name is not provided we
-            # will build one
-            self.dos_dict = {}
-            offset = 0
-            for file in self.dos:
-                headers = open(file).readlines()[2].split()[
-                    2:]  # skips the # and ENERGY
-                for h in range(len(headers)):
-                    self.dos_dict[h + offset] = headers[h]
-                offset += len(headers)
-        self.energy, self.density_of_states = self.get_dos()
+styleguides_str2int = {'line'      : 0,  # standard line plot
+                       'fill'      : 1,  # fill the dos
+                       'fill_line' : 2,  # filled dos with solid line border
+                       'grad_fill' : 3   # gradient filled dos
+                       }
 
-    def get_dos(self):
-        """
-        internal function to parse the density of state files
-        """
-        density_of_states = []
-        data = np.loadtxt(self.dos[0], comments='#')
-        for file in self.dos[1:]: 
-            tmp = np.loadtxt(file, comments='#')[:,1:]
-            data = np.hstack((data, tmp))
+def dos_plot(x, y, dos_style, *opt_list, **opt_dict):  __dos_plot(plt, x, y, dos_style, *opt_list, **opt_dict)
 
-        energy = data[:, 0]
-        dos_data = data[:, 1:]
-        print(dos_data.shape)
-        if self.sumdos is not None:
-            place = 0
-            dos = np.zeros((len(energy), len(self.sumdos)))
-            for to_sum in self.sumdos:
-                dos[:, place] = np.mean(dos_data[:, to_sum], axis=1)
-                place += 1
-
-            #tosum = self.sumdos
-            #one_dim = True
-            #try:
-            #    check = [item for sublist in tosum for item in sublist]
-            #    one_dim = False
-            #except TypeError:
-            #    check = [item for item in tosum]
-
-            #dos = np.zeros((len(energy), len(tosum)))
-            #place = 0
-            #for col in range(dos_data.shape[1]):
-            #    if col not in check:
-            #        dos[:, place] = dos_data[:, col]
-            #        place += 1
-            #if one_dim:
-            #    dos[:, place] = np.mean(dos_data[:, tosum], axis=1)
-            #else:
-            #    for add in tosum:
-            #        dos[:, place] = np.mean(dos_data[:, add], axis=1)
-            #        place += 1
-            #if "dn" in file:
-            #    density_of_states.append(-1 * dos)
-            #else:
-            density_of_states.append(dos)
-        else:
-            #if "dn" in file:
-            #    density_of_states.append(-1 * dos_data)
-            #else:
-            density_of_states.append(dos_data)
-        return energy, density_of_states
-
-    def smooth_dos(self, fwhm: float) -> None:
-        """
-        A Gaussian smoothing function to smear out the harsh peaks in the density of states
-        when a small broadening was used.
-
-        Parameters
-        ----------
-
-        fwhm    : float, required
-                  Full width Half Maximum for gaussian smearing converts to σ.
-        """
-
-        def fwhm2sigma(fwhm):
-            return fwhm / np.sqrt(8 * np.log(2))
-
-        def blur(ie, e):
-            kernel = np.exp(-(energy - e)**2 / (2 * sigma**2))
-            kernel /= np.sum(kernel)  # normalize
-            return np.sum(rho * kernel)
-
-        sigma = fwhm2sigma(fwhm)
-        smoother = np.vectorize(blur)
-
-        # loop over the various dos files given
-        for d in range(len(self.density_of_states)):
-            # loop over the columns in each dos file
-            for s in range(self.density_of_states[d].shape[1]):
-                rho = self.density_of_states[d][:, s]
-                energy = self.energy
-                self.density_of_states[d][:, s][:] = smoother(
-                    list(range(len(rho))), energy)
-
-# plot density of states
-
-
-def dos_plot(dos, *opt_list, **opt_dict): __dos_plot(plt, dos, *opt_list, **opt_dict)
-
-
-def __dos_plot(figure, dos, *opt_list, **opt_dict):
+def __dos_plot(figure, x, y, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType):
         figure = figure.gca()
+
+    dos_style = styleguides_str2int[dos_style] if isinstance(str, dos_style) else dos_style
+
+    label = opt_dict['label'] if 'label' in opt_dict else None
+    color = opt_dict['color'] if 'color' in opt_dict else 'tab:blue'
+    alpha = opt_dict['alpha'] if 'alpha' in opt_dict else 1
+
+    lw = opt_dict['lw'] if 'lw' in opt_dict else 1
+    lw = opt_dict['linewidth'] if 'linewidth' in opt_dict else lw
+    ls = opt_dict['ls'] if 'ls' in opt_dict else '-'
+    ls = opt_dict['linestyle'] if 'linestyle' in opt_dict else lw
+
+    if   dos_style == 0: figure.plot(x, y, *opt_list, **opt_dict)
+    elif dos_style == 1: 
+        figure.fill_between(x, y, lw=0, color=color, alpha=alpha, label=None)
+        figure.plot(x, y, lw=lw, color=color, ls=ls, alpha=alpha, label=label)
+    elif dos_style == 2:
+        figure.fill_between(x, y, lw=0, color=color, alpha=alpha, label=None)
+        figure.plot(x, y, lw=lw, color=color, ls=ls, alpha=alpha, label=label)
+        figure.plot(x, y, lw=lw+1, color=color, ls=ls, alpha=alpha, label=None)
+        figure.plot(x, y, lw=lw, color='k', ls=ls, alpha=alpha, label=None)
+    elif dos_style == 3: raise NotImplementedError
 
     try:
         # new version of matplotlib
@@ -187,65 +91,19 @@ def __dos_plot(figure, dos, *opt_list, **opt_dict):
         is_first_col = figure.is_first_col()
         is_last_row = figure.is_last_row()
 
-    offset = 0
-    dos_max = 0
-    dos_min = 0
-    for d in range(len(dos.density_of_states)
-                   ):  # loop over the various dos files given
-        # loop over the columns in each dos file
-        for s in range(dos.density_of_states[d].shape[1]):
-            if dos_max < np.max(dos.density_of_states[d][:, s]):
-                dos_max = np.max(dos.density_of_states[d][:, s])
-            if dos_min > np.min(dos.density_of_states[d][:, s]):
-                dos_min = np.min(dos.density_of_states[d][:, s])
-            if dos.orientation == "vertical":
-                figure.plot(dos.density_of_states[d][:, s],
-                            dos.energy, label=dos.dos_dict[offset + s], color=dos.colors[offset + s], *opt_list, **opt_dict)
-            elif dos.orientation == "horizontal":
-                print("d = ", d, "s = ", s)
-                figure.plot(
-                    dos.energy, dos.density_of_states[d][:,
-                                                         s], color=dos.colors[offset + s],
-                    label=dos.dos_dict[offset + s], *opt_list, **opt_dict)
-            else:
-                raise ValueError(
-                    f"The option {dos.orientation} is not a valid setting")
-        offset += s + 1
 
-    # decorate
-    if dos.orientation == "vertical":
-        if is_last_row:
-            figure.set_xlabel(r'DOS (1/eV)')
-        if is_first_col:
-            figure.set_ylabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
-
-        figure.set_ylim(-10, 10)
-        figure.axhline(0.0, color='k', lw=1, ls='dotted')
-        if abs(dos_max) > abs(dos_min):
-            figure.set_xlim(0, 1.05 * dos_max)
-        else:
-            figure.set_xlim(0.95 * dos_min, 1.05 * abs(dos_min))
-            figure.axvline(0.0, color='k', lw=1, ls='dotted')
-
-    elif dos.orientation == "horizontal":
-        if is_last_row:
-            figure.set_xlabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
-        if is_first_col:
-            figure.set_ylabel(r'DOS (1/eV)')
-        figure.set_xlim(-10, 10)
+    if min(x) < 0:  
         figure.axvline(0.0, color='k', lw=1, ls='dotted')
-        if abs(dos_max) > abs(dos_min):
-            figure.set_ylim(0, 1.05 * dos_max)
-        else:
-            figure.set_ylim(0.95 * dos_min, 1.05 * abs(dos_min))
-            figure.axhline(0.0, color='k', lw=1, ls='dotted')
-    figure.legend(loc="best")
-    figure.tick_params(axis='x', which='minor', length=3.5, width=0.5)
+        if max(y) < 0: figure.set_ylim(,0)
+        else: figure.set_ylim(0,)
+        if is_last_row: figure.set_xlabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
+    else: 
+        figure.axhline(0.0, color='k', lw=1, ls='dotted')
+        if max(x) < 0: figure.set_ylim(,0)
+        else: figure.set_ylim(0,)
+        if is_last_row: figure.set_ylabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
 
+    figure.tick_params(axis='x', which='minor', length=3.5, width=0.5)
 
 # dos_plot
 mpl.axes.Axes.dos_plot = lambda self, dos, *opt_list, **opt_dict: __dos_plot(self, dos, *opt_list, **opt_dict)
-
-
-
-

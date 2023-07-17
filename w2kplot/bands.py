@@ -19,7 +19,7 @@ from matplotlib.lines import Line2D
 import types
 from typing import Union, List, Dict
 
-from .struct import Structure
+from .structure import Structure
 
 try: plt.style.use("w2kplot")
 except BaseException: raise ImportError("Could not find install w2kplot style sheet!")
