@@ -34,8 +34,11 @@ class Structure(object):
                    for file with extension .struct.
         """
         if filename is None:
-            try: self._load()
-            except BaseException: raise FileNotFoundError("Couldn't find a case.struct file in this directory!")
+            try:
+                self._load()
+            except BaseException:
+                raise FileNotFoundError(
+                    "Couldn't find a case.struct file in this directory!")
         else:
             self._load(filename=filename)
 
@@ -71,9 +74,12 @@ class Structure(object):
         specs = [str(line.split()[0]) for line in contents if "NPT" in line]
 
         self.atoms = {}
-        assert len(mults) == len(specs), "The struct file was not parsed correctly!"
-        assert len(iatom) == len(specs), "The struct file was not parsed correctly!"
-        for a in range(self.nat): self.atoms[a] = [specs[a], mults[a]]
+        assert len(mults) == len(
+            specs), "The struct file was not parsed correctly!"
+        assert len(iatom) == len(
+            specs), "The struct file was not parsed correctly!"
+        for a in range(self.nat):
+            self.atoms[a] = [specs[a], mults[a]]
 
         # TODO: load symmetries?
         # load the symmetries in the structure here as well.
