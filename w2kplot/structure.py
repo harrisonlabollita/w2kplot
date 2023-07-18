@@ -34,8 +34,11 @@ class Structure(object):
                    for file with extension .struct.
         """
         if filename is None:
-            try: self._load()
-            except BaseException: raise FileNotFoundError("Couldn't find a case.struct file in this directory!")
+            try:
+                self._load()
+            except BaseException:
+                raise FileNotFoundError(
+                    "Couldn't find a case.struct file in this directory!")
         else:
             self._load(filename=filename)
 
@@ -84,4 +87,3 @@ class Structure(object):
 
     # dunder functions
     def __getitem__(self, key): return self.atoms[key]
-

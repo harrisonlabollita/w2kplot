@@ -16,6 +16,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
+
 class ChargeDensity(object):
     def __init__(self, case=None, rho=None, transform=lambda x: x):
 
@@ -67,6 +68,7 @@ def __charge_2d_plot(figure, charge_density, *opt_list, **opt_dict):
 
     # decorate the figure from here
     figure.axis('off')
+
 
 mpl.axes.Axes.charge_2d_plot = lambda self, charge_density, * \
     opt_list, **opt_dict: __charge_2d_plot(self, charge_density, *opt_list, **opt_dict)

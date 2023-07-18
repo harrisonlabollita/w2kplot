@@ -1,4 +1,6 @@
-import glob, os, time
+import glob
+import os
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 

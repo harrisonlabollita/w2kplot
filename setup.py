@@ -1,9 +1,12 @@
-import glob, os, shutil
+import glob
+import os
+import shutil
 
 from setuptools import setup
 from setuptools.command.install import install
 
 import matplotlib
+
 
 class InstallFiles(install):
     def __init__(self, *args, **kwargs):
@@ -17,7 +20,8 @@ class InstallFiles(install):
         # https://stackoverflow.com/questions/31559225/how-to-ship-or-distribute-a-matplotlib-stylesheet
         w2kplot_styles = glob.glob('style/*.mplstyle', recursive=True)
         mpl_dir = os.path.join(matplotlib.get_configdir(), "stylelib")
-        if not os.path.exists(mpl_dir): os.makedirs(mpl_dir)
+        if not os.path.exists(mpl_dir):
+            os.makedirs(mpl_dir)
         print("installing w2kplot style sheet into", mpl_dir)
         for stylefile in w2kplot_styles:
             print(os.path.basename(stylefile))
@@ -35,5 +39,5 @@ setup(name="w2kplot",
       license='MIT',
       install_requires=["numpy", "matplotlib"],
       cmdclass={'install': InstallFiles, },
-      scripts = ["w2kplot/cli/w2kplot-bands", "w2kplot/cli/w2kplot-fatbands"]
+      scripts=["w2kplot/cli/w2kplot-bands", "w2kplot/cli/w2kplot-fatbands"]
       )

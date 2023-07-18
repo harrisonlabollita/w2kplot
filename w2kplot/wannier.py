@@ -6,10 +6,14 @@ from matplotlib.lines import Line2D
 import types
 from typing import Union, List, Dict
 
-try: plt.style.use("w2kplot")
-except BaseException: raise ImportError("Could not find install w2kplot style sheet!")
+try:
+    plt.style.use("w2kplot")
+except BaseException:
+    raise ImportError("Could not find install w2kplot style sheet!")
 
 # WannierBands class object
+
+
 class WannierBands(object):
     # TODO: would it be possible to get high-symmetry points
     # for just a Wannier band plot?
@@ -27,8 +31,11 @@ class WannierBands(object):
         self.wann_bands = wann_bands
 
         if self.wann_bands is None:
-            try: self.wann_bands = glob.glob("*_band.dat")[0]
-            except BaseException: raise FileNotFoundError("Could not find a case_band.dat file in this directory\n. Please provide a case_band.dat file!")
+            try:
+                self.wann_bands = glob.glob("*_band.dat")[0]
+            except BaseException:
+                raise FileNotFoundError(
+                    "Could not find a case_band.dat file in this directory\n. Please provide a case_band.dat file!")
         self.kpts, self.wann_bands = self._get_wannier_bands()
 
     def _get_wannier_bands(self):
@@ -41,7 +48,15 @@ class WannierBands(object):
         return kpts, wann_bands
 
 # Wannier90 bands plotting
-def wannier_band_plot(wannier_bands, *opt_list, **opt_dict): __wannier_band_plot(plt, wannier_bands, *opt_list, **opt_dict)
+
+
+def wannier_band_plot(wannier_bands,
+                      *opt_list,
+                      **opt_dict): __wannier_band_plot(plt,
+                                                       wannier_bands,
+                                                       *opt_list,
+                                                       **opt_dict)
+
 
 def __wannier_band_plot(figure, wannier_bands, *opt_list, **opt_dict):
     if isinstance(figure, types.ModuleType):
@@ -67,6 +82,7 @@ def __wannier_band_plot(figure, wannier_bands, *opt_list, **opt_dict):
 
     figure.set_ylim(-2, 2)
     figure.set_xlim(wannier_bands.kpts[0], wannier_bands.kpts[-1])
+
 
 mpl.axes.Axes.wannier_band_plot = lambda self, wannier_bands, *opt_list, **opt_dict:  \
     __wannier_band_plot(self, wannier_bands, *opt_list, **opt_dict)
