@@ -71,12 +71,9 @@ class Structure(object):
         specs = [str(line.split()[0]) for line in contents if "NPT" in line]
 
         self.atoms = {}
-        assert len(mults) == len(
-            specs), "The struct file was not parsed correctly!"
-        assert len(iatom) == len(
-            specs), "The struct file was not parsed correctly!"
-        for a in range(self.nat):
-            self.atoms[a] = [specs[a], mults[a]]
+        assert len(mults) == len(specs), "The struct file was not parsed correctly!"
+        assert len(iatom) == len(specs), "The struct file was not parsed correctly!"
+        for a in range(self.nat): self.atoms[a] = [specs[a], mults[a]]
 
         # TODO: load symmetries?
         # load the symmetries in the structure here as well.
@@ -84,4 +81,5 @@ class Structure(object):
 
     # dunder functions
     def __getitem__(self, key): return self.atoms[key]
-
+    def __len__(self): return len(self.atoms)
+    def __iter__(self): return self.atoms.__iter__()
