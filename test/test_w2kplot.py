@@ -26,7 +26,7 @@ class Testw2kplot(unittest.TestCase):
                   3 :  ['Sb2', 4 ]
                   }
         for key in ref_atoms.keys():
-            aspec, amult = atoms[key]
+            aspec, amult = ref_atoms[key]
             tspec, tmult = struct[key]
             print(f'ref: {aspec}, {amult}, parsed: {tspec}, {tmult}')
             self.assertEqual(aspec, tspec)
