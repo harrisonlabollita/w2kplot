@@ -20,6 +20,7 @@ import types
 from typing import Union, List, Dict
 
 from .structure import Structure
+from .utils import make_label
 
 try: plt.style.use("w2kplot")
 except BaseException: raise ImportError("Could not find install w2kplot style sheet!")
@@ -369,13 +370,12 @@ class FatBands(Bands):
         for (ia, a) in enumerate(self.atoms):
             labels = self._get_orbital_labels(a, self.orbitals[ia])
             for o in range(len(self.orbitals[ia])):
-                legend_elements.append(Line2D([0], [0],
+                legend_elements.append(make_label(
                                               linestyle='-',
                                               color=self.colors[ia][o],
                                               lw=2,
-                                              #label=self.structure.atoms[a - 1][0] + "-" + labels[o])
-                                              label=self.structure[a - 1][0] + "-" + labels[o])
-                                              )
+                                              label=self.structure[a - 1][0] + "-" + labels[o]
+                                              ))
         return legend_elements
 
 # fatband plot functions
