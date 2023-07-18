@@ -32,7 +32,7 @@ w2kplot is designed to be intuitive for anyone familiar with the matplotlib libr
 
 ```python
 	# plot basic band structure
-	from w2kplot import Bands, band_plot
+	from w2kplot.bands import Bands, band_plot
 	
 	plt.figure()
 	dft_bands = Bands(spaghetti='case.spaghetti_ene', klist_band='case.klist_band')
@@ -126,11 +126,11 @@ optional arguments:
 <a name="installation"></a>
 ## Installation
 
-Currently, this is the only way to install w2kplot
+Currently, installation procedure
 ```bash
     git clone https://github.com/harrisonlabollita/w2kplot.git
     cd w2kplot
-    pip install .
+    pip install -e .
 ```
 
 <a name="documentation"><a/>
@@ -168,19 +168,10 @@ If either of these files are not provided, w2kplot looks in the current director
 
 - `struct` (optional): the structure file from WIEN2k. If not provided, `w2kplot` looks in the current directory.
 
-### DensityOfStates
-
-`DensityOfStates` is an object that contains the information about the density of states, which is obtained from `case.dosXev` files. The keyword arguments of this file are the following:
-
-- `dos` (optional): a list dosXev files. If not provided, `w2kplot` will obtain all the files in the current directory with this file format.
-
-- `dos_dict` (optional): a Python dictionary that matches each column in the dosXev files to a label name for creating a legend in the final plot. If not provided, this is built from the headers in the dosXev files.
-
 ### WannierBands
 
 `WannierBands` is an object that contains the Wannier band data to be plot with or without the DFT band structure. Internally, the units are converted to match the units of Wien2k.
 
 <a name="contributing"><a/>	
 ## Contributing
-
-Pull requests and contributions are welcome! On my end, I plan to implement a way to visualize the Fermi surface.
+Pull requests and contributions are welcome! Please submit an issue with any new feature requests.

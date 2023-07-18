@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import matplotlib.pyplot as plt
-from w2kplot import *
+from w2kplot.bands import FatBands, fatband_plot
 
 dft = FatBands(atoms=[2, 4, 3],                 # 2 = V, 3=Sb1, 4=Sb2 (see struct file)
                # 7=d, 3=p, 3=p (see header of qtl file)

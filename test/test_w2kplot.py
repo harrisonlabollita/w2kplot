@@ -1,35 +1,41 @@
-import glob
-import os
-import time
-from w2kplot import Bands, FatBands
+import glob, os, time
 import numpy as np
 import matplotlib.pyplot as plt
+
+from w2kplot.bands import Bands, FatBands, band_plot, fatband_plot
+from w2kplot.utils import make_label
+from w2kplot.structure import Structure
 
 import unittest
 
 spaghetti = glob.glob(os.getcwd() + "/test/*spaghetti_ene")[0]
 klist_band = glob.glob(os.getcwd() + "/test/*klist_band")[0]
 target_Ek = np.loadtxt(glob.glob(os.getcwd() + "/test/*dat")[0])
+struct_file = glob.glob(os.getcwd() + "/test/*struct")[0]
 
 
 class Testw2kplot(unittest.TestCase):
 
-    def test_style_sheet(self):
-        def try_import():
-            worked = False
-            try:
-                plt.style.use("w2kplot")
-                worked = True
-            except BaseException:
-                worked = False
-            return worked
-        self.assertEqual(try_import(), True)
+    def test_structure(self):
+        struct    = Structure(struct_file)
+        self.assertEqual(len(struct), 4)
+
+        ref_atoms = { 0 :  ['Cs1', 1 ],
+                  1 :  ['V',   3 ],
+                  2 :  ['Sb1', 1 ],
+                  3 :  ['Sb2', 4 ]
+                  }
+        for key in ref_atoms.keys():
+            aspec, amult = ref_atoms[key]
+            tspec, tmult = struct[key]
+            print(f'ref: {aspec}, {amult}, parsed: {tspec}, {tmult}')
+            self.assertEqual(aspec, tspec)
+            self.assertEqual(amult, tmult)
 
     def test_klist_band_parser(self):
         dft = Bands(spaghetti=spaghetti, klist_band=klist_band)
         target_hsl = ['$\\Gamma$', 'X', 'M', '$\\Gamma$', 'Z', 'R', 'A', 'Z']
-        target_hsp = np.array(
-            [0.0, 0.2976, 0.59521, 1.01609, 1.5094, 1.807, 2.10461, 2.52548])
+        target_hsp = np.array([0.0, 0.2976, 0.59521, 1.01609, 1.5094, 1.807, 2.10461, 2.52548])
         self.assertEqual(dft.high_symmetry_labels, target_hsl)
         np.testing.assert_allclose(dft.high_symmetry_points, target_hsp)
 
