@@ -26,7 +26,7 @@ class InstallFiles(install):
 
 
 setup(name="w2kplot",
-      version="0.0.9",
+      version="0.1.0",
       author="Harrison LaBollita",
       author_email="harrisonlabollita@gmail.com",
       description="a Matplotlib wrapper written in Python for plotting DFT results from WIEN2k",

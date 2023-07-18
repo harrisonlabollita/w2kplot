@@ -24,7 +24,7 @@ except BaseException: raise ImportError("Could not find install w2kplot style sh
 
 # DensityOfStates object
 class DensityOfStates:
-    def __init__(self,  filename): -> None:
+    def __init__(self,  filename) -> None:
         """
         Initialize the DensityOfStates object.
 
@@ -55,11 +55,11 @@ styleguides_str2int = {'line'      : 0,  # standard line plot
 
 def dos_plot(x, y, dos_style, *opt_list, **opt_dict):  __dos_plot(plt, x, y, dos_style, *opt_list, **opt_dict)
 
-def __dos_plot(figure, x, y, *opt_list, **opt_dict):
-    if isinstance(figure, types.ModuleType):
-        figure = figure.gca()
+def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
 
-    dos_style = styleguides_str2int[dos_style] if isinstance(str, dos_style) else dos_style
+    if isinstance(figure, types.ModuleType): figure = figure.gca()
+
+    dos_style = styleguides_str2int[dos_style] if isinstance(dos_style, str) else dos_style
 
     label = opt_dict['label'] if 'label' in opt_dict else None
     color = opt_dict['color'] if 'color' in opt_dict else 'tab:blue'
@@ -68,42 +68,44 @@ def __dos_plot(figure, x, y, *opt_list, **opt_dict):
     lw = opt_dict['lw'] if 'lw' in opt_dict else 1
     lw = opt_dict['linewidth'] if 'linewidth' in opt_dict else lw
     ls = opt_dict['ls'] if 'ls' in opt_dict else '-'
-    ls = opt_dict['linestyle'] if 'linestyle' in opt_dict else lw
+    ls = opt_dict['linestyle'] if 'linestyle' in opt_dict else ls
 
     if   dos_style == 0: figure.plot(x, y, *opt_list, **opt_dict)
+
     elif dos_style == 1: 
         figure.fill_between(x, y, lw=0, color=color, alpha=alpha, label=None)
         figure.plot(x, y, lw=lw, color=color, ls=ls, alpha=alpha, label=label)
+
     elif dos_style == 2:
         figure.fill_between(x, y, lw=0, color=color, alpha=alpha, label=None)
         figure.plot(x, y, lw=lw, color=color, ls=ls, alpha=alpha, label=label)
         figure.plot(x, y, lw=lw+1, color=color, ls=ls, alpha=alpha, label=None)
         figure.plot(x, y, lw=lw, color='k', ls=ls, alpha=alpha, label=None)
+
     elif dos_style == 3: raise NotImplementedError
 
-    try:
-        # new version of matplotlib
-        grid_spec = figure.get_subplotspec()
-        is_first_col = grid_spec.is_first_col()
-        is_last_row = grid_spec.is_last_row()
-    except BaseException:
-        # old version of matplotlib
-        is_first_col = figure.is_first_col()
-        is_last_row = figure.is_last_row()
+    #try:
+    #    # new version of matplotlib
+    #    grid_spec = figure.get_subplotspec()
+    #    is_first_col = grid_spec.is_first_col()
+    #    is_last_row = grid_spec.is_last_row()
+    #except BaseException:
+    #    # old version of matplotlib
+    #    is_first_col = figure.is_first_col()
+    #    is_last_row = figure.is_last_row()
+
+    figure.axvline(0.0, color='k', lw=1, ls='dotted')
+    if max(y) < 0: figure.set_ylim(top=0)
+    else: figure.set_ylim(bottom=0)
 
 
-    if min(x) < 0:  
-        figure.axvline(0.0, color='k', lw=1, ls='dotted')
-        if max(y) < 0: figure.set_ylim(,0)
-        else: figure.set_ylim(0,)
-        if is_last_row: figure.set_xlabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
-    else: 
-        figure.axhline(0.0, color='k', lw=1, ls='dotted')
-        if max(x) < 0: figure.set_ylim(,0)
-        else: figure.set_ylim(0,)
-        if is_last_row: figure.set_ylabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
-
-    figure.tick_params(axis='x', which='minor', length=3.5, width=0.5)
+    #if min(x) < 0:  
+    #    #if is_last_row: figure.set_xlabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
+    #else: 
+    #    figure.axhline(0.0, color='k', lw=1, ls='dotted')
+    #    if max(x) < 0: figure.set_ylim(top=0)
+    #    else: figure.set_ylim(bottom=0)
+    #    #if is_last_row: figure.set_ylabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
 
 # dos_plot
-mpl.axes.Axes.dos_plot = lambda self, dos, *opt_list, **opt_dict: __dos_plot(self, dos, *opt_list, **opt_dict)
+mpl.axes.Axes.dos_plot = lambda self, x,y, dos_style, *opt_list, **opt_dict: __dos_plot(self, x,y, dos_style, *opt_list, **opt_dict)

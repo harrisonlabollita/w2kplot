@@ -187,6 +187,9 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
         is_first_col = figure.is_first_col()
         is_last_row = figure.is_last_row()
 
+    figure.tick_params(axis='both', which='minor', length=3.5, width=0.5, labelsize=12, bottom=False, top=False)
+    figure.tick_params(axis='both', which='major', length=7,   width=0.5, labelsize=12, bottom=False, top=False)
+
     # plot the the dispersion from the bands object
     for b in range(len(bands.Ek)):
         figure.plot(bands.kpoints,
