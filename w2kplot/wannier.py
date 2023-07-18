@@ -6,8 +6,8 @@ from matplotlib.lines import Line2D
 import types
 from typing import Union, List, Dict
 
-try: plt.style.use("w2kplot")
-except BaseException: raise ImportError("Could not find install w2kplot style sheet!")
+from . import w2kplot_base_style, w2kplot_bands_style
+
 
 # WannierBands class object
 class WannierBands(object):
@@ -68,5 +68,5 @@ def __wannier_band_plot(figure, wannier_bands, *opt_list, **opt_dict):
     figure.set_ylim(-2, 2)
     figure.set_xlim(wannier_bands.kpts[0], wannier_bands.kpts[-1])
 
-mpl.axes.Axes.wannier_band_plot = lambda self, wannier_bands, *opt_list, **opt_dict:  \
-    __wannier_band_plot(self, wannier_bands, *opt_list, **opt_dict)
+plt.style.use([w2kplot_base_style, w2kplot_base_style])
+mpl.axes.Axes.wannier_band_plot = lambda self, wannier_bands, *opt_list, **opt_dict: __wannier_band_plot(self, wannier_bands, *opt_list, **opt_dict)

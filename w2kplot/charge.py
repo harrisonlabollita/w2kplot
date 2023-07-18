@@ -68,5 +68,5 @@ def __charge_2d_plot(figure, charge_density, *opt_list, **opt_dict):
     # decorate the figure from here
     figure.axis('off')
 
-mpl.axes.Axes.charge_2d_plot = lambda self, charge_density, * \
-    opt_list, **opt_dict: __charge_2d_plot(self, charge_density, *opt_list, **opt_dict)
+plt.style.use([w2kplot_base_style])
+mpl.axes.Axes.charge_2d_plot = lambda self, charge_density, *opt_list, **opt_dict: __charge_2d_plot(self, charge_density, *opt_list, **opt_dict)

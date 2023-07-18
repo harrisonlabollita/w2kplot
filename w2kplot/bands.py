@@ -22,8 +22,11 @@ from typing import Union, List, Dict
 from .structure import Structure
 from .utils import make_label
 
-try: plt.style.use("w2kplot")
-except BaseException: raise ImportError("Could not find install w2kplot style sheet!")
+from . import w2kplot_base_style, w2kplot_bands_style
+
+
+#try: plt.style.use("w2kplot")
+#except BaseException: raise ImportError("Could not find install w2kplot style sheet!")
 
 
 # Bands class
@@ -209,12 +212,12 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
         figure.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
 
     figure.set_ylim(-2, 2)
-    figure.set_xlim(
-        bands.high_symmetry_points[0], bands.high_symmetry_points[-1])
+    figure.set_xlim( bands.high_symmetry_points[0], bands.high_symmetry_points[-1])
 
 def band_plot(bands, *opt_list, **opt_dict): __band_plot(plt, bands, *opt_list, **opt_dict)
 
-# band_plot functionw;
+# band_plot functions
+plt.style.use([w2kplot_base_style, w2kplot_base_style])
 mpl.axes.Axes.band_plot = lambda self, bands, *opt_list, **opt_dict: __band_plot(self, bands, *opt_list, **opt_dict)
 
 
@@ -415,4 +418,5 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
                     E, character = [], []
 
 # fatband_plot
+plt.style.use([w2kplot_base_style, w2kplot_base_style])
 mpl.axes.Axes.fatband_plot = lambda self, fat_bands, *opt_list, **opt_dict: __fatband_plot(self, fat_bands, *opt_list, **opt_dict)

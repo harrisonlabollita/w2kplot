@@ -19,8 +19,7 @@ from matplotlib.lines import Line2D
 import types
 from typing import Union, List, Dict
 
-try: plt.style.use("w2kplot")
-except BaseException: raise ImportError("Could not find install w2kplot style sheet!")
+from . import w2kplot_base_style
 
 # DensityOfStates object
 class DensityOfStates:
@@ -108,4 +107,5 @@ def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
     #    #if is_last_row: figure.set_ylabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
 
 # dos_plot
+plt.style.use([w2kplot_base_style])
 mpl.axes.Axes.dos_plot = lambda self, x,y, dos_style, *opt_list, **opt_dict: __dos_plot(self, x,y, dos_style, *opt_list, **opt_dict)

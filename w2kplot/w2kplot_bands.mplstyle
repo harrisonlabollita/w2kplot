@@ -1,0 +1,4 @@
+# Matplotlib style for w2kplot figures
+
+# set x axis
+xtick.minor.visible : False
