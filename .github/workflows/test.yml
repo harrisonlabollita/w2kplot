@@ -12,7 +12,7 @@ jobs:
       - name: set up python 3
         uses: actions/setup-python@v2
         with:
-          python-version: 3.10
+          python-version: 3.8
       - name: install deps
         run: pip3 install .
       - name: run unittest
