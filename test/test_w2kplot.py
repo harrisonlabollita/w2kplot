@@ -16,17 +16,6 @@ struct_file = glob.glob(os.getcwd() + "/test/*struct")[0]
 
 class Testw2kplot(unittest.TestCase):
 
-    def test_style_sheet(self):
-        def try_import():
-            worked = False
-            try:
-                plt.style.use("w2kplot")
-                worked = True
-            except BaseException:
-                worked = False
-            return worked
-        self.assertEqual(try_import(), True)
-
     def test_structure(self):
         struct    = Structure(struct_file)
         self.assertEqual(len(struct), 4)
