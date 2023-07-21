@@ -25,10 +25,9 @@ from .utils import make_label
 from . import w2kplot_base_style, w2kplot_bands_style
 
 
-
 # Bands class
 class Bands(object):
-    def __init__(self, 
+    def __init__(self,
                  case: str = None,
                  spaghetti: str = None,
                  klist_band: str = None,
@@ -46,7 +45,7 @@ class Bands(object):
         eF_shift   : float, optional
                      Optional parameter to shift the Fermi energy. Units are eV.
         """
-        self.spaghetti  = case + '.spaghetti_ene' if case else spaghetti
+        self.spaghetti = case + '.spaghetti_ene' if case else spaghetti
         self.klist_band = case + '.klist_band' if case else klist_band
         self.eF_shift = eF_shift
 
@@ -139,16 +138,16 @@ class Bands(object):
         string : string, required
                  Character from case.klist_band to be converted to LaTeX format.
         """
-        special_chars =  {'\\xG': r'$\Gamma$',
-                     "GAMMA": r'$\Gamma$',
-                     "LAMBDA": r"$\lambda$",
-                     "DELTA": r"$\Delta$",
-                     "SIGMA": r"$\Sigma$"}
+        special_chars = {'\\xG': r'$\Gamma$',
+                         "GAMMA": r'$\Gamma$',
+                         "LAMBDA": r"$\lambda$",
+                         "DELTA": r"$\Delta$",
+                         "SIGMA": r"$\Sigma$"}
         str_in_char = string in special_chars.keys()
         return special_chars[string] if str_in_char else string
 
     @staticmethod
-    def Up(case=None,**kwargs): 
+    def Up(case=None, **kwargs):
         if case is None:
             try:
                 spaghetti = glob.glob("*.spaghettiup_ene")[0]
@@ -157,11 +156,11 @@ class Bands(object):
                     "Could not find a case.spaghettiup_ene file in this directory.\nPlease provide a case.spaghettiup_ene file")
             return Bands(spaghetti=spaghetti, **kwargs)
         else:
-            return Bands(spaghetti=case+'.spaghettiup_ene', 
-                                           klist_band=case+'.klist_band', **kwargs)
+            return Bands(spaghetti=case + '.spaghettiup_ene',
+                         klist_band=case + '.klist_band', **kwargs)
 
     @staticmethod
-    def Down(case=None, **kwargs): 
+    def Down(case=None, **kwargs):
         if case is None:
             try:
                 spaghetti = glob.glob("*.spaghettidn_ene")[0]
@@ -170,9 +169,11 @@ class Bands(object):
                     "Could not find a case.spaghettidn_ene file in this directory.\nPlease provide a case.spaghetti_ene file")
             return Bands(spaghetti=spaghetti, **kwargs)
         else:
-            return Bands(spaghetti=case+'.spaghettidn_ene', 
-                                           klist_band=case+'.klist_band', **kwargs)
+            return Bands(spaghetti=case + '.spaghettidn_ene',
+                         klist_band=case + '.klist_band', **kwargs)
 # bandstructure plotting
+
+
 def __band_plot(figure, bands, *opt_list, **opt_dict):
 
     if isinstance(figure, types.ModuleType):
@@ -188,8 +189,22 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
         is_first_col = figure.is_first_col()
         is_last_row = figure.is_last_row()
 
-    figure.tick_params(axis='both', which='minor', length=3.5, width=0.5, labelsize=12, bottom=False, top=False)
-    figure.tick_params(axis='both', which='major', length=7,   width=0.5, labelsize=12, bottom=False, top=False)
+    figure.tick_params(
+        axis='both',
+        which='minor',
+        length=3.5,
+        width=0.5,
+        labelsize=12,
+        bottom=False,
+        top=False)
+    figure.tick_params(
+        axis='both',
+        which='major',
+        length=7,
+        width=0.5,
+        labelsize=12,
+        bottom=False,
+        top=False)
 
     # plot the the dispersion from the bands object
     for b in range(len(bands.Ek)):
@@ -209,14 +224,21 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
         figure.set_ylabel(r"$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)")
 
     figure.set_ylim(-2, 2)
-    figure.set_xlim( bands.high_symmetry_points[0], bands.high_symmetry_points[-1])
+    figure.set_xlim(
+        bands.high_symmetry_points[0], bands.high_symmetry_points[-1])
+
 
 # band_plot functions
 plt.style.use([w2kplot_base_style, w2kplot_base_style])
-def band_plot(bands, *opt_list, **opt_dict): __band_plot(plt, bands, *opt_list, **opt_dict)
+
+
+def band_plot(bands, *opt_list, **opt_dict): __band_plot(plt,
+                                                         bands, *opt_list, **opt_dict)
+
 
 plt.style.use([w2kplot_base_style, w2kplot_base_style])
-mpl.axes.Axes.band_plot = lambda self, bands, *opt_list, **opt_dict: __band_plot(self, bands, *opt_list, **opt_dict)
+mpl.axes.Axes.band_plot = lambda self, bands, * \
+    opt_list, **opt_dict: __band_plot(self, bands, *opt_list, **opt_dict)
 
 
 # FatBands class
@@ -372,11 +394,11 @@ class FatBands(Bands):
             labels = self._get_orbital_labels(a, self.orbitals[ia])
             for o in range(len(self.orbitals[ia])):
                 legend_elements.append(make_label(
-                                              linestyle='-',
-                                              color=self.colors[ia][o],
-                                              lw=2,
-                                              label=self.structure[a - 1][0] + "-" + labels[o]
-                                              ))
+                    linestyle='-',
+                    color=self.colors[ia][o],
+                    lw=2,
+                    label=self.structure[a - 1][0] + "-" + labels[o]
+                ))
         return legend_elements
 
 
@@ -401,22 +423,46 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
                 if 'BAND' not in line:
                     if line.split()[1] == str(at):
                         # wien2k interal units are Ry switch to eV
-                        E.append((float(line.split()[0]) - fat_bands.eF) * fat_bands.Ry2eV - fat_bands.eF_shift)
+                        E.append(
+                            (float(
+                                line.split()[0]) -
+                                fat_bands.eF) *
+                            fat_bands.Ry2eV -
+                            fat_bands.eF_shift)
                         # weight factor
-                        enh = float(fat_bands.weight*fat_bands.structure.atoms[at - 1][1])
+                        enh = float(fat_bands.weight *
+                                    fat_bands.structure.atoms[at - 1][1])
                         # qtl overlap
-                        ovlap = (float(line.split()[int(fat_bands.orbitals[a][o]) + 1]))
+                        ovlap = (
+                            float(line.split()[int(fat_bands.orbitals[a][o]) + 1]))
                         character.append(enh * ovlap)
                 else:
-                    assert len(fat_bands.kpoints) == len(E), f"Did not parse file correctly! {len(fat_bands.kpoints), len(E)}"
-                    assert len(E) == len(character), "Did not parse file correctly!"
-                    figure.scatter(fat_bands.kpoints, E, character, fat_bands.colors[a][o], rasterized=True)
+                    assert len(fat_bands.kpoints) == len(
+                        E), f"Did not parse file correctly! {len(fat_bands.kpoints), len(E)}"
+                    assert len(E) == len(
+                        character), "Did not parse file correctly!"
+                    figure.scatter(
+                        fat_bands.kpoints,
+                        E,
+                        character,
+                        fat_bands.colors[a][o],
+                        rasterized=True)
                     E, character = [], []
+
 
 # fatband plot functions
 plt.style.use([w2kplot_base_style, w2kplot_base_style])
-def fatband_plot(fat_bands, *opt_list, **opt_dict): __fatband_plot(plt, fat_bands, *opt_list, **opt_dict)
+
+
+def fatband_plot(fat_bands,
+                 *opt_list,
+                 **opt_dict): __fatband_plot(plt,
+                                             fat_bands,
+                                             *opt_list,
+                                             **opt_dict)
+
 
 # fatband_plot
 plt.style.use([w2kplot_base_style, w2kplot_base_style])
-mpl.axes.Axes.fatband_plot = lambda self, fat_bands, *opt_list, **opt_dict: __fatband_plot(self, fat_bands, *opt_list, **opt_dict)
+mpl.axes.Axes.fatband_plot = lambda self, fat_bands, * \
+    opt_list, **opt_dict: __fatband_plot(self, fat_bands, *opt_list, **opt_dict)

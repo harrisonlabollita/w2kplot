@@ -1,4 +1,6 @@
-import glob, os, time
+import glob
+import os
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -17,14 +19,14 @@ struct_file = glob.glob(os.getcwd() + "/test/*struct")[0]
 class Testw2kplot(unittest.TestCase):
 
     def test_structure(self):
-        struct    = Structure(struct_file)
+        struct = Structure(struct_file)
         self.assertEqual(len(struct), 4)
 
-        ref_atoms = { 0 :  ['Cs1', 1 ],
-                  1 :  ['V',   3 ],
-                  2 :  ['Sb1', 1 ],
-                  3 :  ['Sb2', 4 ]
-                  }
+        ref_atoms = {0: ['Cs1', 1],
+                     1: ['V', 3],
+                     2: ['Sb1', 1],
+                     3: ['Sb2', 4]
+                     }
         for key in ref_atoms.keys():
             aspec, amult = ref_atoms[key]
             tspec, tmult = struct[key]
@@ -35,7 +37,8 @@ class Testw2kplot(unittest.TestCase):
     def test_klist_band_parser(self):
         dft = Bands(spaghetti=spaghetti, klist_band=klist_band)
         target_hsl = ['$\\Gamma$', 'X', 'M', '$\\Gamma$', 'Z', 'R', 'A', 'Z']
-        target_hsp = np.array([0.0, 0.2976, 0.59521, 1.01609, 1.5094, 1.807, 2.10461, 2.52548])
+        target_hsp = np.array(
+            [0.0, 0.2976, 0.59521, 1.01609, 1.5094, 1.807, 2.10461, 2.52548])
         self.assertEqual(dft.high_symmetry_labels, target_hsl)
         np.testing.assert_allclose(dft.high_symmetry_points, target_hsp)
 
