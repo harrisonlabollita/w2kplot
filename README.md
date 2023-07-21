@@ -169,8 +169,11 @@ If either of these files are not provided, w2kplot looks in the current director
 - `struct` (optional): the structure file from WIEN2k. If not provided, `w2kplot` looks in the current directory.
 
 ### WannierBands
-
 `WannierBands` is an object that contains the Wannier band data to be plot with or without the DFT band structure. Internally, the units are converted to match the units of Wien2k.
+
+### DensityOfStates (DOS)
+`DensityOfStates` with alias `DOS` wraps a Wien2k dos file. Still underdevelopment. We provide plotting functions for density of states with the function `dos_plot`, which has multiple styles (`dos_style`). 
+
 
 <a name="contributing"><a/>	
 ## Contributing
