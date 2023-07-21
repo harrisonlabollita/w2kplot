@@ -2,7 +2,6 @@
 from setuptools import setup
 
 
-
 setup(name="w2kplot",
       version="0.1.1",
       author="Harrison LaBollita",
@@ -12,8 +11,8 @@ setup(name="w2kplot",
       packages=['w2kplot'],
       license='MIT',
       install_requires=["numpy", "matplotlib"],
-      package_data = {'w2kplot' : ['w2kplot_base.mplstyle', 
-                                   'w2kplot_bands.mplstyle']
-                                   },
-      scripts = ["w2kplot/cli/w2kplot-bands", "w2kplot/cli/w2kplot-fatbands"]
+      package_data={'w2kplot': ['w2kplot_base.mplstyle',
+                                'w2kplot_bands.mplstyle']
+                    },
+      scripts=["w2kplot/cli/w2kplot-bands", "w2kplot/cli/w2kplot-fatbands"]
       )
