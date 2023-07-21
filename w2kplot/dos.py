@@ -52,7 +52,6 @@ styleguides_str2int = {'line'      : 0,  # standard line plot
                        'grad_fill' : 3   # gradient filled dos
                        }
 
-def dos_plot(x, y, dos_style, *opt_list, **opt_dict):  __dos_plot(plt, x, y, dos_style, *opt_list, **opt_dict)
 
 def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
 
@@ -108,4 +107,7 @@ def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
 
 # dos_plot
 plt.style.use([w2kplot_base_style])
-mpl.axes.Axes.dos_plot = lambda self, x,y, dos_style, *opt_list, **opt_dict: __dos_plot(self, x,y, dos_style, *opt_list, **opt_dict)
+def dos_plot(x, y, dos_style=0, *opt_list, **opt_dict):  __dos_plot(plt, x, y, dos_style, *opt_list, **opt_dict)
+
+plt.style.use([w2kplot_base_style])
+mpl.axes.Axes.dos_plot = lambda self, x,y, dos_style=0, *opt_list, **opt_dict: __dos_plot(self, x,y, dos_style, *opt_list, **opt_dict)
