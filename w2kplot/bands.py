@@ -230,8 +230,6 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
 
 # band_plot functions
 plt.style.use([w2kplot_base_style, w2kplot_base_style])
-
-
 def band_plot(bands, *opt_list, **opt_dict): __band_plot(plt,
                                                          bands, *opt_list, **opt_dict)
 
