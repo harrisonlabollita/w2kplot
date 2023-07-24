@@ -93,7 +93,7 @@ def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
             ls=ls,
             alpha=alpha,
             label=None)
-        figure.plot(x, y, lw=lw, color='k', ls=ls, alpha=alpha, label=None)
+        figure.plot(x, y, lw=lw, color='k', ls=ls, label=None)
 
     elif dos_style == 3:
         raise NotImplementedError
