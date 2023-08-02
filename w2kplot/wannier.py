@@ -13,7 +13,6 @@ from . import w2kplot_base_style, w2kplot_bands_style
 class WannierBands(object):
     # TODO: would it be possible to get high-symmetry points
     # for just a Wannier band plot?
-    bohr_to_ang = 0.53
 
     def __init__(self, wann_bands: str = None) -> None:
         """
@@ -24,6 +23,7 @@ class WannierBands(object):
         wann_bands  : string, optional
                       Filename of Wannier90 *_band.dat file.
         """
+        self.bohr_to_ang = 0.53
         self.wann_bands = wann_bands
 
         if self.wann_bands is None:
@@ -39,7 +39,7 @@ class WannierBands(object):
         internal function for parsing the Wannier90 band.dat file.
         """
         data = np.loadtxt(self.wann_bands)
-        kpts = np.unique(data[:, 0]) * bohr_to_ang
+        kpts = np.unique(data[:, 0]) * self.bohr_to_ang
         wann_bands = data[:, 1].reshape(int(len(data) / len(kpts)), len(kpts))
         return kpts, wann_bands
 
