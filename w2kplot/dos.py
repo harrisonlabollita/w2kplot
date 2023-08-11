@@ -43,9 +43,7 @@ class DensityOfStates:
     # dunder to get the underlying data;
     def __getitem__(self, x): return self._data.__getitem__(x)
 
-    def _smooth_dos(self, blur):
-        # implement a dos smoother
-        pass
+    def _smooth_dos(self, blur): raise NotImplementedError
 
 
 # alias for DensityOfStates
@@ -95,18 +93,7 @@ def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
             label=None)
         figure.plot(x, y, lw=lw, color='k', ls=ls, label=None)
 
-    elif dos_style == 3:
-        raise NotImplementedError
-
-    # try:
-    #    # new version of matplotlib
-    #    grid_spec = figure.get_subplotspec()
-    #    is_first_col = grid_spec.is_first_col()
-    #    is_last_row = grid_spec.is_last_row()
-    # except BaseException:
-    #    # old version of matplotlib
-    #    is_first_col = figure.is_first_col()
-    #    is_last_row = figure.is_last_row()
+    elif dos_style == 3: raise NotImplementedError
 
     figure.axvline(0.0, color='k', lw=1, ls='dotted')
     if max(y) < 0:
@@ -114,31 +101,11 @@ def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
     else:
         figure.set_ylim(bottom=0)
 
-    # if min(x) < 0:
-    #    #if is_last_row: figure.set_xlabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
-    # else:
-    #    figure.axhline(0.0, color='k', lw=1, ls='dotted')
-    #    if max(x) < 0: figure.set_ylim(top=0)
-    #    else: figure.set_ylim(bottom=0)
-    #    #if is_last_row: figure.set_ylabel(r'$\varepsilon - \varepsilon_{\mathrm{F}}$ (eV)')
 
 
 # dos_plot
 plt.style.use([w2kplot_base_style])
-
-
-def dos_plot(x,
-             y,
-             dos_style=0,
-             *opt_list,
-             **opt_dict): __dos_plot(plt,
-                                     x,
-                                     y,
-                                     dos_style,
-                                     *opt_list,
-                                     **opt_dict)
-
+def dos_plot(x,y,dos_style=0, *opt_list, **opt_dict): __dos_plot(plt, x, y, dos_style, *opt_list, **opt_dict)
 
 plt.style.use([w2kplot_base_style])
-mpl.axes.Axes.dos_plot = lambda self, x, y, dos_style=0, * \
-    opt_list, **opt_dict: __dos_plot(self, x, y, dos_style, *opt_list, **opt_dict)
+mpl.axes.Axes.dos_plot = lambda self, x, y, dos_style=0, *opt_list, **opt_dict: __dos_plot(self, x, y, dos_style, *opt_list, **opt_dict)

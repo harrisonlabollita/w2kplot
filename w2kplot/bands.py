@@ -450,8 +450,6 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
 
 # fatband plot functions
 plt.style.use([w2kplot_base_style, w2kplot_base_style])
-
-
 def fatband_plot(fat_bands,
                  *opt_list,
                  **opt_dict): __fatband_plot(plt,
@@ -462,5 +460,4 @@ def fatband_plot(fat_bands,
 
 # fatband_plot
 plt.style.use([w2kplot_base_style, w2kplot_base_style])
-mpl.axes.Axes.fatband_plot = lambda self, fat_bands, * \
-    opt_list, **opt_dict: __fatband_plot(self, fat_bands, *opt_list, **opt_dict)
+mpl.axes.Axes.fatband_plot = lambda self, fat_bands, *opt_list, **opt_dict: __fatband_plot(self, fat_bands, *opt_list, **opt_dict)
