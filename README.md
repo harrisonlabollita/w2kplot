@@ -177,4 +177,10 @@ If either of these files are not provided, w2kplot looks in the current director
 
 <a name="contributing"><a/>	
 ## Contributing
-Pull requests and contributions are welcome! Please submit an issue with any new feature requests.
+Contributions are welcome! Here's how you can get involved:
+
+1. Fork the repository.
+2. Create a new branch: ``git checkout -b feature-new-feature``.
+3. Make your changes and commit them: ``git commit -m 'Add new feature'``.
+4. Push to the branch: ``git push origin feature-new-feature``.
+5. Create a pull request detailing your changes.
