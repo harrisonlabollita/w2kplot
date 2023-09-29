@@ -93,7 +93,8 @@ def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
             label=None)
         figure.plot(x, y, lw=lw, color='k', ls=ls, label=None)
 
-    elif dos_style == 3: raise NotImplementedError
+    elif dos_style == 3:
+        raise NotImplementedError
 
     figure.axvline(0.0, color='k', lw=1, ls='dotted')
     if max(y) < 0:
@@ -102,10 +103,14 @@ def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
         figure.set_ylim(bottom=0)
 
 
-
 # dos_plot
 plt.style.use([w2kplot_base_style])
-def dos_plot(x,y,dos_style=0, *opt_list, **opt_dict): __dos_plot(plt, x, y, dos_style, *opt_list, **opt_dict)
+
+
+def dos_plot(x, y, dos_style=0, *opt_list, **
+             opt_dict): __dos_plot(plt, x, y, dos_style, *opt_list, **opt_dict)
+
 
 plt.style.use([w2kplot_base_style])
-mpl.axes.Axes.dos_plot = lambda self, x, y, dos_style=0, *opt_list, **opt_dict: __dos_plot(self, x, y, dos_style, *opt_list, **opt_dict)
+mpl.axes.Axes.dos_plot = lambda self, x, y, dos_style=0, * \
+    opt_list, **opt_dict: __dos_plot(self, x, y, dos_style, *opt_list, **opt_dict)
