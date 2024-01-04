@@ -8,7 +8,7 @@ xtick.minor.size : 3.5
 xtick.minor.width : 0.5
 xtick.minor.visible : True
 xtick.top : True
-xtick.labelsize : 12
+xtick.labelsize : 11
 
 # set y axis
 ytick.direction : in
@@ -18,11 +18,11 @@ ytick.minor.size : 3.5
 ytick.minor.width : 0.5
 ytick.minor.visible : True
 ytick.right : True
-ytick.labelsize : 12
+ytick.labelsize : 11
 
 # set line widths
 axes.linewidth : 0.5
-axes.labelsize : 15
+axes.labelsize : 12
 lines.linewidth : 0.5
 
 legend.frameon : False
