@@ -19,6 +19,8 @@ from matplotlib.lines import Line2D
 import types
 from typing import Union, List, Dict
 
+from scipy import integrate
+
 from . import w2kplot_base_style
 
 # DensityOfStates object
@@ -44,6 +46,13 @@ class DensityOfStates:
     def __getitem__(self, x): return self._data.__getitem__(x)
 
     def _smooth_dos(self, blur): raise NotImplementedError
+
+    def density(self, idx):
+        assert idx <= self._data.shape[1], f"idx = {idx} is out of range ({self._data.shape[1]})"
+        E = self[:,0]
+        window = np.where(E < 0)
+        rho = self[:,idx]
+        return integrate.simps(rho[window], E[window])
 
 
 # alias for DensityOfStates
@@ -96,10 +105,11 @@ def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
     elif dos_style == 3: raise NotImplementedError
 
     figure.axvline(0.0, color='k', lw=1, ls='dotted')
-    if max(y) < 0:
-        figure.set_ylim(top=0)
-    else:
-        figure.set_ylim(bottom=0)
+    figure.axhline(0.0, color='k', lw=1, ls='dotted')
+    #if max(y) < 0:
+    #    figure.set_ylim(top=0)
+    #else:
+    #    figure.set_ylim(bottom=0)
 
 
 
