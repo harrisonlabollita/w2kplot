@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     raise NotImplementedError
 
-    #for k in kvecs:
+    # for k in kvecs:
     #    kx, ky, kz = k
     #    print( str(kx).rjust(15), str(ky).rjust(4), str(kz).rjust(4), str(div).rjust(4), '1.0'.rjust(4))
-    #print('END')
+    # print('END')
