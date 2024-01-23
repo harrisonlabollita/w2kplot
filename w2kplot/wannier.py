@@ -14,7 +14,7 @@ class WannierBands(object):
     # TODO: would it be possible to get high-symmetry points
     # for just a Wannier band plot?
 
-    def __init__(self, wann_bands: str = None, case : str = None) -> None:
+    def __init__(self, wann_bands: str = None, case: str = None) -> None:
         """
         Initialze the WannierBands object.
 
