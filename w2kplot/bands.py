@@ -448,7 +448,7 @@ def __otherfatband_plot(figure, fat_bands, *opt_list, **opt_dict):
                 assert len(E) == len(character), "Did not parse file correctly!"
                 figure.scatter(fat_bands.kpoints, E, s=size, 
                          c=np.asarray(character), 
-                         cmap = colormap('dodgerblue', 'crimson'), 
+                         cmap = colormap('xkcd:azure', 'xkcd:purple', 'xkcd:light magenta'), 
                          rasterized=True
                          )
                 E, character, size = [], [], []
