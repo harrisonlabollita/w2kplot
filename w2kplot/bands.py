@@ -122,7 +122,7 @@ class Bands(object):
                     high_symmetry_labels.append(self._arg2latex(line.strip().split()[0]))
                     high_symmetry_points.append(il)
             high_symmetry_points = [self.kpoints[ind] for ind in high_symmetry_points]
-        except BaseException: raise Exception("An error occured when trying to parse the {} file".format(self.klist_band))
+        except BaseException: raise Exception("An error occured when trying to parse the {} file\n The culprit line was {}".format(self.klist_band, line))
 
         return high_symmetry_points, high_symmetry_labels
 
@@ -204,6 +204,7 @@ def __band_plot(figure, bands, *opt_list, **opt_dict):
 # band_plot functions
 plt.style.use([w2kplot_base_style, w2kplot_bands_style])
 def band_plot(bands, *opt_list, **opt_dict): __band_plot(plt, bands, *opt_list, **opt_dict)
+
 plt.style.use([w2kplot_base_style, w2kplot_bands_style])
 mpl.axes.Axes.band_plot = lambda self, bands, *opt_list, **opt_dict: __band_plot(self, bands, *opt_list, **opt_dict)
 
@@ -403,10 +404,10 @@ def __fatband_plot(figure, fat_bands, *opt_list, **opt_dict):
                     E, character = [], []
 
 # fatband plot functions
-plt.style.use([w2kplot_base_style, w2kplot_base_style])
+plt.style.use([w2kplot_base_style, w2kplot_bands_style])
 def fatband_plot(fat_bands,*opt_list, **opt_dict): __fatband_plot(plt, fat_bands, *opt_list, **opt_dict)
 
-plt.style.use([w2kplot_base_style, w2kplot_base_style])
+plt.style.use([w2kplot_base_style, w2kplot_bands_style])
 mpl.axes.Axes.fatband_plot = lambda self, fat_bands, *opt_list, **opt_dict: __fatband_plot(self, fat_bands, *opt_list, **opt_dict)
 
 def __otherfatband_plot(figure, fat_bands, *opt_list, **opt_dict):
@@ -448,16 +449,17 @@ def __otherfatband_plot(figure, fat_bands, *opt_list, **opt_dict):
                 assert len(E) == len(character), "Did not parse file correctly!"
                 figure.scatter(fat_bands.kpoints, E, s=size, 
                          c=np.asarray(character), 
-                         cmap = colormap('xkcd:azure', 'xkcd:purple', 'xkcd:light magenta'), 
+                         #cmap = colormap('xkcd:blue', 'xkcd:purple', 'xkcd:red'), 
+                         cmap = colormap('dodgerblue',  'crimson'), 
                          rasterized=True
                          )
                 E, character, size = [], [], []
 
 # fatband plot functions
-plt.style.use([w2kplot_base_style, w2kplot_base_style])
+plt.style.use([w2kplot_base_style, w2kplot_bands_style])
 def otherfatband_plot(fat_bands,*opt_list, **opt_dict): __fatband_plot(plt, fat_bands, *opt_list, **opt_dict)
 
-plt.style.use([w2kplot_base_style, w2kplot_base_style])
+plt.style.use([w2kplot_base_style, w2kplot_bands_style])
 mpl.axes.Axes.otherfatband_plot = lambda self, fat_bands, *opt_list, **opt_dict: __otherfatband_plot(self, fat_bands, *opt_list, **opt_dict)
 
 
