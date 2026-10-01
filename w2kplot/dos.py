@@ -20,6 +20,7 @@ import types
 from typing import Union, List, Dict
 
 from scipy import integrate
+from scipy.ndimage import gaussian_filter1d
 
 from . import w2kplot_base_style
 
@@ -45,13 +46,12 @@ class DensityOfStates:
     # dunder to get the underlying data;
     def __getitem__(self, x): return self._data.__getitem__(x)
 
-    def _smooth_dos(self, blur): raise NotImplementedError
-
     def density(self, idx):
-        assert idx <= self._data.shape[1], f"idx = {idx} is out of range ({self._data.shape[1]})"
-        E = self[:,0]
+        assert idx <= self._data.shape[
+            1], f"idx = {idx} is out of range ({self._data.shape[1]})"
+        E = self[:, 0]
         window = np.where(E < 0)
-        rho = self[:,idx]
+        rho = self[:, idx]
         return integrate.simps(rho[window], E[window])
 
 
@@ -65,7 +65,7 @@ styleguides_str2int = {'line': 0,  # standard line plot
                        }
 
 
-def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
+def __dos_plot(figure, x, y, dos_style, broadening, *opt_list, **opt_dict):
 
     if isinstance(figure, types.ModuleType):
         figure = figure.gca()
@@ -81,6 +81,10 @@ def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
     lw = opt_dict['linewidth'] if 'linewidth' in opt_dict else lw
     ls = opt_dict['ls'] if 'ls' in opt_dict else '-'
     ls = opt_dict['linestyle'] if 'linestyle' in opt_dict else ls
+
+    if broadening:
+        de = np.mean(np.diff(x))
+        y = gaussian_filter1d(y, broadening/de)
 
     if dos_style == 0:
         figure.plot(x, y, *opt_list, **opt_dict)
@@ -102,20 +106,25 @@ def __dos_plot(figure, x, y, dos_style, *opt_list, **opt_dict):
             label=None)
         figure.plot(x, y, lw=lw, color='k', ls=ls, label=None)
 
-    elif dos_style == 3: raise NotImplementedError
+    elif dos_style == 3:
+        raise NotImplementedError
 
     figure.axvline(0.0, color='k', lw=1, ls='dotted')
     figure.axhline(0.0, color='k', lw=1, ls='dotted')
-    #if max(y) < 0:
+    # if max(y) < 0:
     #    figure.set_ylim(top=0)
-    #else:
+    # else:
     #    figure.set_ylim(bottom=0)
-
 
 
 # dos_plot
 plt.style.use([w2kplot_base_style])
-def dos_plot(x,y,dos_style=0, *opt_list, **opt_dict): __dos_plot(plt, x, y, dos_style, *opt_list, **opt_dict)
+
+
+def dos_plot(x, y, dos_style=0, broadening=0, *opt_list, **
+             opt_dict): __dos_plot(plt, x, y, dos_style, broadening, *opt_list, **opt_dict)
+
 
 plt.style.use([w2kplot_base_style])
-mpl.axes.Axes.dos_plot = lambda self, x, y, dos_style=0, *opt_list, **opt_dict: __dos_plot(self, x, y, dos_style, *opt_list, **opt_dict)
+mpl.axes.Axes.dos_plot = lambda self, x, y, dos_style=0, broadening=0, * \
+    opt_list, **opt_dict: __dos_plot(self, x, y, dos_style, broadening, *opt_list, **opt_dict)

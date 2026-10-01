@@ -14,5 +14,7 @@ setup(name="w2kplot",
       package_data={'w2kplot': ['w2kplot_base.mplstyle',
                                 'w2kplot_bands.mplstyle']
                     },
-      scripts=["w2kplot/cli/w2kplot-bands", "w2kplot/cli/w2kplot-fatbands"]
+      extras_require={'kgen': ["ase", "spglib"]},
+      scripts=["w2kplot/cli/w2kplot-bands", "w2kplot/cli/w2kplot-fatbands",
+               "w2kplot/cli/w2kplot-kgen"]
       )
