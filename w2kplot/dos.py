@@ -47,10 +47,11 @@ class DensityOfStates:
     def __getitem__(self, x): return self._data.__getitem__(x)
 
     def density(self, idx):
-        assert idx <= self._data.shape[1], f"idx = {idx} is out of range ({self._data.shape[1]})"
-        E = self[:,0]
+        assert idx <= self._data.shape[
+            1], f"idx = {idx} is out of range ({self._data.shape[1]})"
+        E = self[:, 0]
         window = np.where(E < 0)
-        rho = self[:,idx]
+        rho = self[:, idx]
         return integrate.simps(rho[window], E[window])
 
 
@@ -105,20 +106,25 @@ def __dos_plot(figure, x, y, dos_style, broadening, *opt_list, **opt_dict):
             label=None)
         figure.plot(x, y, lw=lw, color='k', ls=ls, label=None)
 
-    elif dos_style == 3: raise NotImplementedError
+    elif dos_style == 3:
+        raise NotImplementedError
 
     figure.axvline(0.0, color='k', lw=1, ls='dotted')
     figure.axhline(0.0, color='k', lw=1, ls='dotted')
-    #if max(y) < 0:
+    # if max(y) < 0:
     #    figure.set_ylim(top=0)
-    #else:
+    # else:
     #    figure.set_ylim(bottom=0)
-
 
 
 # dos_plot
 plt.style.use([w2kplot_base_style])
-def dos_plot(x,y, dos_style=0, broadening=0, *opt_list, **opt_dict): __dos_plot(plt, x, y, dos_style, broadening, *opt_list, **opt_dict)
+
+
+def dos_plot(x, y, dos_style=0, broadening=0, *opt_list, **
+             opt_dict): __dos_plot(plt, x, y, dos_style, broadening, *opt_list, **opt_dict)
+
 
 plt.style.use([w2kplot_base_style])
-mpl.axes.Axes.dos_plot = lambda self, x, y, dos_style=0, broadening=0, *opt_list, **opt_dict: __dos_plot(self, x, y, dos_style, broadening, *opt_list, **opt_dict)
+mpl.axes.Axes.dos_plot = lambda self, x, y, dos_style=0, broadening=0, * \
+    opt_list, **opt_dict: __dos_plot(self, x, y, dos_style, broadening, *opt_list, **opt_dict)
