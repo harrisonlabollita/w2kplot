@@ -12,14 +12,128 @@
 #
 ##########################################################################
 
-from w2kplot.utils import kpath_gen
+from w2kplot.kpath import KPath, klist_band, write_klist_band, _as_fraction_str
+
+import argparse
+import glob
+import os
+import sys
+
+
+def get_parser():
+    parser = argparse.ArgumentParser(
+        description="generate a case.klist_band file from a case.struct file"
+    )
+
+    parser.add_argument("struct",
+                        nargs="?",
+                        default=None,
+                        help="name of the case.struct file"
+                        )
+
+    parser.add_argument("-p",
+                        "--path",
+                        default=None,
+                        help="path of high symmetry labels, e.g. 'GAMMA-M-K-GAMMA'. "
+                             "Separate labels by '-' or spaces and branches by ','. "
+                             "If not given you will be prompted for one"
+                        )
+
+    parser.add_argument("-n",
+                        "--npoints",
+                        type=int,
+                        default=300,
+                        help="approximate total number of k-points along the path"
+                        )
+
+    parser.add_argument("-o",
+                        "--output",
+                        default=None,
+                        help="name of the case.klist_band file to write"
+                        )
+
+    parser.add_argument("--symprec",
+                        type=float,
+                        default=1e-5,
+                        help="symmetry tolerance used to determine the space group"
+                        )
+
+    parser.add_argument("--emin",
+                        type=float,
+                        default=-8.0,
+                        help="lower bound of the energy window written to the klist_band file"
+                        )
+
+    parser.add_argument("--emax",
+                        type=float,
+                        default=8.0,
+                        help="upper bound of the energy window written to the klist_band file"
+                        )
+
+    parser.add_argument("-f",
+                        "--force",
+                        action="store_true",
+                        help="overwrite the output file without asking"
+                        )
+
+    return parser
+
+
+def summarize(kpath):
+    """print what we found out about the structure and its Brillouin zone"""
+    print("\nstructure  : {}".format(kpath.filename))
+    print("lattice    : {} (wien2k), {}".format(kpath.lattice, kpath.bravais))
+    print("space group: {}".format(kpath.spacegroup))
+
+    print("\nhigh symmetry points (conventional reciprocal coordinates)\n")
+    for label in sorted(kpath.points):
+        print("    {}{}".format(label.ljust(10), " ".join(
+            _as_fraction_str(k).rjust(9) for k in kpath.points[label])))
+    print("\nrecommended path: {}\n".format(kpath.recommended))
+
+
+def main():
+    args = get_parser().parse_args()
+
+    struct = args.struct
+    if struct is None:
+        try:
+            struct = glob.glob("*.struct")[0]
+        except BaseException:
+            raise FileNotFoundError(
+                "Couldn't find a case.struct file in this directory!")
+
+    kpath = KPath(struct, symprec=args.symprec)
+    summarize(kpath)
+
+    if args.path is not None:
+        branches = kpath.parse_path(args.path)
+    else:
+        while True:
+            path = input("path (enter for the recommended one): ").strip()
+            try:
+                branches = kpath.parse_path(
+                    path if path else kpath.recommended)
+                break
+            except ValueError as error:
+                print("    {}".format(error))
+
+    output = args.output
+    if output is None:
+        output = os.path.splitext(struct)[0] + ".klist_band"
+    if os.path.exists(output) and not args.force:
+        if input("{} exists, overwrite? [y/N] ".format(output)).strip().lower() != "y":
+            sys.exit("aborted, nothing was written")
+
+    kpoints = klist_band(kpath, branches, npoints=args.npoints)
+    write_klist_band(output, kpoints, emin=args.emin, emax=args.emax)
+
+    print("\nwrote {} k-points along {} to {}".format(
+        len(kpoints), ",".join("-".join(branch) for branch in branches), output))
 
 
 if __name__ == "__main__":
-
-    raise NotImplementedError
-
-    #for k in kvecs:
-    #    kx, ky, kz = k
-    #    print( str(kx).rjust(15), str(ky).rjust(4), str(kz).rjust(4), str(div).rjust(4), '1.0'.rjust(4))
-    #print('END')
+    try:
+        main()
+    except (ImportError, FileNotFoundError, ValueError) as error:
+        sys.exit(str(error))
